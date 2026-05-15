@@ -1,0 +1,239 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vehicle {
+  id           String      @id @default(cuid())
+  make         String
+  model        String
+  category     String      // "2 Wheeler", "3 Wheeler (Cargo)", "3 Wheeler (Passenger)", "4 Wheeler (Passenger)", "4 Wheeler (Cargo)"
+  range        Int         // Certified Range in KMs
+  trueRange    Int?        // Specifically for 4W Cargo
+  topSpeed     Int         // In KM/H
+  batteryCap   Float       // In kWh
+  mainImage    String      // Main thumbnail image
+  sideImages   String      // 4-5 side images (stored as comma-separated string for SQLite)
+  basePrice    Float       // Base price for leasing
+  deposit      Float       @default(0)
+  warranty     String      @default("")
+  
+  // Dimensions
+  kerbWeight   Float       @default(0)
+  gvW          Float?      // Gross Vehicle Weight (3W/4W)
+  width        Float       @default(0)
+  height       Float       @default(0)
+  length       Float       @default(0)
+  groundClearance Float    @default(0)
+  wheelbase    Float       @default(0)
+  
+  // Drivetrain
+  batteryType  String      @default("")
+  peakVoltage  Int?        // Specifically for 3W
+  motorType    String      @default("")
+  peakPower    String      @default("")
+  peakTorque   String      @default("")
+  transmission String      @default("Auto")
+  gradability  Float?      // Max Gradability %
+  
+  // Charging
+  chargingTime String      @default("")
+  fastChargingTime String? // Specifically for 4W
+  chargerType  String      @default("Normal")
+  onBoardCharger Boolean   @default(true)
+  
+  // Cargo specific (3W Cargo / 4W Cargo)
+  payload      Float?      // in kg
+  volume       Float?      // in ft3
+  containerDims String?    // L x B x H
+  
+  // Detailed Descriptions (Alt Mobility style)
+  overviewText String?      // Overview paragraph
+  techSpecsText String?     // Technical Specifications paragraph
+  performanceText String?   // Performance & Efficiency paragraph
+  leasingInfoText String?   // Leasing Information paragraph
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  leasePlans   LeasePlan[]
+}
+
+model LeasePlan {
+  id           String   @id @default(cuid())
+  vehicleId    String
+  vehicle      Vehicle  @relation(fields: [vehicleId], references: [id])
+  tenure       Int      // Months: 12, 24, 36
+  monthlyPrice Float
+  deposit      Float
+  isActive     Boolean  @default(true)
+}
+
+model Lead {
+  id               String   @id @default(cuid())
+  name             String
+  phone            String
+  email            String?  // Optional: captured from general inquiry form
+  state            String   @default("")
+  city             String   @default("")
+  inquiryCategory  String   // Vehicle Leasing | Corporate / Enterprise Requirement | Fleet / Logistics / Ride Hailing | Dealership / Franchise Inquiry | B2B Partnership | Other
+  vehicleId        String?  // Which vehicle the lead came from (optional)
+  vehicleName      String?  // Denormalized vehicle name for easy admin display
+  notes            String?  // Optional: message/notes from general inquiry form
+  status           String   @default("PENDING") // PENDING, CONTACTED, CLOSED
+  createdAt        DateTime @default(now())
+}
+
+model Faq {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BlogPost {
+  id           String    @id @default(cuid())
+  title        String
+  slug         String    @unique
+  content      String    // HTML or JSON content from editor
+  excerpt      String?   // Short summary
+  coverImage   String?   // URL to cover image
+  category     String    // e.g., "EV Tech", "Sustainability", "Fleet Management"
+  tags         String?   // Comma-separated tags
+  published    Boolean   @default(false)
+  authorName   String    @default("ZMR Mobility Team")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model EvBrand {
+  id         String         @id @default(cuid())
+  name       String
+  categories String         @default("") // comma-separated e.g. "2 Wheeler,4 Wheeler (Passenger)"
+  isActive   Boolean        @default(true)
+  models     EvBrandModel[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+model EvBrandModel {
+  id        String   @id @default(cuid())
+  name      String
+  brandId   String
+  brand     EvBrand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  photo     String?  // /uploads/ev-models/[filename] or null
+  category  String   @default("") // e.g. "2 Wheeler" — a model belongs to exactly one category
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SellApplication {
+  id               String   @id @default(cuid())
+  applicationId    String   @unique
+
+  category         String
+  sellerType       String
+
+  brandId          String
+  brandName        String
+  modelId          String
+  modelName        String
+  year             Int
+
+  ownership        String
+  batteryCondition String
+  vehicleCondition String
+  hasAccident      Boolean
+  loanStatus       String
+  documents        String   @default("")
+  expectedPrice    Float
+
+  contactName      String
+  contactPhone     String
+  contactEmail     String
+  contactCity      String
+
+  status           String   @default("NEW") // NEW | REVIEWING | VALUED | CLOSED
+  adminNotes       String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String    @default("")
+  passwordHash String
+  role         String    @default("admin")   // "superadmin" | "admin"
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastLoginAt  DateTime?
+}
+
+model BuyingVehicle {
+  id               String   @id @default(cuid())
+  make             String
+  model            String
+  category         String
+  range            Int
+  trueRange        Int?
+  topSpeed         Int
+  batteryCap       Float
+  mainImage        String
+  sideImages       String
+  buyingPrice      Float
+  warranty         String   @default("")
+
+  // Dimensions
+  kerbWeight       Float    @default(0)
+  gvW              Float?
+  width            Float    @default(0)
+  height           Float    @default(0)
+  length           Float    @default(0)
+  groundClearance  Float    @default(0)
+  wheelbase        Float    @default(0)
+
+  // Drivetrain
+  batteryType      String   @default("")
+  peakVoltage      Int?
+  motorType        String   @default("")
+  peakPower        String   @default("")
+  peakTorque       String   @default("")
+  transmission     String   @default("Auto")
+  gradability      Float?
+
+  // Charging
+  chargingTime     String   @default("")
+  fastChargingTime String?
+  chargerType      String   @default("Normal")
+  onBoardCharger   Boolean  @default(true)
+
+  // Cargo specific
+  payload          Float?
+  volume           Float?
+  containerDims    String?
+
+  // Detailed Descriptions
+  overviewText     String?
+  techSpecsText    String?
+  performanceText  String?
+  buyingInfoText   String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}

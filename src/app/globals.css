@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 10 10 10;
+  --foreground: 255 255 255;
+}
+
+body {
+  color: rgb(var(--foreground));
+  background: rgb(var(--background));
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.glass-card {
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+.electric-glow {
+  box-shadow: 0 0 20px rgba(0, 209, 255, 0.3);
+}
+
+.eco-glow {
+  box-shadow: 0 0 20px rgba(112, 255, 0, 0.2);
+}
+
+/* ── EV Image Shimmer ─────────────────────────────────────── */
+.ev-shimmer-base {
+  background: linear-gradient(135deg, #060e09 0%, #081209 50%, #060e09 100%);
+}
+
+.ev-shimmer-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 255, 133, 0.04) 25%,
+    rgba(0, 255, 133, 0.11) 50%,
+    rgba(0, 255, 133, 0.04) 75%,
+    transparent 100%
+  );
+  animation: ev-sweep 1.8s ease-in-out infinite;
+}
+
+@keyframes ev-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── WhatsApp floating button pulse ─────────────────────────── */
+@keyframes whatsapp-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+  50%       { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); }
+}
+
+.animate-whatsapp-pulse {
+  animation: whatsapp-pulse 2s ease-in-out infinite;
+}
+
+/* ── EV Showcase Marquee ─────────────────────────────────────── */
+@keyframes marquee-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee-left {
+  animation: marquee-left 35s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee-right 50s linear infinite;
+}
+
+.marquee-row:hover .animate-marquee-left,
+.marquee-row:hover .animate-marquee-right {
+  animation-play-state: paused;
+}
+
+/* ── Hero image electric ring ────────────────────────────────── */
+@keyframes electric-ring {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(0, 255, 133, 0.45),
+      0 0 40px rgba(0, 255, 133, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 0 10px rgba(0, 255, 133, 0.08),
+      0 0 80px rgba(0, 255, 133, 0.28);
+  }
+}
+
+.animate-electric-ring {
+  animation: electric-ring 3s ease-in-out infinite;
+}
+
+/* ── Particle float ──────────────────────────────────────────── */
+@keyframes particle-float {
+  0%, 100% { transform: translateY(0px) scale(1);   opacity: 0.7; }
+  50%       { transform: translateY(-18px) scale(1.1); opacity: 1;   }
+}
+
+/* ── Typewriter cursor blink ─────────────────────────────────── */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 1s step-end infinite;
+}
+
+/* ── EVCircuitBackground: traveling current packet ───────────── */
+@keyframes circuit-flow {
+  0%   { stroke-dashoffset: 800;  opacity: 0.15; }
+  10%  { opacity: 0.7; }
+  85%  { opacity: 0.7; }
+  100% { stroke-dashoffset: -200; opacity: 0.15; }
+}
+
+/* ── EVCircuitBackground: EV silhouette draw-on ──────────────── */
+@keyframes ev-draw {
+  0%   { stroke-dashoffset: 1200; opacity: 0; }
+  8%   { opacity: 1; }
+  65%  { stroke-dashoffset: 0;    opacity: 0.8; }
+  85%  { stroke-dashoffset: 0;    opacity: 0.3; }
+  100% { stroke-dashoffset: 0;    opacity: 0; }
+}
+
+/* ── EVCircuitBackground: junction node pulse ────────────────── */
+@keyframes node-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.35; }
+  50%       { transform: scale(1.9); opacity: 0.85; }
+}
+
+/* ── EVCityStrip: building silhouette scroll ─────────────────── */
+@keyframes city-scroll-slow {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── EVCityStrip: mid-ground elements scroll ─────────────────── */
+@keyframes city-scroll-medium {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── EVCityStrip: road lane dashes forward motion ────────────── */
+@keyframes city-lane-dash {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── EVCityStrip: vehicle right-to-left ──────────────────────── */
+@keyframes vehicle-rtl {
+  0%   { transform: translateX(105vw); }
+  100% { transform: translateX(-25vw); }
+}
+
+/* ── EVCityStrip: vehicle left-to-right ─────────────────────── */
+@keyframes vehicle-ltr {
+  0%   { transform: translateX(-25vw); }
+  100% { transform: translateX(105vw); }
+}
+
+/* ── EVCityStrip: turn indicator blink ──────────────────────── */
+@keyframes indicator-blink {
+  0%, 45%, 55%, 100% { opacity: 1;   }
+  48%, 52%            { opacity: 0.1; }
+}
+
+/* ── EVCityStrip: charging station bolt draw-on ─────────────── */
+@keyframes bolt-draw {
+  0%        { stroke-dashoffset: 60; opacity: 0; }
+  15%       { opacity: 1; }
+  60%       { stroke-dashoffset: 0;  opacity: 1; }
+  80%, 100% { stroke-dashoffset: 0;  opacity: 0; }
+}
+
+/* ── EVCityStrip: live status dot pulse ─────────────────────── */
+@keyframes live-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(112, 255, 0, 0.6); opacity: 1;   }
+  50%       { box-shadow: 0 0 0 5px rgba(112, 255, 0, 0);   opacity: 0.7; }
+}
