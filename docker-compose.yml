@@ -52,6 +52,9 @@ services:
   backup:
     image: postgres:16-alpine
     restart: unless-stopped
+    init: true
+    cap_add:
+      - SYS_PTRACE
     depends_on:
       db:
         condition: service_healthy
