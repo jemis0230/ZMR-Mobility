@@ -2,13 +2,14 @@ import { getSellApplications } from '@/app/actions/sellActions';
 import SellApplicationsClient from './SellApplicationsClient';
 
 interface PageProps {
-  searchParams: { q?: string; status?: string; page?: string };
+  searchParams: Promise<{ q?: string; status?: string; page?: string }>;
 }
 
 export default async function SellApplicationsPage({ searchParams }: PageProps) {
-  const search = searchParams.q ?? '';
-  const statusFilter = searchParams.status ?? 'ALL';
-  const page = Math.max(1, parseInt(searchParams.page ?? '1', 10) || 1);
+  const { q, status, page: pageStr } = await searchParams;
+  const search = q ?? '';
+  const statusFilter = status ?? 'ALL';
+  const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1);
 
   const result = await getSellApplications({ search, statusFilter, page });
   const apps = result.data ?? [];

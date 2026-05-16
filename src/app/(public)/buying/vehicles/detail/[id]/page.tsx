@@ -11,7 +11,8 @@ const buyingVehicleRepo = new PrismaBuyingVehicleRepository();
 
 export const dynamic = 'force-dynamic';
 
-export default async function BuyingVehicleDetailsPage({ params }: { params: { id: string } }) {
+export default async function BuyingVehicleDetailsPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const vehicle = await buyingVehicleRepo.findById(params.id);
 
   if (!vehicle) {

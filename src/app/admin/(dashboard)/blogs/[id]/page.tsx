@@ -2,7 +2,8 @@ import BlogForm from "@/presentation/components/BlogForm";
 import { PrismaBlogRepository } from "@/infrastructure/repositories/PrismaBlogRepository";
 import { notFound } from "next/navigation";
 
-export default async function EditBlogPage({ params }: { params: { id: string } }) {
+export default async function EditBlogPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const blogRepo = new PrismaBlogRepository();
   const blog = await blogRepo.findById(params.id);
 

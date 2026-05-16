@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Calendar, User, Clock, Share2, Twitter, Linkedin, Facebook } from "lucide-react";
 import BlogCard from "@/presentation/components/BlogCard";
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const blog = await getBlogBySlugAction(params.slug);
   if (!blog) return { title: "Blog Not Found" };
   
@@ -15,7 +16,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const blog = await getBlogBySlugAction(params.slug);
   
   if (!blog) {

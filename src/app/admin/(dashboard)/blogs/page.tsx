@@ -3,13 +3,12 @@ import Link from "next/link";
 import { Plus, Edit, Trash2, Globe, Lock, Search } from "lucide-react";
 import Image from "next/image";
 
-export default async function AdminBlogsPage({
-  searchParams,
-}: {
-  searchParams: { q?: string; page?: string };
+export default async function AdminBlogsPage(props: {
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const query = searchParams.q || "";
-  const page = parseInt(searchParams.page || "1");
+  const { q, page: pageStr } = await props.searchParams;
+  const query = q || "";
+  const page = parseInt(pageStr || "1");
   const { blogs, total } = await getBlogsAction({ search: query, page, limit: 10 });
 
   return (

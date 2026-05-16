@@ -8,11 +8,10 @@ export const metadata = {
   description: "Explore the latest trends, technology, and insights in the electric vehicle industry.",
 };
 
-export default async function BlogsPage({
-  searchParams,
-}: {
-  searchParams: { category?: string; q?: string; page?: string };
+export default async function BlogsPage(props: {
+  searchParams: Promise<{ category?: string; q?: string; page?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const category = searchParams.category;
   const query = searchParams.q;
   const page = parseInt(searchParams.page || "1");

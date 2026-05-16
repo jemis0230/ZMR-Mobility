@@ -9,13 +9,12 @@ import Link from "next/link";
 
 const buyingVehicleRepo = new PrismaBuyingVehicleRepository();
 
-export default async function CategoryBuyingPage({
-  params,
-  searchParams,
-}: {
-  params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+export default async function CategoryBuyingPage(props: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const categoryName = CATEGORY_SLUG_MAP[params.slug] ?? params.slug;
 
   const filters = {
