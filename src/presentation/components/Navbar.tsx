@@ -29,14 +29,16 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
-            <Image
-              src="/compnay_logo..webp"
-              alt="ZMR Mobility"
-              width={220}
-              height={64}
-              className="h-10 md:h-16 w-auto object-contain group-hover:opacity-90 transition-opacity"
-              priority
-            />
+            <div className="relative h-10 md:h-16">
+              <Image
+                src="/compnay_logo..webp"
+                alt="ZMR Mobility"
+                width={220}
+                height={64}
+                className="h-full w-auto object-contain group-hover:opacity-90 transition-opacity"
+                priority
+              />
+            </div>
           </Link>
 
           {/* Desktop Nav */}
