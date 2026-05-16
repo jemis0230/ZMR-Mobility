@@ -3,6 +3,8 @@ import LeasingContactForm from "@/presentation/components/LeasingContactForm";
 import FaqAccordion from "@/presentation/components/FaqAccordion";
 import { getFaqs } from "@/app/actions/faqActions";
 
+export const revalidate = 3600;
+
 export const metadata = {
   title: "ZMR Mobility | India's Technology-First EV Asset Management Company",
   description: "ZMR Mobility offers affordable, reliable electric vehicle leasing, IoT monitoring, and comprehensive aftersales support for individuals, gig workers, and B2B fleets across India.",

@@ -6,8 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import CompanyRail from "./CompanyRail";
 import CategoryModal from "./CategoryModal";
-import ElectricParticles from "./ElectricParticles";
-import EVCircuitBackground from "./EVCircuitBackground";
+import dynamic from "next/dynamic";
+const EVCircuitBackground = dynamic(() => import("./EVCircuitBackground"), { ssr: false });
+const ElectricParticles = dynamic(() => import("./ElectricParticles"), { ssr: false });
 import EVCityStrip from "./EVCityStrip";
 import AnimatedCounter from "./AnimatedCounter";
 import { useRef, useState, useEffect } from "react";
@@ -267,7 +268,7 @@ export default function Hero() {
           {/* Right — Image with electric ring */}
           <motion.div
             initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative hidden lg:block"
+            className="relative mt-10 lg:mt-0"
           >
             <motion.div
               animate={{ y: [0, -12, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -281,7 +282,7 @@ export default function Hero() {
                     alt="Your EV Key Awaits"
                     width={600}
                     height={680}
-                    className="w-full h-[580px] object-cover"
+                    className="w-full h-[300px] md:h-[580px] object-cover"
                     priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
@@ -292,7 +293,7 @@ export default function Hero() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8 }}
                 whileHover={{ scale: 1.05 }}
-                className="absolute -bottom-6 -left-8 glass-card p-5 border-primary/20 electric-glow cursor-default"
+                className="hidden lg:block absolute -bottom-6 -left-8 glass-card p-5 border-primary/20 electric-glow cursor-default"
               >
                 <p className="text-xs text-white/40 uppercase tracking-widest mb-1">CO₂ Saved</p>
                 <p className="text-2xl font-black text-primary">104,650 kg</p>
@@ -303,7 +304,7 @@ export default function Hero() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1 }}
                 whileHover={{ scale: 1.05 }}
-                className="absolute -top-4 -right-6 glass-card p-4 border-accent/20 cursor-default"
+                className="hidden lg:block absolute -top-4 -right-6 glass-card p-4 border-accent/20 cursor-default"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />

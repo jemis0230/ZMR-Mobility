@@ -4,7 +4,7 @@ import ComparePageClient from "./ComparePageClient";
 
 const vehicleRepo = new PrismaVehicleRepository();
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function ComparePage(props: { params: Promise<{ category?: string[] }> }) {
   const params = await props.params;

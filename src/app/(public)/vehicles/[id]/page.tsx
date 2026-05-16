@@ -8,7 +8,7 @@ import Link from "next/link";
 
 const vehicleRepo = new PrismaVehicleRepository();
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default async function VehicleDetailsPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;

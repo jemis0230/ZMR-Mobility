@@ -1,10 +1,9 @@
 'use server';
 
 import { randomUUID } from 'crypto';
-import { PrismaClient, type Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
+import { type Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
-
-const prisma = new PrismaClient();
 
 type RawFaqRow = {
   id: string;
@@ -112,7 +111,7 @@ export async function getFaqs() {
     const faqs = await prisma.$queryRaw<RawFaqRow[]>`
       SELECT "id", "question", "answer", "order", "isActive", "createdAt", "updatedAt"
       FROM "Faq"
-      WHERE "isActive" = 1
+      WHERE "isActive" = true
       ORDER BY "order" ASC, "createdAt" DESC
     `;
 

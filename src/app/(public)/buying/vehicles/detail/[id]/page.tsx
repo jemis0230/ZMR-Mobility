@@ -9,7 +9,7 @@ import { Vehicle } from "@/domain/entities/Vehicle";
 
 const buyingVehicleRepo = new PrismaBuyingVehicleRepository();
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default async function BuyingVehicleDetailsPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;

@@ -13,7 +13,6 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
       },
     ],
-    unoptimized: true, // For local file serving in development
   },
 };
 
