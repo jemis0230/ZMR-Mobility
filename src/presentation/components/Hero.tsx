@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Zap, Shield, Cpu, Leaf, Users, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,7 +12,7 @@ const EVCircuitBackground = dynamic(() => import("./EVCircuitBackground"), { ssr
 const ElectricParticles = dynamic(() => import("./ElectricParticles"), { ssr: false });
 import EVCityStrip from "./EVCityStrip";
 import AnimatedCounter from "./AnimatedCounter";
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 // ── Data ──────────────────────────────────────────────────────
 
@@ -111,25 +111,23 @@ function CyclingLabel() {
 
 export default function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
 
   return (
     <>
       {/* ─── HERO ─── */}
-      <section ref={ref} className="relative min-h-screen flex items-center pt-24 pb-16 px-6 overflow-hidden">
+      <section className="relative min-h-[100svh] flex items-center pt-24 pb-16 px-6 overflow-hidden">
 
         {/* Background */}
-        <motion.div style={{ y }} className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 -z-10">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-background to-accent/5" />
           <div className="absolute top-20 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[140px]" />
           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-accent/8 rounded-full blur-[120px]" />
-          {/* Circuit background — mouse-reactive grid + traces + EV silhouettes */}
-          <EVCircuitBackground />
-          {/* Electric particles (on top of circuit layer) */}
-          <ElectricParticles />
-        </motion.div>
+          {/* Desktop only — RAF loop + continuous animations hurt mobile GPU */}
+          <div className="hidden lg:block">
+            <EVCircuitBackground />
+            <ElectricParticles />
+          </div>
+        </div>
 
         <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
 
