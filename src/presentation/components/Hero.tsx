@@ -170,7 +170,6 @@ export default function Hero() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
     <>
@@ -188,7 +187,7 @@ export default function Hero() {
           <ElectricParticles />
         </motion.div>
 
-        <motion.div style={{ opacity }} className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
 
           {/* Left — Content */}
           <div className="space-y-8 z-10">
@@ -314,7 +313,7 @@ export default function Hero() {
               </motion.div>
             </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Scroll indicator */}
         <motion.div
