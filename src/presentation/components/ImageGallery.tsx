@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import EVImage from '@/presentation/components/EVImage';
@@ -13,6 +13,9 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isMainLoaded, setIsMainLoaded] = useState(false);
+
+  useEffect(() => { setIsMainLoaded(false); }, [activeIdx]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -30,11 +33,16 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
         onMouseLeave={() => setIsZoomed(false)}
         onMouseMove={handleMouseMove}
       >
+        {!isMainLoaded && (
+          <div className="absolute inset-0 ev-shimmer-base z-10">
+            <div className="ev-shimmer-sweep" />
+          </div>
+        )}
         <motion.img
           key={activeIdx}
           initial={{ opacity: 0 }}
-          animate={{ 
-            opacity: 1,
+          animate={{
+            opacity: isMainLoaded ? 1 : 0,
             scale: isZoomed ? 2 : 1,
             x: isZoomed ? `${50 - mousePos.x}%` : 0,
             y: isZoomed ? `${50 - mousePos.y}%` : 0,
@@ -42,6 +50,7 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
           transition={{ duration: isZoomed ? 0 : 0.3 }}
           src={images[activeIdx]}
           alt="Vehicle"
+          onLoad={() => setIsMainLoaded(true)}
           className="w-full h-full object-contain pointer-events-none"
         />
         
