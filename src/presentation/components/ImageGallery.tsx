@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import EVImage from '@/presentation/components/EVImage';
@@ -14,8 +14,14 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isMainLoaded, setIsMainLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  useEffect(() => { setIsMainLoaded(false); }, [activeIdx]);
+  useLayoutEffect(() => {
+    setIsMainLoaded(false);
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setIsMainLoaded(true);
+    }
+  }, [activeIdx]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -48,9 +54,11 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
             y: isZoomed ? `${50 - mousePos.y}%` : 0,
           }}
           transition={{ duration: isZoomed ? 0 : 0.3 }}
+          ref={imgRef}
           src={images[activeIdx]}
           alt="Vehicle"
           onLoad={() => setIsMainLoaded(true)}
+          onError={() => setIsMainLoaded(true)}
           className="w-full h-full object-contain pointer-events-none"
         />
         

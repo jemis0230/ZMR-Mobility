@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Bike, Package, Users, Car, Truck } from "lucide-react";
+import { Bike, Package, Users, Car, Truck, CalendarDays, ShoppingBag } from "lucide-react";
 
 interface CategorySelectorProps {
   currentSlug: string;
   baseHref?: string;
+  mode?: 'leasing' | 'buying';
 }
 
 const categories = [
@@ -80,9 +81,35 @@ function CategoryButtonImage({
   );
 }
 
-export default function CategorySelector({ currentSlug, baseHref = "/leasing/vehicles" }: CategorySelectorProps) {
+export default function CategorySelector({ currentSlug, baseHref = "/leasing/vehicles", mode }: CategorySelectorProps) {
   return (
     <div className="mb-8 w-full">
+      {mode && (
+        <div className="inline-flex gap-2 mb-5">
+          <Link
+            href={`/leasing/vehicles/${currentSlug}`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
+              mode === 'leasing'
+                ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_16px_rgba(0,229,255,0.15)]'
+                : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white/70'
+            }`}
+          >
+            <CalendarDays className={`w-4 h-4 ${mode === 'leasing' ? 'text-primary' : 'text-white/30'}`} />
+            Lease an EV
+          </Link>
+          <Link
+            href={`/buying/vehicles/${currentSlug}`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
+              mode === 'buying'
+                ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_16px_rgba(0,229,255,0.15)]'
+                : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white/70'
+            }`}
+          >
+            <ShoppingBag className={`w-4 h-4 ${mode === 'buying' ? 'text-primary' : 'text-white/30'}`} />
+            Buy an EV
+          </Link>
+        </div>
+      )}
       <span className="text-white/40 text-xs font-bold uppercase tracking-widest block mb-3">Select Vehicle Category:</span>
       <div className="grid grid-cols-5 gap-1.5 md:gap-2 lg:gap-3">
         {categories.map((cat) => {

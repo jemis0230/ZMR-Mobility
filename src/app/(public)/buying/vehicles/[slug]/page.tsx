@@ -67,7 +67,7 @@ export default async function CategoryBuyingPage(props: {
           </div>
         </div>
 
-        <CategorySelector currentSlug={params.slug} baseHref="/buying/vehicles" />
+        <CategorySelector currentSlug={params.slug} baseHref="/buying/vehicles" mode="buying" />
 
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           <div className="w-full lg:w-1/4 shrink-0">

@@ -70,7 +70,7 @@ export default async function CategoryLeasingPage(props: {
           </div>
         </div>
 
-        <CategorySelector currentSlug={params.slug} />
+        <CategorySelector currentSlug={params.slug} mode="leasing" />
 
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           {/* Sidebar Filters */}
