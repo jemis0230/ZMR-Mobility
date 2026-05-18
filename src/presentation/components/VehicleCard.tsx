@@ -70,9 +70,10 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
           <EVImage
             src={vehicle.mainImage}
             alt={`${vehicle.make} ${vehicle.model}`}
-            className="w-full h-full p-6"
-            imgClassName="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full"
+            imgClassName="object-contain p-6 group-hover:scale-110 transition-transform duration-500"
             iconSize="lg"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
           />
         ) : (
           <div className="w-full h-full ev-shimmer-base flex items-center justify-center">

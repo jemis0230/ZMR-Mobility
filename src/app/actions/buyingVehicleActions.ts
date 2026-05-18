@@ -1,7 +1,7 @@
 'use server';
 
 import { PrismaBuyingVehicleRepository } from "@/infrastructure/repositories/PrismaBuyingVehicleRepository";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { saveUploadedFile } from "@/lib/upload";
 import { BuyingVehicleFormSchema } from "@/lib/schemas/buyingVehicle";
 
@@ -40,6 +40,7 @@ export async function createBuyingVehicleAction(formData: FormData) {
 
     await buyingVehicleRepo.create({ ...parsed.data, mainImage, sideImages });
 
+    revalidateTag('vehicle-filter-options-buying');
     revalidatePath('/');
     revalidatePath('/admin/buying-vehicles');
     return { success: true };

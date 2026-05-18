@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { saveUploadedFile } from '@/lib/upload';
 import { VehicleFormSchema } from '@/lib/schemas/vehicle';
@@ -22,6 +22,7 @@ function extractTextFields(formData: FormData): Record<string, string> {
 export async function deleteVehicle(id: string) {
   try {
     await prisma.vehicle.delete({ where: { id } });
+    revalidateTag('vehicle-filter-options-leasing');
     revalidatePath('/admin/vehicles');
     return { success: true };
   } catch (error) {
@@ -71,6 +72,7 @@ export async function updateVehicle(id: string, formData: FormData) {
       },
     });
 
+    revalidateTag('vehicle-filter-options-leasing');
     revalidatePath('/admin/vehicles');
     return { success: true };
   } catch (error) {

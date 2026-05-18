@@ -1,4 +1,5 @@
 import { PrismaBuyingVehicleRepository } from "@/infrastructure/repositories/PrismaBuyingVehicleRepository";
+import { getCachedBuyingFilterOptions } from "@/lib/cachedVehicleQueries";
 import VehicleCard from "@/presentation/components/VehicleCard";
 import CategorySelector from "@/presentation/components/CategorySelector";
 import VehicleFilterSidebar from "@/presentation/components/VehicleFilterSidebar";
@@ -6,6 +7,12 @@ import Pagination from "@/presentation/components/Pagination";
 import { CATEGORY_SLUG_MAP } from "@/lib/constants";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return Object.keys(CATEGORY_SLUG_MAP).map((slug) => ({ slug }));
+}
 
 const buyingVehicleRepo = new PrismaBuyingVehicleRepository();
 
@@ -33,7 +40,7 @@ export default async function CategoryBuyingPage(props: {
 
   const [result, filterOptions] = await Promise.all([
     buyingVehicleRepo.findByCategoryWithFilters(categoryName, filters),
-    buyingVehicleRepo.getFilterOptions(categoryName),
+    getCachedBuyingFilterOptions(categoryName),
   ]);
 
   const { data: vehicles, total, page, totalPages } = result;

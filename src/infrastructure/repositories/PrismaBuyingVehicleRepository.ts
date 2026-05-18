@@ -60,20 +60,18 @@ export class PrismaBuyingVehicleRepository implements IBuyingVehicleRepository {
   }
 
   async getFilterOptions(category: string): Promise<{ makes: string[]; chargerTypes: string[]; maxRange: number; maxPayload: number; maxVolume: number }> {
-    const [makeGroups, chargerGroups, rangeAgg, payloadAgg, volumeAgg] = await Promise.all([
+    const [makeGroups, chargerGroups, agg] = await Promise.all([
       prisma.buyingVehicle.groupBy({ by: ['make'], where: { category } }),
       prisma.buyingVehicle.groupBy({ by: ['chargerType'], where: { category } }),
-      prisma.buyingVehicle.aggregate({ _max: { range: true }, where: { category } }),
-      prisma.buyingVehicle.aggregate({ _max: { payload: true }, where: { category } }),
-      prisma.buyingVehicle.aggregate({ _max: { volume: true }, where: { category } }),
+      prisma.buyingVehicle.aggregate({ _max: { range: true, payload: true, volume: true }, where: { category } }),
     ]);
 
     return {
       makes: makeGroups.map((g) => g.make).filter(Boolean),
       chargerTypes: chargerGroups.map((g) => g.chargerType).filter(Boolean),
-      maxRange: rangeAgg._max.range ?? 500,
-      maxPayload: payloadAgg._max.payload ?? 1000,
-      maxVolume: volumeAgg._max.volume ?? 0,
+      maxRange: agg._max.range ?? 500,
+      maxPayload: agg._max.payload ?? 1000,
+      maxVolume: agg._max.volume ?? 0,
     };
   }
 

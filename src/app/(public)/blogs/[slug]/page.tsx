@@ -1,5 +1,7 @@
 import { getBlogBySlugAction, getBlogsAction } from "@/app/actions/blogActions";
 import { notFound } from "next/navigation";
+
+export const revalidate = 300;
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Calendar, User, Clock, Share2, Twitter, Linkedin, Facebook } from "lucide-react";

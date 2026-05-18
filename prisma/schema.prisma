@@ -67,6 +67,12 @@ model Vehicle {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   leasePlans   LeasePlan[]
+
+  @@index([category])
+  @@index([make])
+  @@index([chargerType])
+  @@index([category, make])
+  @@index([category, chargerType])
 }
 
 model LeasePlan {
@@ -92,6 +98,10 @@ model Lead {
   notes            String?  // Optional: message/notes from general inquiry form
   status           String   @default("PENDING") // PENDING, CONTACTED, CLOSED
   createdAt        DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([status, createdAt])
 }
 
 model Faq {
@@ -117,6 +127,10 @@ model BlogPost {
   authorName   String    @default("ZMR Mobility Team")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  @@index([published])
+  @@index([category])
+  @@index([published, createdAt])
 }
 
 model EvBrand {
@@ -172,6 +186,12 @@ model SellApplication {
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([category])
+  @@index([make])
+  @@index([chargerType])
+  @@index([category, make])
+  @@index([category, chargerType])
 }
 
 model AdminUser {

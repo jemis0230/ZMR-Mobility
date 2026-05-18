@@ -1,4 +1,5 @@
 import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
+import { getCachedLeasingFilterOptions } from "@/lib/cachedVehicleQueries";
 import VehicleCard from "@/presentation/components/VehicleCard";
 import CategorySelector from "@/presentation/components/CategorySelector";
 import VehicleFilterSidebar from "@/presentation/components/VehicleFilterSidebar";
@@ -6,6 +7,12 @@ import Pagination from "@/presentation/components/Pagination";
 import { CATEGORY_SLUG_MAP } from "@/lib/constants";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return Object.keys(CATEGORY_SLUG_MAP).map((slug) => ({ slug }));
+}
 
 const vehicleRepo = new PrismaVehicleRepository();
 
@@ -32,10 +39,11 @@ export default async function CategoryLeasingPage(props: {
     pageSize: 6,
   };
 
-  // Fetch paginated vehicles and available filter options in parallel
+  // Fetch paginated vehicles and available filter options in parallel.
+  // Filter options are cached per category; vehicle results are always fresh (depend on searchParams).
   const [result, filterOptions] = await Promise.all([
     vehicleRepo.findByCategoryWithFilters(categoryName, filters),
-    vehicleRepo.getFilterOptions(categoryName)
+    getCachedLeasingFilterOptions(categoryName),
   ]);
 
   const { data: vehicles, total, page, totalPages } = result;

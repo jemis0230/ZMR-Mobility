@@ -1,7 +1,7 @@
 'use server';
 
 import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { saveUploadedFile } from "@/lib/upload";
 import { VehicleFormSchema, LeasePlanFormSchema } from "@/lib/schemas/vehicle";
 
@@ -44,6 +44,7 @@ export async function createVehicleAction(formData: FormData) {
 
     await vehicleRepo.create({ ...parsed.data, mainImage, sideImages });
 
+    revalidateTag('vehicle-filter-options-leasing');
     revalidatePath('/');
     revalidatePath('/admin/vehicles');
     return { success: true };

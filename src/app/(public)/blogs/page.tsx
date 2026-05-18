@@ -3,6 +3,8 @@ import BlogCard from "@/presentation/components/BlogCard";
 import BlogFilters from "@/presentation/components/BlogFilters";
 import { motion } from "framer-motion";
 
+export const revalidate = 300;
+
 export const metadata = {
   title: "Blogs & Insights | ZMR Mobility",
   description: "Explore the latest trends, technology, and insights in the electric vehicle industry.",
