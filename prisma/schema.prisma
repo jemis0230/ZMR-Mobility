@@ -186,12 +186,6 @@ model SellApplication {
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-
-  @@index([category])
-  @@index([make])
-  @@index([chargerType])
-  @@index([category, make])
-  @@index([category, chargerType])
 }
 
 model AdminUser {
@@ -257,4 +251,10 @@ model BuyingVehicle {
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([category])
+  @@index([make])
+  @@index([chargerType])
+  @@index([category, make])
+  @@index([category, chargerType])
 }
