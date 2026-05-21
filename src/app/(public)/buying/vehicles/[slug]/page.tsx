@@ -78,7 +78,7 @@ export default async function CategoryBuyingPage(props: {
 
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           <div className="w-full lg:w-1/4 shrink-0">
-            <VehicleFilterSidebar options={filterOptions} />
+            <VehicleFilterSidebar options={filterOptions} category={categoryName} />
           </div>
 
           <div className="w-full lg:w-3/4">

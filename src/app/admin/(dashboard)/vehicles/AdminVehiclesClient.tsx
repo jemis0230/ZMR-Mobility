@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminVehicleForm from '@/presentation/components/AdminVehicleForm';
 import { Vehicle } from '@/domain/entities/Vehicle';
 import { VEHICLE_CATEGORIES } from '@/lib/constants';
@@ -14,14 +15,20 @@ interface AdminVehiclesClientProps {
 
 const CATEGORIES = ['All', ...VEHICLE_CATEGORIES];
 
-export default function AdminVehiclesClient({ 
-  initialVehicles, 
-  dbError 
+export default function AdminVehiclesClient({
+  initialVehicles,
+  dbError
 }: AdminVehiclesClientProps) {
+  const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Sync local list whenever the server re-renders with fresh data (after router.refresh())
+  useEffect(() => {
+    setVehicles(initialVehicles);
+  }, [initialVehicles]);
 
   // Filter vehicles
   const filteredVehicles = selectedCategory === "All" 
@@ -91,13 +98,13 @@ export default function AdminVehiclesClient({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <AdminVehicleForm 
-                initialData={editingVehicle} 
-                onVehicleSaved={() => setEditingVehicle(null)} 
+              <AdminVehicleForm
+                initialData={editingVehicle}
+                onVehicleSaved={() => { setEditingVehicle(null); router.refresh(); }}
               />
             </div>
           ) : (
-            <AdminVehicleForm />
+            <AdminVehicleForm onVehicleSaved={() => router.refresh()} />
           )}
         </div>
 

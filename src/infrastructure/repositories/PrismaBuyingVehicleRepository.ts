@@ -70,7 +70,7 @@ export class PrismaBuyingVehicleRepository implements IBuyingVehicleRepository {
       makes: makeGroups.map((g) => g.make).filter(Boolean),
       chargerTypes: chargerGroups.map((g) => g.chargerType).filter(Boolean),
       maxRange: agg._max.range ?? 500,
-      maxPayload: agg._max.payload ?? 1000,
+      maxPayload: agg._max.payload ?? 0,
       maxVolume: agg._max.volume ?? 0,
     };
   }

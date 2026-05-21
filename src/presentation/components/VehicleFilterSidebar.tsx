@@ -15,11 +15,13 @@ interface FilterOptions {
 
 interface VehicleFilterSidebarProps {
   options: FilterOptions;
+  category: string;
 }
 
 const ALLOWED_CHARGER_TYPES = ["Normal Charging", "Fast Charging"];
 
-export default function VehicleFilterSidebar({ options }: VehicleFilterSidebarProps) {
+export default function VehicleFilterSidebar({ options, category }: VehicleFilterSidebarProps) {
+  const isCargo = category.includes('Cargo');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -189,11 +191,12 @@ export default function VehicleFilterSidebar({ options }: VehicleFilterSidebarPr
             </div>
           )}
 
-          {/* Charging Types */}
+          {/* Charging Types — only show types that exist for this category */}
+          {availableChargerTypes.length > 0 && (
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-4">Charging Type</h3>
             <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-              {ALLOWED_CHARGER_TYPES.map((type) => (
+              {availableChargerTypes.map((type) => (
                 <label key={type} className="flex items-center gap-3 cursor-pointer group">
                   <div className="relative flex items-center justify-center w-5 h-5 rounded border border-white/20 bg-white/5 group-hover:border-primary transition-colors">
                     <input 
@@ -211,6 +214,7 @@ export default function VehicleFilterSidebar({ options }: VehicleFilterSidebarPr
               ))}
             </div>
           </div>
+          )}
 
           {/* Range Dual Slider */}
           {options.maxRange > 0 && (
@@ -231,8 +235,8 @@ export default function VehicleFilterSidebar({ options }: VehicleFilterSidebarPr
             </div>
           )}
 
-          {/* Payload Dual Slider */}
-          {options.maxPayload > 0 && (
+          {/* Payload Dual Slider — only relevant for cargo vehicles */}
+          {isCargo && options.maxPayload > 0 && (
             <div className="pb-4">
               <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-2">Payload (kg)</h3>
               <DualRangeSlider
@@ -250,8 +254,8 @@ export default function VehicleFilterSidebar({ options }: VehicleFilterSidebarPr
             </div>
           )}
 
-          {/* Volume Dual Slider */}
-          {options.maxVolume > 0 && (
+          {/* Volume Dual Slider — only relevant for cargo vehicles */}
+          {isCargo && options.maxVolume > 0 && (
             <div className="pb-4">
               <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-2">Cargo Volume (ft³)</h3>
               <DualRangeSlider

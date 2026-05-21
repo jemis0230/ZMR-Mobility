@@ -83,7 +83,7 @@ export default async function CategoryLeasingPage(props: {
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           {/* Sidebar Filters */}
           <div className="w-full lg:w-1/4 shrink-0">
-            <VehicleFilterSidebar options={filterOptions} />
+            <VehicleFilterSidebar options={filterOptions} category={categoryName} />
           </div>
 
           {/* Vehicle Grid & Pagination */}

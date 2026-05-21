@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Camera, Upload, X, Plus } from 'lucide-react';
 
 interface VehicleImageUploadProps {
@@ -13,21 +13,15 @@ export default function VehicleImageUpload({
   initialSideImages = [],
 }: VehicleImageUploadProps) {
   const [mainPreview, setMainPreview] = useState<string | null>(initialMainImage ?? null);
-  const [sidePreviews, setSidePreviews] = useState<string[]>(initialSideImages);
+  const [existingSides, setExistingSides] = useState<string[]>(initialSideImages);
+  const [newSideFiles, setNewSideFiles] = useState<File[]>([]);
 
   useEffect(() => {
     setMainPreview(initialMainImage ?? null);
-    setSidePreviews(initialSideImages);
+    setExistingSides(initialSideImages);
+    setNewSideFiles([]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialMainImage]);
-
-  useEffect(() => {
-    return () => {
-      if (mainPreview?.startsWith('blob:')) URL.revokeObjectURL(mainPreview);
-      sidePreviews.filter((p) => p.startsWith('blob:')).forEach((p) => URL.revokeObjectURL(p));
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleMainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,22 +33,29 @@ export default function VehicleImageUpload({
   const removeMain = () => {
     if (mainPreview?.startsWith('blob:')) URL.revokeObjectURL(mainPreview);
     setMainPreview(initialMainImage ?? null);
+    const el = document.getElementById('buyingMainImageInput') as HTMLInputElement | null;
+    if (el) el.value = '';
   };
 
-  const handleSideChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    const newBlobs = files.map((f) => URL.createObjectURL(f));
-    setSidePreviews((prev) => [...prev, ...newBlobs].slice(0, 4));
+  const handleSidePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []);
+    if (!picked.length) return;
+    const totalAllowed = 4 - existingSides.length;
+    const toAdd = picked.slice(0, Math.max(0, totalAllowed - newSideFiles.length));
+    setNewSideFiles((prev) => [...prev, ...toAdd]);
+    e.target.value = '';
   };
 
-  const removeSide = (index: number) => {
-    const url = sidePreviews[index];
-    if (url.startsWith('blob:')) URL.revokeObjectURL(url);
-    setSidePreviews((prev) => prev.filter((_, i) => i !== index));
+  const removeExistingSide = (index: number) => {
+    setExistingSides((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeNewSide = (index: number) => {
+    setNewSideFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const existingMain = !mainPreview?.startsWith('blob:') ? mainPreview : null;
-  const existingSides = sidePreviews.filter((p) => !p.startsWith('blob:'));
+  const totalSides = existingSides.length + newSideFiles.length;
 
   return (
     <>
@@ -113,15 +114,15 @@ export default function VehicleImageUpload({
         </label>
 
         <div className="grid grid-cols-4 gap-4">
-          {sidePreviews.map((preview, index) => (
+          {existingSides.map((path, index) => (
             <div
-              key={index}
+              key={`existing-${index}`}
               className="relative aspect-square bg-white/5 rounded-lg overflow-hidden border border-accent/20"
             >
-              <img src={preview} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+              <img src={path} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
               <button
                 type="button"
-                onClick={() => removeSide(index)}
+                onClick={() => removeExistingSide(index)}
                 className="absolute top-1 right-1 bg-red-500/80 p-0.5 rounded-full text-white hover:bg-red-600 transition-colors"
               >
                 <X className="w-3 h-3" />
@@ -129,22 +130,41 @@ export default function VehicleImageUpload({
             </div>
           ))}
 
-          {sidePreviews.length < 4 && (
+          {newSideFiles.map((file, index) => (
+            <div
+              key={`new-${index}`}
+              className="relative aspect-square bg-white/5 rounded-lg overflow-hidden border border-primary/20"
+            >
+              <img
+                src={URL.createObjectURL(file)}
+                alt={`New ${index}`}
+                className="w-full h-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => removeNewSide(index)}
+                className="absolute top-1 right-1 bg-red-500/80 p-0.5 rounded-full text-white hover:bg-red-600 transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+
+          {totalSides < 4 && (
             <label className="aspect-square bg-white/5 border-2 border-dashed border-white/10 rounded-lg cursor-pointer hover:border-accent/50 transition-all flex flex-col items-center justify-center">
               <Plus className="w-6 h-6 text-white/20" />
               <input
                 type="file"
-                name="sideImages"
                 className="hidden"
                 accept="image/*"
                 multiple
-                onChange={handleSideChange}
+                onChange={handleSidePickerChange}
               />
             </label>
           )}
         </div>
         <p className="text-[10px] text-white/20 italic">
-          Up to 4 gallery photos. Select multiple at once.
+          Up to 4 gallery photos. Select multiple at once or add one by one.
         </p>
       </div>
 
@@ -152,6 +172,28 @@ export default function VehicleImageUpload({
       {existingSides.map((p, i) => (
         <input key={i} type="hidden" name="existingSideImages" value={p} />
       ))}
+
+      {newSideFiles.map((file, i) => (
+        <SideImageInput key={i} file={file} />
+      ))}
     </>
   );
+}
+
+function SideImageInput({ file }: { file: File }) {
+  const ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    try {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      el.files = dt.files;
+    } catch {
+      // DataTransfer not supported in some older environments — gracefully skip
+    }
+  }, [file]);
+
+  return <input ref={ref} type="file" name="sideImages" className="hidden" />;
 }

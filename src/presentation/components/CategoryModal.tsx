@@ -71,6 +71,7 @@ function CategoryCardImage({
       src={src}
       alt={alt}
       fill
+      loading="eager"
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       onError={() => {
         if (src !== fallbackImage) {
@@ -130,7 +131,7 @@ export default function CategoryModal({ isOpen, onClose, mode = 'leasing' }: Cat
                     className="group relative flex flex-row lg:flex-col h-[90px] lg:h-[340px] rounded-2xl lg:rounded-[2rem] glass-card overflow-hidden border border-white/5 hover:border-primary/40 transition-all duration-500 lg:hover:-translate-y-2 lg:hover:shadow-[0_15px_40px_-10px_rgba(var(--primary),0.3)] bg-white/5 hover:bg-white/10"
                   >
                     {/* Desktop Image (Top) & Mobile Image (Right) */}
-                    <div className="absolute lg:inset-x-0 lg:top-0 inset-y-0 right-0 w-[45%] lg:w-full lg:h-[60%] p-2 lg:p-8 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                    <div className="absolute lg:inset-x-0 lg:top-0 inset-y-0 right-0 w-[45%] lg:w-full lg:h-[60%] p-2 lg:p-8 flex items-center justify-center">
                       <div className="relative w-full h-full opacity-80 group-hover:opacity-100 transition-opacity">
                         <CategoryCardImage
                           image={cat.image}

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminBuyingVehicleForm from '@/presentation/components/AdminBuyingVehicleForm';
 import { BuyingVehicle } from '@/domain/entities/BuyingVehicle';
 import { VEHICLE_CATEGORIES } from '@/lib/constants';
@@ -18,10 +19,16 @@ export default function AdminBuyingVehiclesClient({
   initialVehicles,
   dbError,
 }: AdminBuyingVehiclesClientProps) {
+  const router = useRouter();
   const [vehicles, setVehicles] = useState<BuyingVehicle[]>(initialVehicles);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [editingVehicle, setEditingVehicle] = useState<BuyingVehicle | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Sync local list whenever the server re-renders with fresh data (after router.refresh())
+  useEffect(() => {
+    setVehicles(initialVehicles);
+  }, [initialVehicles]);
 
   const filteredVehicles = selectedCategory === 'All'
     ? vehicles
@@ -92,11 +99,11 @@ export default function AdminBuyingVehiclesClient({
               </div>
               <AdminBuyingVehicleForm
                 initialData={editingVehicle}
-                onVehicleSaved={() => setEditingVehicle(null)}
+                onVehicleSaved={() => { setEditingVehicle(null); router.refresh(); }}
               />
             </div>
           ) : (
-            <AdminBuyingVehicleForm />
+            <AdminBuyingVehicleForm onVehicleSaved={() => router.refresh()} />
           )}
         </div>
 

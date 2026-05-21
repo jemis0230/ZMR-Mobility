@@ -42,7 +42,7 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
               <div className="glass-card p-6 border-white/5">
                 <Shield className="w-6 h-6 text-primary mb-3" />
                 <h4 className="font-bold mb-1">Standard Warranty</h4>
-                <p className="text-xs text-white/40">3 years or 100,000 km inclusive</p>
+                <p className="text-xs text-white/40">{vehicle.warranty}</p>
               </div>
               <div className="glass-card p-6 border-white/5">
                 <Clock className="w-6 h-6 text-accent mb-3" />
@@ -76,10 +76,11 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
                 <span className="text-2xl md:text-4xl font-black text-primary italic">₹{vehicle.buyingPrice.toLocaleString()}</span>
                 <span className="text-white/40 font-bold mb-1 uppercase tracking-widest text-xs">Purchase Price</span>
               </div>
-              <p className="text-white/60 text-sm mb-6 flex items-center gap-2">
+              <p className="text-white/60 text-sm mb-1 flex items-center gap-2">
                 <IndianRupee className="w-4 h-4" />
                 Inclusive of standard warranty & delivery
               </p>
+              <p className="text-white/30 text-xs">* Prices are exclusive of GST. GST will be applicable on the final amount.</p>
             </div>
 
             {/* Specs Grid */}
