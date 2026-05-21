@@ -144,6 +144,14 @@ export default function Footer() {
             ))}
           </div>
         </div>
+        <div className="mt-6 text-center">
+          <p className="text-white/10 text-[10px] tracking-wider">
+            Powered by{' '}
+            <a href="https://planxlabs.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+              PlanxLabs
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );

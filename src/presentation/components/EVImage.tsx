@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Zap } from 'lucide-react';
 
 interface EVImageProps {
@@ -9,7 +9,6 @@ interface EVImageProps {
   className?: string;
   imgClassName?: string;
   iconSize?: 'sm' | 'md' | 'lg';
-  /** Kept for API compatibility — no longer used since we render a plain <img> */
   sizes?: string;
 }
 
@@ -20,10 +19,18 @@ export default function EVImage({
 }: EVImageProps) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Handle images already in the browser cache — onLoad won't fire for those
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    if (img.complete && img.naturalWidth > 0) setLoaded(true);
+    else if (img.complete && img.naturalWidth === 0) setError(true);
+  }, []);
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      {/* Shimmer — visible while image is loading */}
       {!loaded && !error && (
         <div className="absolute inset-0 ev-shimmer-base">
           <div className="ev-shimmer-sweep" />
@@ -33,7 +40,6 @@ export default function EVImage({
         </div>
       )}
 
-      {/* Error fallback */}
       {error && (
         <div className="absolute inset-0 ev-shimmer-base flex items-center justify-center">
           <Zap className={`${ICON_CLS[iconSize]} text-[#00FF85]/10`} />
@@ -41,12 +47,12 @@ export default function EVImage({
       )}
 
       {/*
-        Use a plain <img> instead of next/image because uploaded vehicle images
-        are served directly by the reverse proxy (Caddy) without going through
-        the Next.js image optimisation endpoint. next/image's onLoad would never
-        fire for those paths, leaving the shimmer visible permanently.
+        Plain <img> instead of next/image — uploaded vehicle images are served
+        directly by Caddy and bypass the Next.js optimisation endpoint, so
+        next/image's onLoad never fires, leaving the shimmer permanently visible.
       */}
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
         onLoad={() => setLoaded(true)}

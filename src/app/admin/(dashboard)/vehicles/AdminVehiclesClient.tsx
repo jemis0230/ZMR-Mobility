@@ -99,6 +99,7 @@ export default function AdminVehiclesClient({
                 </button>
               </div>
               <AdminVehicleForm
+                key={editingVehicle.id}
                 initialData={editingVehicle}
                 onVehicleSaved={() => { setEditingVehicle(null); router.refresh(); }}
               />
