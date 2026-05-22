@@ -3,20 +3,47 @@ import ImageGallery from "@/presentation/components/ImageGallery";
 import SpecificationSection from "@/presentation/components/SpecificationSection";
 import BuyEnquireButton from "@/presentation/components/BuyEnquireButton";
 import { Battery, Zap, Gauge, Shield, Clock, MapPin, IndianRupee } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Vehicle } from "@/domain/entities/Vehicle";
+import { slugifyVehicle, extractIdFromSlug } from "@/lib/vehicleSlug";
+import type { Metadata } from "next";
 
 const buyingVehicleRepo = new PrismaBuyingVehicleRepository();
 
 export const revalidate = 300;
 
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const params = await props.params;
+  const id = extractIdFromSlug(params.id);
+  const vehicle = await buyingVehicleRepo.findById(id);
+  if (!vehicle) return { title: "Vehicle Not Found" };
+
+  const title = `${vehicle.make} ${vehicle.model} – Buy EV | ZMR Mobility`;
+  const description = `Buy the ${vehicle.make} ${vehicle.model} for ₹${vehicle.buyingPrice.toLocaleString()}. ${vehicle.range} km range, ${vehicle.batteryCap} kWh battery. Available across 12+ Indian cities via ZMR Mobility.`;
+  const url = `https://zmrmobility.in/buying/vehicles/detail/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`;
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, url, type: "website" },
+    alternates: { canonical: url },
+  };
+}
+
 export default async function BuyingVehicleDetailsPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const vehicle = await buyingVehicleRepo.findById(params.id);
+  const id = extractIdFromSlug(params.id);
+  const vehicle = await buyingVehicleRepo.findById(id);
 
   if (!vehicle) {
     notFound();
+  }
+
+  // 301 redirect old ID-only URLs to the new slug format
+  const expectedSlug = slugifyVehicle(vehicle.make, vehicle.model, vehicle.id);
+  if (params.id !== expectedSlug) {
+    redirect(`/buying/vehicles/detail/${expectedSlug}`);
   }
 
   const allImages = [vehicle.mainImage, ...vehicle.sideImages];

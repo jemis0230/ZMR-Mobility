@@ -6,6 +6,7 @@ import { BuyingVehicle } from "@/domain/entities/BuyingVehicle";
 import { Battery, Zap, Gauge, ArrowRight, Clock, Package } from "lucide-react";
 import EVImage from "@/presentation/components/EVImage";
 import { motion } from "framer-motion";
+import { slugifyVehicle } from "@/lib/vehicleSlug";
 
 type AnyVehicle = Vehicle | BuyingVehicle;
 
@@ -49,8 +50,8 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
   const cardSpecs = getCardSpecs();
 
   const detailHref = mode === 'buying'
-    ? `/buying/vehicles/detail/${vehicle.id}`
-    : `/vehicles/${vehicle.id}`;
+    ? `/buying/vehicles/detail/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`
+    : `/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`;
 
   const price = mode === 'buying'
     ? `₹${'buyingPrice' in vehicle ? (vehicle as BuyingVehicle).buyingPrice.toLocaleString() : '0'}`
