@@ -10,8 +10,8 @@ const stats = [
   { value: "360+", label: "EVs Managed", sub: "51 women operators" },
   { value: "₹141L", label: "Revenue", sub: "As on March 2026" },
   { value: "104L km", label: "Green KM", sub: "Carbon-free travel" },
-  { value: "104,650 kg", label: "CO₂ Saved", sub: "Reducing emissions" },
-  { value: "142,666 L", label: "Fuel Saved", sub: "Fossil fuel avoided" },
+  { value: "200,000 kg", label: "CO₂ Saved", sub: "Reducing emissions" },
+  { value: "340,000 L", label: "Fuel Saved", sub: "Fossil fuel avoided" },
   { value: "6,000 kg", label: "Plastics Saved", sub: "Waste eliminated" },
 ];
 
@@ -52,18 +52,15 @@ const techHighlights = [
 const expansionPlan = [
   {
     year: "2025", status: "Current", color: "primary",
-    cities: ["Lucknow", "Dehradun"],
-    targets: ["350+ EVs on road", "400+ jobs in cleantech"],
+    cities: ["Lucknow", "NCR", "Dehradun", "Chennai", "Bangalore"],
   },
   {
     year: "2026", status: "Next Phase", color: "accent",
     cities: ["Jaipur", "Agra", "Udaipur", "Bhopal", "Nagpur"],
-    targets: ["2,000 vehicles", "2,400+ jobs in cleantech"],
   },
   {
     year: "2027", status: "Future", color: "white",
     cities: ["Kochi", "Meerut", "Mysore", "Chandigarh", "Kashmir"],
-    targets: ["6,500 vehicles", "7,800+ jobs in cleantech"],
   },
 ];
 
@@ -71,14 +68,12 @@ const team = [
   {
     name: "Javed Ali",
     role: "Founder & Director",
-    bio: "Graduate Engineer with 12+ Years of exposure in Automotive and EV sectors.",
     photo: "/profile-photos/javedAliProfilePhoto.jpeg",
     linkedin: "https://www.linkedin.com/in/javed-ali-5b563256/",
   },
   {
     name: "Juned Ali",
-    role: "Co-Founder & Director",
-    bio: "Graduate Engineer with 6+ Years of exposure in Growth & Investments.",
+    role: "Co-Founder",
     photo: "/profile-photos/juanidAliProfilePhoto.jpeg",
     linkedin: "https://www.linkedin.com/in/juned-ali-52b84220b/",
   },
@@ -232,7 +227,6 @@ export default function AboutPage() {
                 </div>
               ))}
             </div>
-            <p className="text-white/30 text-xs mt-6">Key clients include Bajaj Auto Limited, ID Fresh Foods, DS Group.</p>
           </div>
         </div>
       </section>
@@ -298,14 +292,6 @@ export default function AboutPage() {
                     ))}
                   </div>
                 </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Targets</div>
-                  {phase.targets.map(t => (
-                    <div key={t} className="flex items-center gap-2 text-sm text-white/70 mt-1">
-                      <ChevronRight className="w-3 h-3 text-primary" /> {t}
-                    </div>
-                  ))}
-                </div>
               </div>
             ))}
           </div>
@@ -323,18 +309,17 @@ export default function AboutPage() {
           <div className="flex flex-wrap justify-center gap-8">
             {team.map((member) => (
               <div key={member.name} className="glass-card p-8 border-white/5 hover:border-primary/30 transition-all text-center w-72 group">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden mx-auto mb-4 ring-2 ring-white/10 group-hover:ring-primary/40 transition-all">
+                <div className="w-40 h-40 rounded-2xl overflow-hidden mx-auto mb-4 ring-2 ring-white/10 group-hover:ring-primary/40 transition-all">
                   <Image
                     src={member.photo}
                     alt={member.name}
-                    width={96}
-                    height={96}
+                    width={160}
+                    height={160}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                 </div>
                 <h3 className="text-lg font-bold">{member.name}</h3>
                 <p className="text-primary text-sm font-medium mt-1">{member.role}</p>
-                <p className="text-white/40 text-sm mt-3 leading-relaxed">{member.bio}</p>
                 <a
                   href={member.linkedin}
                   target="_blank"

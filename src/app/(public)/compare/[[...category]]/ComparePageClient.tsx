@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import CategorySelector from "@/presentation/components/CategorySelector";
 import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
 import Link from "next/link";
+import { slugifyVehicle } from "@/lib/vehicleSlug";
 
 // Define Vehicle type locally for client
 interface Vehicle {
@@ -135,7 +136,7 @@ export default function ComparePageClient({
           <>
             {/* Vehicle Selectors */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-              <div className="glass-card p-8">
+              <div className="glass-card p-4 md:p-8">
                 <label className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4 block">
                   Vehicle 1
                 </label>
@@ -151,8 +152,8 @@ export default function ComparePageClient({
                   ))}
                 </select>
               </div>
-              
-              <div className="glass-card p-8">
+
+              <div className="glass-card p-4 md:p-8">
                 <label className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4 block">
                   Vehicle 2
                 </label>
@@ -171,74 +172,76 @@ export default function ComparePageClient({
             </div>
 
             {selectedVehicle1 && selectedVehicle2 ? (
-              <>
-                {/* Vehicle Cards Header */}
-                <div className="grid grid-cols-3 gap-8 mb-8">
-                  <div className="opacity-50 flex items-end pb-8">
-                    <span className="text-sm font-bold uppercase tracking-widest text-white/40">Specification</span>
-                  </div>
-                  {[selectedVehicle1, selectedVehicle2].map((vehicle) => (
-                    <div key={vehicle.id} className="flex flex-col">
-                      <div className="glass-card p-8 border-primary/10 text-center">
-                        <div className="w-full aspect-video bg-white/5 rounded-xl overflow-hidden mb-6">
-                          <img 
-                            src={vehicle.mainImage} 
-                            alt={vehicle.model}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <h3 className="text-xl font-bold tracking-tight mb-2">
-                          {vehicle.make} <span className="text-primary">{vehicle.model}</span>
-                        </h3>
-                        <div className="text-3xl font-black text-primary italic mb-4">
-                          ₹{vehicle.basePrice.toLocaleString()}<span className="text-xs text-white/40 font-normal not-italic">/mo</span>
-                        </div>
-                        <Link href={`/vehicles/${vehicle.id}`} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary hover:text-white/80 transition-colors">
-                          View Details
-                        </Link>
-                      </div>
+              <div className="overflow-x-auto -mx-6 px-6">
+                <div className="min-w-[540px]">
+                  {/* Vehicle Cards Header */}
+                  <div className="grid grid-cols-3 gap-4 md:gap-8 mb-4 md:mb-8">
+                    <div className="opacity-50 flex items-end pb-4 md:pb-8">
+                      <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-white/40">Specification</span>
                     </div>
-                  ))}
-                </div>
-
-                {/* Comparison Table */}
-                <div className="space-y-2">
-                  {attributes.map((attr, idx) => {
-                    const value1 = (selectedVehicle1 as any)[attr.key];
-                    const value2 = (selectedVehicle2 as any)[attr.key];
-                    const displayValue1 = attr.format 
-                      ? attr.format(value1)
-                      : (value1 || "—");
-                    const displayValue2 = attr.format 
-                      ? attr.format(value2)
-                      : (value2 || "—");
-                    
-                    return (
-                      <div key={idx} className="grid grid-cols-3 gap-8 items-center">
-                        <div className="bg-white/5 p-6 rounded-xl border border-white/5">
-                          <span className="text-sm font-bold uppercase tracking-widest text-white/40">{attr.label}</span>
-                        </div>
-                        <div className="p-6 text-center border border-white/5 rounded-xl">
-                          <span className={`text-lg font-bold ${
-                            (value1 && value2 && (typeof value1 === 'number' && typeof value2 === 'number' && value1 > value2)) ||
-                            (value1 && !value2)
-                              ? 'text-primary' 
-                              : 'text-white/80'
-                          }`}>{displayValue1}</span>
-                        </div>
-                        <div className="p-6 text-center border border-white/5 rounded-xl">
-                          <span className={`text-lg font-bold ${
-                            (value1 && value2 && (typeof value1 === 'number' && typeof value2 === 'number' && value2 > value1)) ||
-                            (value2 && !value1)
-                              ? 'text-primary' 
-                              : 'text-white/80'
-                          }`}>{displayValue2}</span>
+                    {[selectedVehicle1, selectedVehicle2].map((vehicle) => (
+                      <div key={vehicle.id} className="flex flex-col">
+                        <div className="glass-card p-4 md:p-8 border-primary/10 text-center">
+                          <div className="w-full aspect-video bg-white/5 rounded-xl overflow-hidden mb-3 md:mb-6">
+                            <img
+                              src={vehicle.mainImage}
+                              alt={vehicle.model}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <h3 className="text-sm md:text-xl font-bold tracking-tight mb-1 md:mb-2">
+                            {vehicle.make} <span className="text-primary">{vehicle.model}</span>
+                          </h3>
+                          <div className="text-xl md:text-3xl font-black text-primary italic mb-2 md:mb-4">
+                            ₹{vehicle.basePrice.toLocaleString()}<span className="text-[10px] md:text-xs text-white/40 font-normal not-italic">/mo</span>
+                          </div>
+                          <Link href={`/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`} className="inline-flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary hover:text-white/80 transition-colors">
+                            View Details
+                          </Link>
                         </div>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
+
+                  {/* Comparison Table */}
+                  <div className="space-y-2">
+                    {attributes.map((attr, idx) => {
+                      const value1 = (selectedVehicle1 as any)[attr.key];
+                      const value2 = (selectedVehicle2 as any)[attr.key];
+                      const displayValue1 = attr.format
+                        ? attr.format(value1)
+                        : (value1 || "—");
+                      const displayValue2 = attr.format
+                        ? attr.format(value2)
+                        : (value2 || "—");
+
+                      return (
+                        <div key={idx} className="grid grid-cols-3 gap-4 md:gap-8 items-center">
+                          <div className="bg-white/5 p-3 md:p-6 rounded-xl border border-white/5">
+                            <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-white/40">{attr.label}</span>
+                          </div>
+                          <div className="p-3 md:p-6 text-center border border-white/5 rounded-xl">
+                            <span className={`text-sm md:text-lg font-bold ${
+                              (value1 && value2 && (typeof value1 === 'number' && typeof value2 === 'number' && value1 > value2)) ||
+                              (value1 && !value2)
+                                ? 'text-primary'
+                                : 'text-white/80'
+                            }`}>{displayValue1}</span>
+                          </div>
+                          <div className="p-3 md:p-6 text-center border border-white/5 rounded-xl">
+                            <span className={`text-sm md:text-lg font-bold ${
+                              (value1 && value2 && (typeof value1 === 'number' && typeof value2 === 'number' && value2 > value1)) ||
+                              (value2 && !value1)
+                                ? 'text-primary'
+                                : 'text-white/80'
+                            }`}>{displayValue2}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </>
+              </div>
             ) : null}
           </>
         )}

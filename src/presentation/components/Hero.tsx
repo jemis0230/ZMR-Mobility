@@ -24,11 +24,17 @@ const CYCLING_LABELS = [
   "for Women",
 ];
 
+const heroSlides = [
+  "/sampleVechiles/c12i-max6a0da949da693.webp",
+  "/sampleVechiles/mahindra-treo-zor-46219.webp",
+  "/sampleVechiles/mahindra-udo-exterior-227564.webp",
+  "/sampleVechiles/ruv350695b9364c221b.webp",
+];
+
 const stats = [
-  { value: 360, suffix: "+",    label: "EVs Managed",        icon: "⚡", isNum: true },
-  { value: "₹141L", suffix: "", label: "Revenue Generated",  icon: "📈", isNum: false },
-  { value: 104,  suffix: "L km", label: "Green Kilometres",  icon: "🌿", isNum: true },
-  { value: 2,    suffix: "+",    label: "Cities Active",      icon: "🏙️", isNum: true },
+  { value: 4,         suffix: "+",    label: "Cities Active", isNum: true  },
+  { value: 2,         suffix: " Lac kg", label: "CO₂ Saved",   isNum: true  },
+  { value: 176,       suffix: "L km", label: "Green KM",      isNum: true  },
 ];
 
 const features = [
@@ -72,7 +78,7 @@ const howItWorks = [
 const testimonials = [
   { name: "Ramesh Kumar",          role: "Delivery Partner, Lucknow",    text: "ZMR made it possible for me to get my first electric vehicle with minimal deposit. My fuel savings are incredible!", rating: 5 },
   { name: "Sunita Devi",           role: "Women Entrepreneur, Dehradun", text: "As a woman entrepreneur, ZMR's support has been exceptional. The IoT tracking gives me peace of mind every day.", rating: 5 },
-  { name: "Fleet Manager, DS Group", role: "Corporate Client",           text: "Managing 50+ EVs has never been easier. Real-time monitoring and ZMR's response team is always available.", rating: 5 },
+  { name: "Fleet Manager, ID Fresh", role: "Corporate Client",           text: "Managing 50+ EVs has never been easier. Real-time monitoring and ZMR's response team is always available.", rating: 5 },
 ];
 
 
@@ -111,6 +117,14 @@ function CyclingLabel() {
 
 export default function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [slideIndex, setSlideIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlideIndex((prev) => (prev + 1) % heroSlides.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <>
@@ -163,7 +177,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg text-white/55 max-w-xl leading-relaxed"
             >
-              ZMR Mobility makes electric vehicles <strong className="text-white">accessible, affordable and reliable</strong> — through smart leasing, IoT monitoring, and comprehensive aftersales support for gig workers, fleets, and businesses.
+              ZMR Mobility is building trusted access to premium pre-owned IoT-enabled EVs for Bharat — making electric mobility <strong className="text-white">affordable, reliable, and accessible</strong> for fleet operators, gig workers, and women.
             </motion.p>
 
             <motion.div
@@ -217,29 +231,27 @@ export default function Hero() {
             >
               {/* Electric ring wrapper */}
               <div className="animate-electric-ring rounded-3xl">
-                <div className="relative rounded-3xl overflow-hidden border border-primary/30 shadow-2xl shadow-primary/10">
-                  <Image
-                    src="/person_holding_key.webp"
-                    alt="Your EV Key Awaits"
-                    width={600}
-                    height={680}
-                    className="w-full h-[300px] md:h-[580px] object-cover"
-                    priority
-                  />
+                <div className="relative rounded-3xl overflow-hidden border border-primary/30 shadow-2xl shadow-primary/10 h-[300px] md:h-[580px]">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={slideIndex}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8 }}
+                      className="absolute inset-0"
+                    >
+                      <img
+                        src={heroSlides[slideIndex]}
+                        alt="ZMR Mobility EV"
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
                 </div>
               </div>
 
-              {/* Floating stat card — bottom left */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8 }}
-                whileHover={{ scale: 1.05 }}
-                className="hidden lg:block absolute -bottom-6 -left-8 glass-card p-5 border-primary/20 electric-glow cursor-default"
-              >
-                <p className="text-xs text-white/40 uppercase tracking-widest mb-1">CO₂ Saved</p>
-                <p className="text-2xl font-black text-primary">104,650 kg</p>
-                <p className="text-xs text-white/40 mt-1">This year alone 🌿</p>
-              </motion.div>
 
               {/* Floating stat card — top right */}
               <motion.div
@@ -364,7 +376,7 @@ export default function Hero() {
               </div>
               <div className="grid grid-cols-2 gap-5">
                 {[
-                  { val: 104650, suffix: " kg", label: "CO₂ Saved",      icon: "🌿" },
+                  { val: 2,      suffix: " Lac kg", label: "CO₂ Saved",   icon: "🌿" },
                   { val: 142666, suffix: " L",  label: "Fuel Saved",      icon: "⛽" },
                   { val: 51,     suffix: "",     label: "Women Operators", icon: "💪" },
                   { val: 6000,   suffix: " kg",  label: "Plastics Saved",  icon: "♻️" },
@@ -392,7 +404,7 @@ export default function Hero() {
         <div className="max-w-7xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
             <span className="text-primary text-xs font-bold uppercase tracking-widest">Testimonials</span>
-            <h2 className="text-4xl font-black mt-3">Loved by Drivers Across India</h2>
+            <h2 className="text-4xl font-black mt-3">Loved by Customers Across India</h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (

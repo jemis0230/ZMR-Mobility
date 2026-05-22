@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/inter";
 import "./globals.css";
+import GoogleAnalytics from "@/presentation/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
   title: "ZMR Mobility | India's Leading EV Leasing",
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body>
+        <GoogleAnalytics />
         {children}
       </body>
     </html>
