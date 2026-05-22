@@ -5,6 +5,7 @@ import { slugifyVehicle } from '@/lib/vehicleSlug';
 import { CATEGORY_TO_SLUG } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic'; // render at request time, not build time
 export const revalidate = 3600; // regenerate every hour
 
 const BASE = 'https://zmrmobility.in';
