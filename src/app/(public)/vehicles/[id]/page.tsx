@@ -6,6 +6,7 @@ import { Battery, Zap, Gauge, Shield, Clock, MapPin, IndianRupee } from "lucide-
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { slugifyVehicle, extractIdFromSlug } from "@/lib/vehicleSlug";
+import { CATEGORY_TO_SLUG } from "@/lib/constants";
 import type { Metadata } from "next";
 
 const vehicleRepo = new PrismaVehicleRepository();
@@ -54,7 +55,7 @@ export default async function VehicleDetailsPage(props: { params: Promise<{ id: 
         <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/30 mb-8">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/#fleet" className="hover:text-primary transition-colors">Fleet</Link>
+          <Link href={`/leasing/vehicles/${CATEGORY_TO_SLUG[vehicle.category] ?? '2-wheeler'}`} className="hover:text-primary transition-colors">Fleet</Link>
           <span>/</span>
           <span className="text-white/60">{vehicle.make} {vehicle.model}</span>
         </nav>
