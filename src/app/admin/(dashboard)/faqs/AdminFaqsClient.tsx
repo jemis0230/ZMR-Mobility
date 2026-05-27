@@ -3,12 +3,8 @@
 import { type FormEvent, useState } from 'react';
 import { HelpCircle, AlertTriangle, Edit, Trash2, X, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import {
-  createFaq,
-  updateFaq,
-  deleteFaq,
-  type FaqItem,
-} from '@/app/actions/faqActions';
+import { api } from '@/lib/api-client';
+import type { FaqItem } from '@/app/actions/faqActions';
 
 interface AdminFaqsClientProps {
   initialFaqs: FaqItem[];
@@ -26,7 +22,11 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
   const handleCreate = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
-      const result = await createFaq(formData);
+      const result = await api.post('/faqs', {
+        question: formData.get('question'),
+        answer: formData.get('answer'),
+        order: Number(formData.get('order')) || undefined,
+      });
 
       if (!result.success) {
         alert(result.error || 'Failed to create FAQ');
@@ -43,7 +43,12 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
   const handleUpdate = async (id: string, formData: FormData) => {
     setIsSubmitting(true);
     try {
-      const result = await updateFaq(id, formData);
+      const result = await api.put(`/faqs/${id}`, {
+        question: formData.get('question'),
+        answer: formData.get('answer'),
+        order: Number(formData.get('order')) || undefined,
+        isActive: formData.get('isActive') === 'on',
+      });
 
       if (!result.success) {
         alert(result.error || 'Failed to update FAQ');
@@ -62,7 +67,7 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
     if (confirm('Are you sure you want to delete this FAQ?')) {
       setDeletingId(id);
       try {
-        const result = await deleteFaq(id);
+        const result = await api.del(`/faqs/${id}`);
         if (!result.success) {
           alert(result.error || 'Failed to delete FAQ');
           return;

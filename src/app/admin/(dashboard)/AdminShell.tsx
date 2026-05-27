@@ -12,14 +12,15 @@ import {
   HelpCircle,
   BookOpen,
   ShoppingBag,
-  ShoppingCart,
   Users,
   UserCog,
   LogOut,
   Menu,
   X,
+  SlidersHorizontal,
 } from 'lucide-react';
-import { logoutAction } from '@/app/actions/authActions';
+import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api-client';
 import type { SessionPayload } from '@/lib/auth';
 
 interface AdminShellProps {
@@ -30,11 +31,11 @@ interface AdminShellProps {
 const NAV_ITEMS = [
   { name: 'Dashboard', icon: LayoutDashboard, href: '/admin' },
   { name: 'Vehicles', icon: Car, href: '/admin/vehicles' },
-  { name: 'Buying Vehicles', icon: ShoppingCart, href: '/admin/buying-vehicles' },
   { name: 'Blogs', icon: MessageSquare, href: '/admin/blogs' },
   { name: 'FAQs', icon: HelpCircle, href: '/admin/faqs' },
   { name: 'Leads/Contacts', icon: Users, href: '/admin/leads' },
   { name: 'EV Catalog', icon: BookOpen, href: '/admin/ev-catalog' },
+  { name: 'Vehicle Config', icon: SlidersHorizontal, href: '/admin/vehicle-config' },
   { name: 'Sell Applications', icon: ShoppingBag, href: '/admin/sell-applications' },
   { name: 'Users', icon: UserCog, href: '/admin/users', superadminOnly: true },
   { name: 'Settings', icon: Settings, href: '/admin/settings' },
@@ -42,7 +43,13 @@ const NAV_ITEMS = [
 
 export default function AdminShell({ session, children }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  async function handleLogout() {
+    await api.post('/auth/logout', {});
+    router.push('/admin/login');
+  }
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => !('superadminOnly' in item && item.superadminOnly) || session.role === 'superadmin'
@@ -120,15 +127,14 @@ export default function AdminShell({ session, children }: AdminShellProps) {
             </div>
           )}
 
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-white/40 hover:text-red-500 transition-all"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Sign out</span>
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-white/40 hover:text-red-500 transition-all"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium">Sign out</span>
+          </button>
         </div>
       </aside>
 

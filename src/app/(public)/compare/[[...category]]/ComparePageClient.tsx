@@ -1,125 +1,75 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import CategorySelector from "@/presentation/components/CategorySelector";
-import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
 import Link from "next/link";
 import { slugifyVehicle } from "@/lib/vehicleSlug";
+import { CATEGORY_SLUG_MAP, CATEGORY_DISPLAY, isCargo } from "@/lib/constants";
+import { Vehicle } from "@/domain/entities/Vehicle";
+import { formatMinutes } from "@/lib/formatTime";
 
-// Define Vehicle type locally for client
-interface Vehicle {
-  id: string;
-  make: string;
-  model: string;
-  category: string;
-  range: number;
-  trueRange: number | null;
-  topSpeed: number;
-  batteryCap: number;
-  mainImage: string;
-  sideImages: string[];
-  basePrice: number;
-  deposit: number;
-  warranty: string;
-  kerbWeight: number | null;
-  gvW: number | null;
-  width: number | null;
-  height: number | null;
-  length: number | null;
-  groundClearance: number | null;
-  wheelbase: number | null;
-  batteryType: string | null;
-  peakVoltage: string | null;
-  motorType: string | null;
-  peakPower: string | null;
-  peakTorque: string | null;
-  transmission: string | null;
-  gradability: number | null;
-  chargingTime: string | null;
-  fastChargingTime: string | null;
-  chargerType: string | null;
-  onBoardCharger: boolean | null;
-  payload: number | null;
-  volume: number | null;
-  containerDims: string | null;
-  overviewText: string | null;
-  techSpecsText: string | null;
-  performanceText: string | null;
-  leasingInfoText: string | null;
-}
-
-export default function ComparePageClient({ 
-  params, 
-  initialVehicles 
-}: { 
+export default function ComparePageClient({
+  params,
+  initialVehicles,
+}: {
   params: { category?: string[] };
-  initialVehicles: any[];
+  initialVehicles: Vehicle[];
 }) {
-  let categorySlug = params.category?.[0] || "2-wheeler";
-  
-  // Map slug to category name
-  const categoryMapping: Record<string, string> = {
-    "2-wheeler": "2 Wheeler",
-    "3-wheeler-cargo": "3 Wheeler (Cargo)",
-    "3-wheeler-passenger": "3 Wheeler (Passenger)",
-    "4-wheeler-passenger": "4 Wheeler (Passenger)",
-    "4-wheeler-cargo": "4 Wheeler (Cargo)",
-  };
-  
-  const categoryName = categoryMapping[categorySlug] || "2 Wheeler";
-  
-  // State for selected vehicles
+  const categorySlug = params.category?.[0] || "2-wheeler";
+  const category = CATEGORY_SLUG_MAP[categorySlug] ?? 'TWO_WHEELER';
+  const categoryLabel = CATEGORY_DISPLAY[category] ?? categorySlug;
+  const isCargoCategory = isCargo(category);
+
   const [selectedVehicle1Id, setSelectedVehicle1Id] = useState<string | null>(initialVehicles[0]?.id || null);
   const [selectedVehicle2Id, setSelectedVehicle2Id] = useState<string | null>(initialVehicles[1]?.id || null);
-  
-  // Get selected vehicles
-  const selectedVehicle1 = initialVehicles.find(v => v.id === selectedVehicle1Id);
-  const selectedVehicle2 = initialVehicles.find(v => v.id === selectedVehicle2Id);
-  
-  // Get comparison attributes
+
+  const selectedVehicle1 = initialVehicles.find((v) => v.id === selectedVehicle1Id);
+  const selectedVehicle2 = initialVehicles.find((v) => v.id === selectedVehicle2Id);
+
+  const getLowestLeasePrice = (v: Vehicle) =>
+    v.leasePlans.filter((p) => p.isActive).sort((a, b) => a.monthlyPriceRs - b.monthlyPriceRs)[0]?.monthlyPriceRs ?? null;
+
   const getComparisonAttributes = () => {
-    const specs = [
-      { label: "Monthly Lease", key: "basePrice", format: (v: any) => v ? `₹${v.toLocaleString()}` : "—" },
-      { label: "Range", key: "range", format: (v: any) => v ? `${v} KM` : "—" },
-      { label: "Top Speed", key: "topSpeed", format: (v: any) => v ? `${v} KM/H` : "—" },
-      { label: "Battery Capacity", key: "batteryCap", format: (v: any) => v ? `${v} kWh` : "—" },
-      { label: "Battery Type", key: "batteryType" },
-      { label: "Motor Type", key: "motorType" },
-      { label: "Peak Power", key: "peakPower" },
-      { label: "Peak Torque", key: "peakTorque" },
-      { label: "Transmission", key: "transmission" },
-      { label: "Charging Time", key: "chargingTime" },
-      { label: "Kerb Weight", key: "kerbWeight", format: (v: any) => v ? `${v} kg` : "—" },
-      { label: "Ground Clearance", key: "groundClearance", format: (v: any) => v ? `${v} mm` : "—" },
-      { label: "Warranty", key: "warranty" },
+    const specs: Array<{ label: string; getValue: (v: Vehicle) => string }> = [
+      { label: "Monthly Lease", getValue: (v) => { const p = getLowestLeasePrice(v); return p ? `₹${p.toLocaleString('en-IN')}` : "—"; } },
+      { label: "Range", getValue: (v) => `${v.certifiedRangeKm} km` },
+      { label: "Top Speed", getValue: (v) => `${v.topSpeedKmh} km/h` },
+      { label: "Battery Capacity", getValue: (v) => `${v.batteryCapKwh} kWh` },
+      { label: "Battery Type", getValue: (v) => v.batteryType?.name ?? "—" },
+      { label: "Motor Type", getValue: (v) => v.motorType?.name ?? "—" },
+      { label: "Peak Power", getValue: (v) => v.peakPowerKw != null ? `${v.peakPowerKw} kW` : "—" },
+      { label: "Peak Torque", getValue: (v) => v.peakTorqueNm != null ? `${v.peakTorqueNm} Nm` : "—" },
+      { label: "Transmission", getValue: (v) => v.transmission || "—" },
+      { label: "Charging Time", getValue: (v) => formatMinutes(v.chargingTimeMinutes) },
+      { label: "Curb Weight", getValue: (v) => v.curbWeightKg ? `${v.curbWeightKg} kg` : "—" },
+      { label: "Ground Clearance", getValue: (v) => v.groundClearanceMm ? `${v.groundClearanceMm} mm` : "—" },
+      { label: "Warranty", getValue: (v) => v.warranty || "—" },
     ];
-    
-    if (categoryName.includes("Cargo")) {
+
+    if (isCargoCategory) {
       specs.push(
-        { label: "Payload", key: "payload", format: (v: any) => v ? `${v} kg` : "—" },
-        { label: "Cargo Volume", key: "volume", format: (v: any) => v ? `${v} ft³` : "—" }
+        { label: "Payload", getValue: (v) => v.payloadKg ? `${v.payloadKg} kg` : "—" },
+        { label: "Cargo Volume", getValue: (v) => v.cargoVolumeL ? `${v.cargoVolumeL} L` : "—" }
       );
     }
-    
+
     return specs;
   };
-  
+
   const attributes = getComparisonAttributes();
 
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="pt-32 pb-20 px-6 max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-            Compare <span className="text-primary">{categoryName}</span>
+            Compare <span className="text-primary">{categoryLabel}</span>
           </h1>
           <p className="text-white/40 max-w-2xl mx-auto text-lg">
-            Find the perfect electric {categoryName.toLowerCase()} by comparing specifications, performance, and pricing side by side.
+            Find the perfect electric {categoryLabel.toLowerCase()} by comparing specifications, performance, and pricing side by side.
           </p>
         </div>
 
-        {/* Category Selector */}
         <div className="mb-16">
           <CategorySelector currentSlug={categorySlug} baseHref="/compare" />
         </div>
@@ -134,107 +84,80 @@ export default function ComparePageClient({
           </div>
         ) : (
           <>
-            {/* Vehicle Selectors */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
               <div className="glass-card p-4 md:p-8">
-                <label className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4 block">
-                  Vehicle 1
-                </label>
+                <label className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4 block">Vehicle 1</label>
                 <select
                   value={selectedVehicle1Id || ""}
                   onChange={(e) => setSelectedVehicle1Id(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/80 focus:outline-none focus:border-primary transition-colors"
                 >
                   {initialVehicles.map((vehicle) => (
-                    <option key={vehicle.id} value={vehicle.id}>
-                      {vehicle.make} {vehicle.model}
-                    </option>
+                    <option key={vehicle.id} value={vehicle.id}>{vehicle.make} {vehicle.model}</option>
                   ))}
                 </select>
               </div>
 
               <div className="glass-card p-4 md:p-8">
-                <label className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4 block">
-                  Vehicle 2
-                </label>
+                <label className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4 block">Vehicle 2</label>
                 <select
                   value={selectedVehicle2Id || ""}
                   onChange={(e) => setSelectedVehicle2Id(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/80 focus:outline-none focus:border-primary transition-colors"
                 >
                   {initialVehicles.map((vehicle) => (
-                    <option key={vehicle.id} value={vehicle.id}>
-                      {vehicle.make} {vehicle.model}
-                    </option>
+                    <option key={vehicle.id} value={vehicle.id}>{vehicle.make} {vehicle.model}</option>
                   ))}
                 </select>
               </div>
             </div>
 
-            {selectedVehicle1 && selectedVehicle2 ? (
+            {selectedVehicle1 && selectedVehicle2 && (
               <div className="overflow-x-auto -mx-6 px-6">
                 <div className="min-w-[540px]">
-                  {/* Vehicle Cards Header */}
                   <div className="grid grid-cols-3 gap-4 md:gap-8 mb-4 md:mb-8">
                     <div className="opacity-50 flex items-end pb-4 md:pb-8">
                       <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-white/40">Specification</span>
                     </div>
-                    {[selectedVehicle1, selectedVehicle2].map((vehicle) => (
-                      <div key={vehicle.id} className="flex flex-col">
-                        <div className="glass-card p-4 md:p-8 border-primary/10 text-center">
-                          <div className="w-full aspect-video bg-white/5 rounded-xl overflow-hidden mb-3 md:mb-6">
-                            <img
-                              src={vehicle.mainImage}
-                              alt={vehicle.model}
-                              className="w-full h-full object-cover"
-                            />
+                    {[selectedVehicle1, selectedVehicle2].map((vehicle) => {
+                      const leasePrice = getLowestLeasePrice(vehicle);
+                      return (
+                        <div key={vehicle.id} className="flex flex-col">
+                          <div className="glass-card p-4 md:p-8 border-primary/10 text-center">
+                            <div className="w-full aspect-video bg-white/5 rounded-xl overflow-hidden mb-3 md:mb-6">
+                              <img src={vehicle.mainImage} alt={vehicle.model} className="w-full h-full object-contain p-2" />
+                            </div>
+                            <h3 className="text-sm md:text-xl font-bold tracking-tight mb-1 md:mb-2">
+                              {vehicle.make} <span className="text-primary">{vehicle.model}</span>
+                            </h3>
+                            {leasePrice && (
+                              <div className="text-xl md:text-3xl font-black text-primary italic mb-2 md:mb-4">
+                                ₹{leasePrice.toLocaleString('en-IN')}<span className="text-[10px] md:text-xs text-white/40 font-normal not-italic">/mo</span>
+                              </div>
+                            )}
+                            <Link href={`/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`} className="inline-flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary hover:text-white/80 transition-colors">
+                              View Details
+                            </Link>
                           </div>
-                          <h3 className="text-sm md:text-xl font-bold tracking-tight mb-1 md:mb-2">
-                            {vehicle.make} <span className="text-primary">{vehicle.model}</span>
-                          </h3>
-                          <div className="text-xl md:text-3xl font-black text-primary italic mb-2 md:mb-4">
-                            ₹{vehicle.basePrice.toLocaleString()}<span className="text-[10px] md:text-xs text-white/40 font-normal not-italic">/mo</span>
-                          </div>
-                          <Link href={`/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`} className="inline-flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary hover:text-white/80 transition-colors">
-                            View Details
-                          </Link>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
-                  {/* Comparison Table */}
                   <div className="space-y-2">
                     {attributes.map((attr, idx) => {
-                      const value1 = (selectedVehicle1 as any)[attr.key];
-                      const value2 = (selectedVehicle2 as any)[attr.key];
-                      const displayValue1 = attr.format
-                        ? attr.format(value1)
-                        : (value1 || "—");
-                      const displayValue2 = attr.format
-                        ? attr.format(value2)
-                        : (value2 || "—");
-
+                      const v1 = attr.getValue(selectedVehicle1);
+                      const v2 = attr.getValue(selectedVehicle2);
                       return (
                         <div key={idx} className="grid grid-cols-3 gap-4 md:gap-8 items-center">
                           <div className="bg-white/5 p-3 md:p-6 rounded-xl border border-white/5">
                             <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-white/40">{attr.label}</span>
                           </div>
                           <div className="p-3 md:p-6 text-center border border-white/5 rounded-xl">
-                            <span className={`text-sm md:text-lg font-bold ${
-                              (value1 && value2 && (typeof value1 === 'number' && typeof value2 === 'number' && value1 > value2)) ||
-                              (value1 && !value2)
-                                ? 'text-primary'
-                                : 'text-white/80'
-                            }`}>{displayValue1}</span>
+                            <span className="text-sm md:text-lg font-bold text-white/80">{v1}</span>
                           </div>
                           <div className="p-3 md:p-6 text-center border border-white/5 rounded-xl">
-                            <span className={`text-sm md:text-lg font-bold ${
-                              (value1 && value2 && (typeof value1 === 'number' && typeof value2 === 'number' && value2 > value1)) ||
-                              (value2 && !value1)
-                                ? 'text-primary'
-                                : 'text-white/80'
-                            }`}>{displayValue2}</span>
+                            <span className="text-sm md:text-lg font-bold text-white/80">{v2}</span>
                           </div>
                         </div>
                       );
@@ -242,7 +165,7 @@ export default function ComparePageClient({
                   </div>
                 </div>
               </div>
-            ) : null}
+            )}
           </>
         )}
       </div>

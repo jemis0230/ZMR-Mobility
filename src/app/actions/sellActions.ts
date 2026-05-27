@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { SELL_STATUSES } from '@/lib/constants';
 import { SellApplicationSchema } from '@/lib/schemas/sell';
+import { SellStatus } from '@prisma/client';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -22,8 +23,8 @@ export type SellApplicationItem = {
   vehicleCondition: string;
   hasAccident: boolean;
   loanStatus: string;
-  documents: string;
-  expectedPrice: number;
+  documents: string[];
+  expectedPriceRs: number;
   contactName: string;
   contactPhone: string;
   contactEmail: string;
@@ -89,8 +90,8 @@ export async function submitSellApplication(data: WizardFormData): Promise<{
         vehicleCondition: v.vehicleCondition,
         hasAccident: v.hasAccident,
         loanStatus: v.loanStatus,
-        documents: v.documents.join(','),
-        expectedPrice: v.expectedPrice,
+        documents: v.documents,
+        expectedPriceRs: v.expectedPrice,
         contactName: v.contactName,
         contactPhone: v.contactPhone,
         contactEmail: v.contactEmail,
@@ -158,7 +159,6 @@ export async function getSellApplications(params: {
       success: true,
       data: apps.map((a) => ({
         ...a,
-        expectedPrice: a.expectedPrice,
         createdAt: a.createdAt.toISOString(),
       })),
       total,
@@ -183,7 +183,7 @@ export async function updateSellApplicationStatus(id: string, status: string): P
     return { success: false, error: 'Invalid status.' };
   }
   try {
-    await prisma.sellApplication.update({ where: { id }, data: { status } });
+    await prisma.sellApplication.update({ where: { id }, data: { status: status as SellStatus } });
     revalidatePath('/admin/sell-applications');
     return { success: true };
   } catch (error) {

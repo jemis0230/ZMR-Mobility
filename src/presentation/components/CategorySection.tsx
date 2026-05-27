@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Zap, Battery, Users, TrendingUp, Shield, CalendarDays, ShoppingBag, ChevronRight } from "lucide-react";
+import { Zap, Battery, Users, TrendingUp, Shield, CalendarDays, ShoppingBag, KeyRound, ChevronRight } from "lucide-react";
 
 const categories = [
   {
@@ -64,14 +64,14 @@ function CategoryCardImage({ image, fallbackImage, alt }: { image: string; fallb
 }
 
 export default function CategorySection() {
-  const [catMode, setCatMode] = useState<'leasing' | 'buying'>('leasing');
+  const [catMode, setCatMode] = useState<'leasing' | 'buying' | 'rent'>('leasing');
 
   return (
     <section className="py-20 px-6 border-y border-white/5 bg-white/[0.02]">
       <div className="max-w-7xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-          {/* Lease / Buy mode selector */}
-          <div className="inline-flex gap-3 mb-8">
+          {/* Lease / Buy / Rent mode selector */}
+          <div className="inline-flex flex-wrap gap-3 mb-8 justify-center">
             <button
               onClick={() => setCatMode('leasing')}
               className={`group flex items-center gap-3 px-6 py-3.5 rounded-2xl border transition-all duration-300 ${
@@ -107,9 +107,27 @@ export default function CategorySection() {
               </div>
               {catMode === 'buying' && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse ml-1" />}
             </button>
+
+            <button
+              onClick={() => setCatMode('rent')}
+              className={`group flex items-center gap-3 px-6 py-3.5 rounded-2xl border transition-all duration-300 ${
+                catMode === 'rent'
+                  ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_24px_rgba(0,229,255,0.15)]'
+                  : 'bg-white/3 border-white/10 text-white/40 hover:border-white/20 hover:text-white/60'
+              }`}
+            >
+              <div className={`p-1.5 rounded-lg transition-colors ${catMode === 'rent' ? 'bg-primary/20' : 'bg-white/5'}`}>
+                <KeyRound className={`w-4 h-4 ${catMode === 'rent' ? 'text-primary' : 'text-white/30'}`} />
+              </div>
+              <div className="text-left">
+                <div className="text-sm font-black">Rent an EV</div>
+                <div className="text-[11px] opacity-50 font-medium">Daily rentals</div>
+              </div>
+              {catMode === 'rent' && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse ml-1" />}
+            </button>
           </div>
           <span className="block text-primary text-xs font-bold uppercase tracking-widest">
-            {catMode === 'leasing' ? 'EV Leasing' : 'EV Buying'}
+            {catMode === 'leasing' ? 'EV Leasing' : catMode === 'buying' ? 'EV Buying' : 'EV Rental'}
           </span>
           <h2 className="text-3xl md:text-4xl font-black mt-2">Select Your <span className="text-primary">Vehicle Category</span></h2>
           <p className="text-white/40 mt-3 text-sm">Choose the type of EV that best suits your needs.</p>
@@ -152,7 +170,7 @@ export default function CategorySection() {
                   <h3 className="text-[15px] md:text-lg lg:text-xl font-bold text-white leading-tight drop-shadow-md">{cat.name}</h3>
                   <p className="hidden lg:block text-xs text-white/50 mt-3 line-clamp-2 leading-relaxed">{cat.description}</p>
                   <div className="hidden lg:flex mt-5 items-center gap-2 text-primary text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0 duration-500 ease-out">
-                    {catMode === 'leasing' ? 'Lease & Drive' : 'Browse & Buy'} <ChevronRight className="w-4 h-4" />
+                    {catMode === 'leasing' ? 'Lease & Drive' : catMode === 'buying' ? 'Browse & Buy' : 'Rent & Drive'} <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
 

@@ -19,7 +19,7 @@ export default async function SettingsPage() {
               Signed in as <span className="text-white">{session.email}</span>
             </p>
           </div>
-          <ChangePasswordForm />
+          <ChangePasswordForm userId={session.userId} />
         </div>
       </div>
     </div>

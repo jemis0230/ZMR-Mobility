@@ -3,12 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Bike, Package, Users, Car, Truck, CalendarDays, ShoppingBag } from "lucide-react";
+import { Bike, Package, Users, Car, Truck, CalendarDays, ShoppingBag, KeyRound } from "lucide-react";
 
 interface CategorySelectorProps {
   currentSlug: string;
   baseHref?: string;
-  mode?: 'leasing' | 'buying';
+  mode?: 'leasing' | 'buying' | 'rent';
 }
 
 const categories = [
@@ -107,6 +107,17 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
           >
             <ShoppingBag className={`w-4 h-4 ${mode === 'buying' ? 'text-primary' : 'text-white/30'}`} />
             Buy an EV
+          </Link>
+          <Link
+            href={`/rent/vehicles/${currentSlug}`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
+              mode === 'rent'
+                ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_16px_rgba(0,229,255,0.15)]'
+                : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white/70'
+            }`}
+          >
+            <KeyRound className={`w-4 h-4 ${mode === 'rent' ? 'text-primary' : 'text-white/30'}`} />
+            Rent an EV
           </Link>
         </div>
       )}

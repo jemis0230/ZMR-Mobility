@@ -2,62 +2,72 @@
 
 import Link from "next/link";
 import { Vehicle } from "@/domain/entities/Vehicle";
-import { BuyingVehicle } from "@/domain/entities/BuyingVehicle";
+import { CATEGORY_DISPLAY, isCargo, is4Wheeler, CHARGER_TYPE_DISPLAY } from "@/lib/constants";
 import { Battery, Zap, Gauge, ArrowRight, Clock, Package } from "lucide-react";
 import EVImage from "@/presentation/components/EVImage";
 import { motion } from "framer-motion";
 import { slugifyVehicle } from "@/lib/vehicleSlug";
-
-type AnyVehicle = Vehicle | BuyingVehicle;
+import { formatMinutes } from "@/lib/formatTime";
 
 interface VehicleCardProps {
-  vehicle: AnyVehicle;
-  mode?: 'leasing' | 'buying';
+  vehicle: Vehicle;
+  mode?: 'leasing' | 'buying' | 'rent';
 }
 
 export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardProps) {
   const getCardSpecs = () => {
-    switch (vehicle.category) {
-      case "2 Wheeler":
-        return [
-          { label: "Range", value: `${vehicle.range} KM`, icon: Gauge, color: "text-primary" },
-          { label: "Charging", value: vehicle.chargingTime, icon: Clock, color: "text-accent" },
-          { label: "Battery", value: `${vehicle.batteryCap} kWh`, icon: Battery, color: "text-blue-400" },
-        ];
-      case "3 Wheeler (Cargo)":
-      case "4 Wheeler (Cargo)":
-        return [
-          { label: "Payload", value: `${vehicle.payload || 0} KG`, icon: Package, color: "text-orange-400" },
-          { label: "Range", value: `${vehicle.category.includes('4') ? vehicle.trueRange || vehicle.range : vehicle.range} KM`, icon: Gauge, color: "text-primary" },
-          { label: "Charging", value: vehicle.category.includes('4') ? vehicle.fastChargingTime || vehicle.chargingTime : vehicle.chargingTime, icon: Zap, color: "text-accent" },
-        ];
-      case "3 Wheeler (Passenger)":
-      case "4 Wheeler (Passenger)":
-        return [
-          { label: "Range", value: `${vehicle.range} KM`, icon: Gauge, color: "text-primary" },
-          { label: "Charging", value: vehicle.category.includes('4') ? vehicle.fastChargingTime || vehicle.chargingTime : vehicle.chargingTime, icon: Zap, color: "text-accent" },
-          { label: "Battery", value: `${vehicle.batteryCap} kWh`, icon: Battery, color: "text-blue-400" },
-        ];
-      default:
-        return [
-          { label: "Range", value: `${vehicle.range} KM`, icon: Gauge, color: "text-primary" },
-          { label: "Speed", value: `${vehicle.topSpeed} KM/H`, icon: Zap, color: "text-accent" },
-          { label: "Battery", value: `${vehicle.batteryCap} kWh`, icon: Battery, color: "text-blue-400" },
-        ];
+    if (isCargo(vehicle.category)) {
+      return [
+        { label: "Payload", value: `${vehicle.payloadKg ?? 0} kg`, icon: Package, color: "text-orange-400" },
+        { label: "Range", value: `${vehicle.realWorldRangeKm ?? vehicle.certifiedRangeKm} km`, icon: Gauge, color: "text-primary" },
+        { label: "Charging", value: formatMinutes(vehicle.chargingTimeMinutes), icon: Zap, color: "text-accent" },
+      ];
     }
+    if (is4Wheeler(vehicle.category)) {
+      return [
+        { label: "Range", value: `${vehicle.certifiedRangeKm} km`, icon: Gauge, color: "text-primary" },
+        { label: "Charging", value: formatMinutes(vehicle.chargingTimeMinutes), icon: Zap, color: "text-accent" },
+        { label: "Battery", value: `${vehicle.batteryCapKwh} kWh`, icon: Battery, color: "text-blue-400" },
+      ];
+    }
+    return [
+      { label: "Range", value: `${vehicle.certifiedRangeKm} km`, icon: Gauge, color: "text-primary" },
+      { label: "Charging", value: formatMinutes(vehicle.chargingTimeMinutes), icon: Clock, color: "text-accent" },
+      { label: "Battery", value: `${vehicle.batteryCapKwh} kWh`, icon: Battery, color: "text-blue-400" },
+    ];
   };
 
   const cardSpecs = getCardSpecs();
 
-  const detailHref = mode === 'buying'
-    ? `/buying/vehicles/detail/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`
-    : `/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`;
+  const detailHref =
+    mode === 'buying'
+      ? `/buying/vehicles/detail/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`
+      : mode === 'rent'
+      ? `/rent/vehicles/detail/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`
+      : `/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`;
 
-  const price = mode === 'buying'
-    ? `₹${'buyingPrice' in vehicle ? (vehicle as BuyingVehicle).buyingPrice.toLocaleString() : '0'}`
-    : `₹${'basePrice' in vehicle ? (vehicle as Vehicle).basePrice.toLocaleString() : '0'}/month`;
+  const lowestLeasePlan = vehicle.leasePlans
+    .filter((p) => p.isActive)
+    .sort((a, b) => a.monthlyPriceRs - b.monthlyPriceRs)[0];
 
-  const ctaLabel = mode === 'buying' ? 'View Details' : 'View Lease Plans';
+  const lowestRentPlan = vehicle.rentPlans
+    .filter((p) => p.isActive)
+    .sort((a, b) => a.pricePerDayRs - b.pricePerDayRs)[0];
+
+  const price =
+    mode === 'buying'
+      ? vehicle.buyingPrice
+        ? `₹${vehicle.buyingPrice.toLocaleString('en-IN')}`
+        : 'Price on request'
+      : mode === 'rent'
+      ? lowestRentPlan
+        ? `₹${lowestRentPlan.pricePerDayRs.toLocaleString('en-IN')}/day`
+        : 'Price on request'
+      : lowestLeasePlan
+      ? `₹${lowestLeasePlan.monthlyPriceRs.toLocaleString('en-IN')}/month`
+      : 'Price on request';
+
+  const ctaLabel = mode === 'buying' ? 'View Details' : mode === 'rent' ? 'View Rental Info' : 'View Lease Plans';
 
   return (
     <motion.div
@@ -82,7 +92,7 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
           </div>
         )}
         <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm border border-white/10 text-[10px] font-bold tracking-widest uppercase">
-          {vehicle.category}
+          {CATEGORY_DISPLAY[vehicle.category]}
         </div>
       </Link>
 
@@ -92,7 +102,7 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
             <h3 className="text-xl font-bold tracking-tight hover:text-primary transition-colors">{vehicle.make} {vehicle.model}</h3>
           </Link>
           <p className="text-white/40 text-sm italic">
-            {mode === 'buying' ? 'Buy from ' : 'Starting from '}{price}
+            {mode === 'buying' ? 'Buy from ' : mode === 'rent' ? 'Rent from ' : 'Starting from '}{price}
           </p>
         </div>
 
@@ -117,5 +127,3 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
     </motion.div>
   );
 }
-
-

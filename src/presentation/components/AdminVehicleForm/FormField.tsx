@@ -24,11 +24,13 @@ interface InputFieldProps {
   placeholder?: string;
   defaultValue?: string | number | null;
   step?: string;
+  pattern?: string;
+  title?: string;
   colSpan?: boolean;
 }
 
 export function InputField({
-  label, name, type = 'text', required, placeholder, defaultValue, step, colSpan,
+  label, name, type = 'text', required, placeholder, defaultValue, step, pattern, title, colSpan,
 }: InputFieldProps) {
   return (
     <div className={`space-y-2${colSpan ? ' md:col-span-2' : ''}`}>
@@ -40,6 +42,8 @@ export function InputField({
         placeholder={placeholder}
         defaultValue={defaultValue ?? ''}
         step={step}
+        pattern={pattern}
+        title={title}
         className={INPUT_CLASS}
       />
     </div>

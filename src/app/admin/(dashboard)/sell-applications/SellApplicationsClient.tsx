@@ -6,10 +6,8 @@ import {
   Phone, Mail, ChevronDown, ChevronLeft, ChevronRight,
   X, Car, Zap, AlertTriangle, User, Trash2, FileText,
 } from 'lucide-react';
-import {
-  updateSellApplicationStatus, deleteSellApplication,
-  type SellApplicationItem,
-} from '@/app/actions/sellActions';
+import { api } from '@/lib/api-client';
+import type { SellApplicationItem } from '@/app/actions/sellActions';
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -54,7 +52,7 @@ function StatusToggle({ app }: { app: SellApplicationItem }) {
         {config.label}
       </span>
       <button
-        onClick={() => startTransition(async () => { await updateSellApplicationStatus(app.id, config.next); router.refresh(); })}
+        onClick={() => startTransition(async () => { await api.patch(`/sell-applications/${app.id}`, { status: config.next }); router.refresh(); })}
         disabled={isPending}
         title={config.nextLabel}
         className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-white/70 transition-all border border-white/10 rounded p-0.5 disabled:cursor-not-allowed"
@@ -72,7 +70,7 @@ function StatusToggle({ app }: { app: SellApplicationItem }) {
 function DeleteConfirm({ app, onCancel, onDeleted }: { app: SellApplicationItem; onCancel: () => void; onDeleted: () => void }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const handle = () => startTransition(async () => { await deleteSellApplication(app.id); router.refresh(); onDeleted(); });
+  const handle = () => startTransition(async () => { await api.del(`/sell-applications/${app.id}`); router.refresh(); onDeleted(); });
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
@@ -108,10 +106,10 @@ function DetailModal({ app, onClose, onDeleteRequest }: { app: SellApplicationIt
   const [isPending, startTransition] = useTransition();
   const [currentStatus, setCurrentStatus] = useState(app.status);
   const config = STATUS_CONFIG[currentStatus as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.NEW;
-  const docs = app.documents ? app.documents.split(',').filter(Boolean) : [];
+  const docs = Array.isArray(app.documents) ? app.documents.filter(Boolean) : [];
 
   const handleStatus = (s: string) => startTransition(async () => {
-    await updateSellApplicationStatus(app.id, s);
+    await api.patch(`/sell-applications/${app.id}`, { status: s });
     setCurrentStatus(s);
     router.refresh();
   });
@@ -186,7 +184,7 @@ function DetailModal({ app, onClose, onDeleteRequest }: { app: SellApplicationIt
           <div className="bg-white/5 rounded-xl p-4 flex items-center justify-between">
             <div>
               <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Expected Price</p>
-              <p className="text-2xl font-black text-primary mt-1">₹{app.expectedPrice.toLocaleString('en-IN')}</p>
+              <p className="text-2xl font-black text-primary mt-1">₹{app.expectedPriceRs.toLocaleString('en-IN')}</p>
             </div>
             <FileText className="w-8 h-8 text-white/10" />
           </div>
@@ -342,7 +340,7 @@ export default function SellApplicationsClient({ apps, search, statusFilter, pag
                       <div className="text-xs text-white/40 mt-0.5">{app.category} · {app.year}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-bold text-primary text-sm">₹{app.expectedPrice.toLocaleString('en-IN')}</span>
+                      <span className="font-bold text-primary text-sm">₹{app.expectedPriceRs.toLocaleString('en-IN')}</span>
                     </td>
                     <td className="px-6 py-4"><StatusToggle app={app} /></td>
                     <td className="px-6 py-4">

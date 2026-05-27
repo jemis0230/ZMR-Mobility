@@ -16,7 +16,7 @@ export type LeadFormState = {
     phone?: string;
     state?: string;
     city?: string;
-    inquiryCategory?: string;
+    inquiryType?: string;
     general?: string;
   };
 };
@@ -38,7 +38,7 @@ export type LeadItem = {
   email: string | null;
   state: string;
   city: string;
-  inquiryCategory: string;
+  inquiryType: string;
   vehicleId: string | null;
   vehicleName: string | null;
   notes: string | null;
@@ -59,7 +59,7 @@ export async function submitLeadAction(
     phone: formData.get('phone') as string,
     state: formData.get('state') as string,
     city: formData.get('city') as string,
-    inquiryCategory: formData.get('inquiryCategory') as string,
+    inquiryType: formData.get('inquiryType') as string,
     vehicleId: formData.get('vehicleId') as string,
     vehicleName: formData.get('vehicleName') as string,
   };
@@ -75,7 +75,7 @@ export async function submitLeadAction(
     return { success: false, errors: fieldErrors };
   }
 
-  const { name, phone, state, city, inquiryCategory, vehicleId, vehicleName } = parsed.data;
+  const { name, phone, state, city, inquiryType, vehicleId, vehicleName } = parsed.data;
 
   try {
     await prisma.lead.create({
@@ -84,7 +84,7 @@ export async function submitLeadAction(
         phone,
         state,
         city,
-        inquiryCategory,
+        inquiryType,
         vehicleId: vehicleId ?? null,
         vehicleName: vehicleName ?? null,
         status: 'PENDING',
@@ -111,7 +111,7 @@ export async function submitGeneralInquiryAction(
     name: formData.get('name') as string,
     phone: formData.get('phone') as string,
     email: formData.get('email') as string,
-    inquiryCategory: formData.get('inquiryCategory') as string,
+    inquiryType: formData.get('inquiryType') as string,
     notes: formData.get('notes') as string,
   };
 
@@ -126,7 +126,7 @@ export async function submitGeneralInquiryAction(
     return { success: false, errors: fieldErrors };
   }
 
-  const { name, phone, email, inquiryCategory, notes } = parsed.data;
+  const { name, phone, email, inquiryType, notes } = parsed.data;
 
   try {
     await prisma.lead.create({
@@ -136,7 +136,7 @@ export async function submitGeneralInquiryAction(
         email,
         state: '',
         city: '',
-        inquiryCategory,
+        inquiryType,
         notes,
         status: 'PENDING',
       },
@@ -179,12 +179,12 @@ export async function getLeads(params: {
     if (params.search?.trim()) {
       const q = params.search.trim();
       where.OR = [
-        { name: { contains: q } },
+        { name: { contains: q, mode: 'insensitive' } },
         { phone: { contains: q } },
-        { email: { contains: q } },
-        { vehicleName: { contains: q } },
-        { state: { contains: q } },
-        { city: { contains: q } },
+        { email: { contains: q, mode: 'insensitive' } },
+        { vehicleName: { contains: q, mode: 'insensitive' } },
+        { state: { contains: q, mode: 'insensitive' } },
+        { city: { contains: q, mode: 'insensitive' } },
       ];
     }
 
@@ -200,7 +200,11 @@ export async function getLeads(params: {
 
     return {
       success: true,
-      data: leads.map((l) => ({ ...l, createdAt: l.createdAt.toISOString() })),
+      data: leads.map((l) => ({
+        ...l,
+        inquiryType: l.inquiryType,
+        createdAt: l.createdAt.toISOString(),
+      })),
       total,
       page,
       pageCount: Math.ceil(total / LEADS_PAGE_SIZE),
@@ -224,7 +228,7 @@ export async function updateLeadStatus(id: string, status: string): Promise<{
   }
 
   try {
-    await prisma.lead.update({ where: { id }, data: { status } });
+    await prisma.lead.update({ where: { id }, data: { status: status as (typeof LEAD_STATUSES)[number] } });
     revalidatePath('/admin/leads');
     return { success: true };
   } catch (error) {

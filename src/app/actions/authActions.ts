@@ -57,7 +57,7 @@ export async function loginAction(
     userId: user.id,
     email: user.email,
     name: user.name,
-    role: user.role as 'superadmin' | 'admin',
+    role: user.role === 'SUPER_ADMIN' ? 'superadmin' : 'admin',
   });
 
   return { success: true };
@@ -128,7 +128,7 @@ export async function createAdminUserAction(
       email,
       name: name || email,
       passwordHash,
-      role: 'admin', // role is NEVER taken from formData
+      role: 'ADMIN', // role is NEVER taken from formData
       isActive: true,
     },
   });
@@ -149,7 +149,7 @@ export async function resetUserPasswordAction(
   const user = await prisma.adminUser.findUnique({ where: { id: userId } });
 
   if (!user) return { success: false, error: 'User not found' };
-  if (user.role === 'superadmin') {
+  if (user.role === 'SUPER_ADMIN') {
     return { success: false, error: 'Cannot reset superadmin password via this form' };
   }
 
@@ -169,7 +169,7 @@ export async function toggleUserActiveAction(userId: string): Promise<AuthResult
 
   const user = await prisma.adminUser.findUnique({ where: { id: userId } });
   if (!user) return { success: false, error: 'User not found' };
-  if (user.role === 'superadmin') {
+  if (user.role === 'SUPER_ADMIN') {
     return { success: false, error: 'Cannot deactivate superadmin' };
   }
 
@@ -193,7 +193,7 @@ export async function deleteAdminUserAction(userId: string): Promise<AuthResult>
 
   const user = await prisma.adminUser.findUnique({ where: { id: userId } });
   if (!user) return { success: false, error: 'User not found' };
-  if (user.role === 'superadmin') {
+  if (user.role === 'SUPER_ADMIN') {
     return { success: false, error: 'Cannot delete superadmin account' };
   }
 

@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CompanyRail from "./CompanyRail";
 import CategoryModal from "./CategoryModal";
+import FleetPickerModal from "./FleetPickerModal";
 import CategorySection from "./CategorySection";
 import dynamic from "next/dynamic";
 const EVCircuitBackground = dynamic(() => import("./EVCircuitBackground"), { ssr: false });
@@ -33,8 +34,8 @@ const heroSlides = [
 
 const stats = [
   { value: 4,         suffix: "+",    label: "Cities Active", isNum: true  },
-  { value: 2,         suffix: " Lac kg", label: "CO₂ Saved",   isNum: true  },
-  { value: 176,       suffix: "L km", label: "Green KM",      isNum: true  },
+  { value: 200,       suffix: " Ton",      label: "CO₂ Saved",   isNum: true  },
+  { value: 176,       suffix: " Lakh Km", label: "Green KM",    isNum: true  },
 ];
 
 const features = [
@@ -76,9 +77,9 @@ const howItWorks = [
 ];
 
 const testimonials = [
-  { name: "Ramesh Kumar",          role: "Delivery Partner, Lucknow",    text: "ZMR made it possible for me to get my first electric vehicle with minimal deposit. My fuel savings are incredible!", rating: 5 },
-  { name: "Sunita Devi",           role: "Women Entrepreneur, Dehradun", text: "As a woman entrepreneur, ZMR's support has been exceptional. The IoT tracking gives me peace of mind every day.", rating: 5 },
-  { name: "Fleet Manager, ID Fresh", role: "Corporate Client",           text: "Managing 50+ EVs has never been easier. Real-time monitoring and ZMR's response team is always available.", rating: 5 },
+  { name: "Ramesh Kumar",            role: "Delivery Partner, Lucknow",    text: "ZMR made it possible for me to get my first electric vehicle with minimal deposit. My fuel savings are incredible!", rating: 5, photo: "/testimonials/client1.webp", date: "March 2025"   },
+  { name: "Sunita Devi",             role: "Women Entrepreneur, Dehradun", text: "As a woman entrepreneur, ZMR's support has been exceptional. The IoT tracking gives me peace of mind every day.", rating: 5, photo: "/testimonials/client3.webp", date: "August 2025"  },
+  { name: "Fleet Manager, ID Fresh", role: "Corporate Client",             text: "Managing 50+ EVs has never been easier. Real-time monitoring and ZMR's response team is always available.", rating: 5, photo: "/testimonials/client2.webp", date: "January 2026"  },
 ];
 
 
@@ -113,16 +114,142 @@ function CyclingLabel() {
   );
 }
 
+// ── Testimonials ──────────────────────────────────────────────
+
+function TestimonialsSection() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setActive((i) => (i + 1) % testimonials.length), 4500);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  return (
+    <section className="py-28 px-6 bg-white/[0.02] border-t border-white/5">
+      <div className="max-w-7xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+          <span className="text-primary text-xs font-bold uppercase tracking-widest">Testimonials</span>
+          <h2 className="text-4xl font-black mt-3">Loved by Customers Across India</h2>
+        </motion.div>
+
+        {/* Cards grid */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {testimonials.map((t, i) => {
+            const isActive = active === i;
+            const isHovered = hovered === i;
+            return (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+                onMouseEnter={() => { setPaused(true); setHovered(i); }}
+                onMouseLeave={() => { setPaused(false); setHovered(null); }}
+                onClick={() => setActive(i)}
+                className={`glass-card transition-all duration-500 cursor-pointer relative overflow-hidden ${
+                  isActive ? 'border-primary/40 shadow-[0_0_30px_-8px_rgba(74,222,128,0.25)]' : 'border-white/5 hover:border-primary/20'
+                }`}
+              >
+                {/* Full-card photo overlay — fades in on hover */}
+                <AnimatePresence>
+                  {isHovered && (
+                    <motion.div
+                      key="photo-overlay"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.45, ease: 'easeInOut' }}
+                      className="absolute inset-0 z-10 bg-[#0d1117]"
+                    >
+                      <Image src={t.photo} alt={t.name} fill className="object-contain" sizes="(max-width: 768px) 100vw, 33vw" />
+                      {/* Dark gradient so name/role stay readable at bottom */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+                      {/* Name + role pinned to bottom */}
+                      <div className="absolute bottom-0 left-0 right-0 p-6">
+                        <div className="flex gap-1 mb-3">
+                          {Array.from({ length: t.rating }).map((_, j) => (
+                            <Star key={j} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                          ))}
+                        </div>
+                        <p className="font-black text-white text-base leading-tight">{t.name}</p>
+                        <p className="text-xs text-white/60 mt-0.5">{t.role}</p>
+                        <p className="text-[10px] text-primary font-bold mt-1">{t.date}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Card content (below photo overlay) */}
+                <div className="p-8">
+                  {/* Active glow bar */}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div
+                        initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }}
+                        transition={{ duration: 4.5, ease: 'linear' }}
+                        style={{ transformOrigin: 'left' }}
+                        className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/80 to-primary/20"
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  {/* Stars */}
+                  <div className="flex gap-1 mb-4">
+                    {Array.from({ length: t.rating }).map((_, j) => (
+                      <Star key={j} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+
+                  {/* Review text */}
+                  <p className="text-white/70 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
+
+                  {/* Footer: photo always shown in circle */}
+                  <div className="flex items-center gap-3 pt-4 border-t border-white/5">
+                    <div className="relative w-11 h-11 rounded-full flex-shrink-0 overflow-hidden ring-2 ring-primary/30">
+                      <Image src={t.photo} alt={t.name} fill className="object-cover" sizes="44px" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">{t.name}</p>
+                      <p className="text-xs text-white/40 truncate">{t.role}</p>
+                      <p className="text-[10px] text-primary/70 font-semibold mt-0.5">{t.date}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Dots */}
+        <div className="flex justify-center gap-2 mt-8">
+          {testimonials.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { setActive(i); setPaused(true); setTimeout(() => setPaused(false), 6000); }}
+              className={`rounded-full transition-all duration-300 ${active === i ? 'w-6 h-2 bg-primary' : 'w-2 h-2 bg-white/20 hover:bg-white/40'}`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────
 
 export default function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFleetPickerOpen, setIsFleetPickerOpen] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setSlideIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 3000);
+    }, 4500);
     return () => clearInterval(timer);
   }, []);
 
@@ -185,7 +312,7 @@ export default function Hero() {
               className="flex flex-col sm:flex-row gap-4"
             >
               <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setIsFleetPickerOpen(true)}
                 className="group bg-primary text-background px-8 py-4 rounded-2xl font-extrabold flex items-center justify-center gap-2 hover:scale-105 transition-all electric-glow text-sm"
               >
                 Explore EV Fleet
@@ -232,22 +359,34 @@ export default function Hero() {
               {/* Electric ring wrapper */}
               <div className="animate-electric-ring rounded-3xl">
                 <div className="relative rounded-3xl overflow-hidden border border-primary/30 shadow-2xl shadow-primary/10 h-[300px] md:h-[580px]">
-                  <AnimatePresence mode="wait">
+                  {heroSlides.map((slide, i) => (
                     <motion.div
-                      key={slideIndex}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.8 }}
+                      key={slide}
                       className="absolute inset-0"
+                      animate={{ opacity: i === slideIndex ? 1 : 0 }}
+                      transition={{ duration: 1.4, ease: "easeInOut" }}
+                      style={{ willChange: 'opacity' }}
                     >
-                      <img
-                        src={heroSlides[slideIndex]}
+                      <motion.img
+                        src={slide}
                         alt="ZMR Mobility EV"
                         className="w-full h-full object-cover"
+                        animate={i === slideIndex ? { scale: 1.08 } : { scale: 1 }}
+                        initial={{ scale: 1 }}
+                        transition={{ duration: 6, ease: "linear" }}
                       />
                     </motion.div>
-                  </AnimatePresence>
+                  ))}
+                  {/* dot indicators */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                    {heroSlides.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSlideIndex(i)}
+                        className={`rounded-full transition-all duration-500 ${i === slideIndex ? 'w-5 h-1.5 bg-primary' : 'w-1.5 h-1.5 bg-white/30 hover:bg-white/60'}`}
+                      />
+                    ))}
+                  </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
                 </div>
               </div>
@@ -350,7 +489,7 @@ export default function Hero() {
           </div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-16 text-center">
-            <button onClick={() => setIsModalOpen(true)} className="group inline-flex items-center gap-2 bg-primary text-background px-10 py-4 rounded-2xl font-extrabold hover:scale-105 transition-all electric-glow">
+            <button onClick={() => setIsFleetPickerOpen(true)} className="group inline-flex items-center gap-2 bg-primary text-background px-10 py-4 rounded-2xl font-extrabold hover:scale-105 transition-all electric-glow">
               Get Started Today
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -376,9 +515,9 @@ export default function Hero() {
               </div>
               <div className="grid grid-cols-2 gap-5">
                 {[
-                  { val: 2,      suffix: " Lac kg", label: "CO₂ Saved",   icon: "🌿" },
-                  { val: 142666, suffix: " L",  label: "Fuel Saved",      icon: "⛽" },
-                  { val: 51,     suffix: "",     label: "Women Operators", icon: "💪" },
+                  { val: 200,    suffix: " Ton",     label: "CO₂ Saved",   icon: "🌿" },
+                  { val: 198,    suffix: " Lakh L", label: "Fuel Saved",         icon: "⛽" },
+                  { val: 51,     suffix: "",       label: "Women Entrepreneurs", icon: "💪" },
                   { val: 6000,   suffix: " kg",  label: "Plastics Saved",  icon: "♻️" },
                 ].map((item) => (
                   <motion.div
@@ -400,41 +539,7 @@ export default function Hero() {
       </section>
 
       {/* ─── TESTIMONIALS ─── */}
-      <section className="py-28 px-6 bg-white/[0.02] border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <span className="text-primary text-xs font-bold uppercase tracking-widest">Testimonials</span>
-            <h2 className="text-4xl font-black mt-3">Loved by Customers Across India</h2>
-          </motion.div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }} viewport={{ once: true }}
-                whileHover={{ y: -6, scale: 1.01 }}
-                className="glass-card p-8 border-white/5 hover:border-primary/20 transition-all"
-              >
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star key={j} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-white/70 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
-                <div className="flex items-center gap-3 pt-4 border-t border-white/5">
-                  <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm">{t.name}</p>
-                    <p className="text-xs text-white/40">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialsSection />
 
       {/* ─── CTA BANNER ─── */}
       <section className="py-28 px-6">
@@ -449,7 +554,7 @@ export default function Hero() {
               Join hundreds of businesses and individuals already saving on fuel, reducing emissions, and driving India's clean mobility revolution.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <button onClick={() => setIsModalOpen(true)} className="group bg-primary text-background px-10 py-4 rounded-2xl font-extrabold hover:scale-105 transition-all electric-glow flex items-center gap-2">
+              <button onClick={() => setIsFleetPickerOpen(true)} className="group bg-primary text-background px-10 py-4 rounded-2xl font-extrabold hover:scale-105 transition-all electric-glow flex items-center gap-2">
                 Browse EV Fleet
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -463,6 +568,7 @@ export default function Hero() {
       </section>
 
       <CategoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <FleetPickerModal isOpen={isFleetPickerOpen} onClose={() => setIsFleetPickerOpen(false)} />
     </>
   );
 }

@@ -1,14 +1,8 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import {
-  createAdminUserAction,
-  resetUserPasswordAction,
-  toggleUserActiveAction,
-  deleteAdminUserAction,
-} from '@/app/actions/authActions';
+import { api } from '@/lib/api-client';
 import {
   Plus,
   KeyRound,
@@ -102,30 +96,21 @@ function PasswordRevealModal({
 
 // ── Add user form ───────────────────────────────────────────────────────────────
 
-const addInitial = { success: false, error: undefined, generatedPassword: undefined };
-
-function AddUserSubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="w-full bg-primary text-background font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow disabled:opacity-50"
-    >
-      {pending ? (
-        <div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin mx-auto" />
-      ) : (
-        'Create User & Generate Password'
-      )}
-    </button>
-  );
-}
-
 function AddUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: (pw: string) => void }) {
-  const [state, formAction] = useFormState(createAdminUserAction, addInitial);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  if (state.success && state.generatedPassword) {
-    onCreated(state.generatedPassword);
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+    const result = await api.post<{ generatedPassword: string }>('/admin/users', { email, name });
+    setLoading(false);
+    if (!result.success) { setError(result.error ?? 'Failed to create user'); return; }
+    onCreated(result.data.generatedPassword);
   }
 
   return (
@@ -138,7 +123,7 @@ function AddUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
           </button>
         </div>
 
-        <form action={formAction} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-widest text-white/50">
               Email Address
@@ -163,13 +148,23 @@ function AddUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
             />
           </div>
 
-          {state.error && (
+          {error && (
             <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
-              {state.error}
+              {error}
             </p>
           )}
 
-          <AddUserSubmitButton />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-primary text-background font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow disabled:opacity-50"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin mx-auto" />
+            ) : (
+              'Create User & Generate Password'
+            )}
+          </button>
         </form>
       </div>
     </div>
@@ -193,11 +188,9 @@ export default function UsersClient({
 
   const handleResetPassword = (userId: string) => {
     startTransition(async () => {
-      const fd = new FormData();
-      fd.append('userId', userId);
-      const result = await resetUserPasswordAction({ success: false }, fd);
-      if (result.success && result.generatedPassword) {
-        setRevealPassword({ pw: result.generatedPassword, title: 'Password Reset' });
+      const result = await api.put<{ generatedPassword: string }>(`/admin/users/${userId}`, { action: 'reset-password' });
+      if (result.success) {
+        setRevealPassword({ pw: result.data.generatedPassword, title: 'Password Reset' });
       }
       router.refresh();
     });
@@ -205,14 +198,14 @@ export default function UsersClient({
 
   const handleToggleActive = (userId: string) => {
     startTransition(async () => {
-      await toggleUserActiveAction(userId);
+      await api.put(`/admin/users/${userId}`, { action: 'toggle-active' });
       router.refresh();
     });
   };
 
   const handleDelete = (userId: string) => {
     startTransition(async () => {
-      await deleteAdminUserAction(userId);
+      await api.del(`/admin/users/${userId}`);
       setConfirmDelete(null);
       router.refresh();
     });

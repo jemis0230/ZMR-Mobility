@@ -1,25 +1,7 @@
 'use server';
 
-import { randomUUID } from 'crypto';
 import prisma from '@/lib/prisma';
-import { type Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
-
-type RawFaqRow = {
-  id: string;
-  question: string;
-  answer: string;
-  order: number;
-  isActive: boolean | number;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-};
-
-type FaqInput = {
-  question: string;
-  answer: string;
-  requestedOrder: number | null;
-};
 
 export type FaqItem = {
   id: string;
@@ -31,93 +13,53 @@ export type FaqItem = {
   updatedAt: string;
 };
 
-function normalizeFaq(row: RawFaqRow): FaqItem {
+function toFaqItem(row: { id: string; question: string; answer: string; sortOrder: number; isActive: boolean; createdAt: Date; updatedAt: Date }): FaqItem {
   return {
     id: row.id,
     question: row.question,
     answer: row.answer,
-    order: Number(row.order) || 0,
-    isActive: Boolean(row.isActive),
-    createdAt: new Date(row.createdAt).toISOString(),
-    updatedAt: new Date(row.updatedAt).toISOString(),
+    order: row.sortOrder,
+    isActive: row.isActive,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
   };
 }
 
-function parseFaqFormData(formData: FormData): FaqInput | { error: string } {
-  const questionValue = formData.get('question');
-  const answerValue = formData.get('answer');
-  const orderValue = formData.get('order');
-
-  const question = typeof questionValue === 'string' ? questionValue.trim() : '';
-  const answer = typeof answerValue === 'string' ? answerValue.trim() : '';
+function parseFaqFormData(formData: FormData): { question: string; answer: string; requestedOrder: number | null } | { error: string } {
+  const question = (formData.get('question') as string ?? '').trim();
+  const answer = (formData.get('answer') as string ?? '').trim();
+  const orderRaw = formData.get('order');
   const requestedOrder =
-    typeof orderValue === 'string' && orderValue.trim() !== ''
-      ? Number(orderValue)
+    typeof orderRaw === 'string' && orderRaw.trim() !== '' && Number.isFinite(Number(orderRaw))
+      ? Math.trunc(Number(orderRaw))
       : null;
 
-  if (!question) {
-    return { error: 'Question is required.' };
-  }
-
-  if (!answer) {
-    return { error: 'Answer is required.' };
-  }
-
-  return {
-    question,
-    answer,
-    requestedOrder:
-      requestedOrder !== null && Number.isFinite(requestedOrder)
-        ? Math.trunc(requestedOrder)
-        : null,
-  };
-}
-
-function normalizeRequestedOrder(
-  requestedOrder: number | null,
-  totalItems: number
-) {
-  if (requestedOrder === null || requestedOrder < 1) {
-    return totalItems + 1;
-  }
-
-  return Math.min(requestedOrder, totalItems + 1);
-}
-
-async function getOrderedFaqRows(tx: Prisma.TransactionClient) {
-  return tx.$queryRaw<RawFaqRow[]>`
-    SELECT "id", "question", "answer", "order", "isActive", "createdAt", "updatedAt"
-    FROM "Faq"
-    ORDER BY "order" ASC, "createdAt" ASC, "id" ASC
-  `;
-}
-
-async function persistFaqOrder(
-  tx: Prisma.TransactionClient,
-  faqIdsInOrder: string[]
-) {
-  for (let index = 0; index < faqIdsInOrder.length; index += 1) {
-    const faqId = faqIdsInOrder[index];
-    await tx.$executeRaw`
-      UPDATE "Faq"
-      SET "order" = ${index + 1}
-      WHERE "id" = ${faqId}
-    `;
-  }
+  if (!question) return { error: 'Question is required.' };
+  if (!answer) return { error: 'Answer is required.' };
+  return { question, answer, requestedOrder };
 }
 
 export async function getFaqs() {
   try {
-    const faqs = await prisma.$queryRaw<RawFaqRow[]>`
-      SELECT "id", "question", "answer", "order", "isActive", "createdAt", "updatedAt"
-      FROM "Faq"
-      WHERE "isActive" = true
-      ORDER BY "order" ASC, "createdAt" DESC
-    `;
-
-    return { success: true, data: faqs.map(normalizeFaq) };
+    const faqs = await prisma.faq.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+    });
+    return { success: true, data: faqs.map(toFaqItem) };
   } catch (error) {
     console.error('Get FAQs error:', error);
+    return { success: false, error: 'Failed to get FAQs' };
+  }
+}
+
+export async function getAllFaqsAdmin() {
+  try {
+    const faqs = await prisma.faq.findMany({
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+    });
+    return { success: true, data: faqs.map(toFaqItem) };
+  } catch (error) {
+    console.error('Get all FAQs (admin) error:', error);
     return { success: false, error: 'Failed to get FAQs' };
   }
 }
@@ -125,30 +67,23 @@ export async function getFaqs() {
 export async function createFaq(formData: FormData) {
   try {
     const parsed = parseFaqFormData(formData);
+    if ('error' in parsed) return { success: false, error: parsed.error };
 
-    if ('error' in parsed) {
-      return { success: false, error: parsed.error };
-    }
-
-    const now = new Date().toISOString();
-    const newFaqId = randomUUID();
+    const count = await prisma.faq.count();
+    const sortOrder =
+      parsed.requestedOrder !== null && parsed.requestedOrder >= 1
+        ? Math.min(parsed.requestedOrder, count + 1)
+        : count + 1;
 
     await prisma.$transaction(async (tx) => {
-      const existingFaqs = await getOrderedFaqRows(tx);
-      const insertAt = normalizeRequestedOrder(
-        parsed.requestedOrder,
-        existingFaqs.length
-      );
-
-      const orderedFaqIds = existingFaqs.map((faq) => faq.id);
-      orderedFaqIds.splice(insertAt - 1, 0, newFaqId);
-
-      await tx.$executeRaw`
-        INSERT INTO "Faq" ("id", "question", "answer", "order", "isActive", "createdAt", "updatedAt")
-        VALUES (${newFaqId}, ${parsed.question}, ${parsed.answer}, ${insertAt}, ${1}, ${now}, ${now})
-      `;
-
-      await persistFaqOrder(tx, orderedFaqIds);
+      // Shift items that are at or after the insert position
+      await tx.faq.updateMany({
+        where: { sortOrder: { gte: sortOrder } },
+        data: { sortOrder: { increment: 1 } },
+      });
+      await tx.faq.create({
+        data: { question: parsed.question, answer: parsed.answer, sortOrder },
+      });
     });
 
     revalidatePath('/');
@@ -163,42 +98,38 @@ export async function createFaq(formData: FormData) {
 export async function updateFaq(id: string, formData: FormData) {
   try {
     const parsed = parseFaqFormData(formData);
-
-    if ('error' in parsed) {
-      return { success: false, error: parsed.error };
-    }
+    if ('error' in parsed) return { success: false, error: parsed.error };
 
     const isActive = formData.get('isActive') === 'on';
 
+    const existing = await prisma.faq.findUnique({ where: { id } });
+    if (!existing) return { success: false, error: 'FAQ not found' };
+
+    const totalOthers = await prisma.faq.count({ where: { id: { not: id } } });
+    const newOrder =
+      parsed.requestedOrder !== null && parsed.requestedOrder >= 1
+        ? Math.min(parsed.requestedOrder, totalOthers + 1)
+        : existing.sortOrder;
+
     await prisma.$transaction(async (tx) => {
-      const existingFaqs = await getOrderedFaqRows(tx);
-      const currentFaq = existingFaqs.find((faq) => faq.id === id);
-
-      if (!currentFaq) {
-        throw new Error('FAQ not found');
+      const old = existing.sortOrder;
+      if (newOrder !== old) {
+        if (newOrder > old) {
+          await tx.faq.updateMany({
+            where: { sortOrder: { gt: old, lte: newOrder }, id: { not: id } },
+            data: { sortOrder: { decrement: 1 } },
+          });
+        } else {
+          await tx.faq.updateMany({
+            where: { sortOrder: { gte: newOrder, lt: old }, id: { not: id } },
+            data: { sortOrder: { increment: 1 } },
+          });
+        }
       }
-
-      const remainingFaqIds = existingFaqs
-        .filter((faq) => faq.id !== id)
-        .map((faq) => faq.id);
-      const insertAt = normalizeRequestedOrder(
-        parsed.requestedOrder,
-        remainingFaqIds.length
-      );
-
-      remainingFaqIds.splice(insertAt - 1, 0, id);
-
-      await tx.$executeRaw`
-        UPDATE "Faq"
-        SET
-          "question" = ${parsed.question},
-          "answer" = ${parsed.answer},
-          "isActive" = ${isActive ? 1 : 0},
-          "updatedAt" = ${new Date().toISOString()}
-        WHERE "id" = ${id}
-      `;
-
-      await persistFaqOrder(tx, remainingFaqIds);
+      await tx.faq.update({
+        where: { id },
+        data: { question: parsed.question, answer: parsed.answer, isActive, sortOrder: newOrder },
+      });
     });
 
     revalidatePath('/');
@@ -212,39 +143,22 @@ export async function updateFaq(id: string, formData: FormData) {
 
 export async function deleteFaq(id: string) {
   try {
-    await prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`
-        DELETE FROM "Faq"
-        WHERE "id" = ${id}
-      `;
+    const faq = await prisma.faq.findUnique({ where: { id } });
+    if (!faq) return { success: false, error: 'FAQ not found' };
 
-      const remainingFaqs = await getOrderedFaqRows(tx);
-      await persistFaqOrder(
-        tx,
-        remainingFaqs.map((faq) => faq.id)
-      );
+    await prisma.$transaction(async (tx) => {
+      await tx.faq.delete({ where: { id } });
+      await tx.faq.updateMany({
+        where: { sortOrder: { gt: faq.sortOrder } },
+        data: { sortOrder: { decrement: 1 } },
+      });
     });
 
-    revalidatePath('/admin/faqs');
     revalidatePath('/');
+    revalidatePath('/admin/faqs');
     return { success: true };
   } catch (error) {
     console.error('Delete FAQ error:', error);
     return { success: false, error: 'Failed to delete FAQ' };
-  }
-}
-
-export async function getAllFaqsAdmin() {
-  try {
-    const faqs = await prisma.$queryRaw<RawFaqRow[]>`
-      SELECT "id", "question", "answer", "order", "isActive", "createdAt", "updatedAt"
-      FROM "Faq"
-      ORDER BY "order" ASC, "createdAt" DESC
-    `;
-
-    return { success: true, data: faqs.map(normalizeFaq) };
-  } catch (error) {
-    console.error('Get all FAQs (admin) error:', error);
-    return { success: false, error: 'Failed to get FAQs' };
   }
 }

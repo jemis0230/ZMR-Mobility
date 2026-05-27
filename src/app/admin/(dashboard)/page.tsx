@@ -15,16 +15,19 @@ function timeAgo(date: Date): string {
 }
 
 const LEAD_STATUS: Record<string, { label: string; color: string }> = {
-  PENDING:   { label: 'Pending',   color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  CONTACTED: { label: 'Contacted', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
-  CLOSED:    { label: 'Closed',    color: 'text-green-400 bg-green-400/10 border-green-400/20' },
+  PENDING:     { label: 'Pending',   color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
+  CONTACTED:   { label: 'Contacted', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
+  QUALIFIED:   { label: 'Qualified', color: 'text-purple-400 bg-purple-400/10 border-purple-400/20' },
+  CLOSED_WON:  { label: 'Won',       color: 'text-green-400 bg-green-400/10 border-green-400/20' },
+  CLOSED_LOST: { label: 'Lost',      color: 'text-red-400 bg-red-400/10 border-red-400/20' },
 };
 
 const SELL_STATUS: Record<string, { label: string; color: string }> = {
   NEW:       { label: 'New',       color: 'text-primary bg-primary/10 border-primary/20' },
   REVIEWING: { label: 'Reviewing', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
   VALUED:    { label: 'Valued',    color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
-  CLOSED:    { label: 'Closed',    color: 'text-green-400 bg-green-400/10 border-green-400/20' },
+  ACCEPTED:  { label: 'Accepted',  color: 'text-green-400 bg-green-400/10 border-green-400/20' },
+  REJECTED:  { label: 'Rejected',  color: 'text-red-400 bg-red-400/10 border-red-400/20' },
 };
 
 export default async function AdminDashboardPage() {
@@ -40,13 +43,13 @@ export default async function AdminDashboardPage() {
     prisma.lead.count(),
     prisma.lead.count({ where: { status: 'PENDING' } }),
     prisma.lead.count({ where: { status: 'CONTACTED' } }),
-    prisma.lead.count({ where: { status: 'CLOSED' } }),
+    prisma.lead.count({ where: { status: { in: ['CLOSED_WON', 'CLOSED_LOST'] } } }),
     prisma.lead.count({ where: { createdAt: { gte: startOfMonth } } }),
 
     prisma.sellApplication.count(),
     prisma.sellApplication.count({ where: { status: 'NEW' } }),
     prisma.sellApplication.count({ where: { status: 'REVIEWING' } }),
-    prisma.sellApplication.count({ where: { status: { in: ['VALUED', 'CLOSED'] } } }),
+    prisma.sellApplication.count({ where: { status: { in: ['VALUED', 'ACCEPTED'] } } }),
     prisma.sellApplication.count({ where: { createdAt: { gte: startOfMonth } } }),
 
     prisma.vehicle.count(),
@@ -59,7 +62,7 @@ export default async function AdminDashboardPage() {
     prisma.lead.findMany({
       orderBy: { createdAt: 'desc' },
       take: 5,
-      select: { id: true, name: true, inquiryCategory: true, status: true, createdAt: true },
+      select: { id: true, name: true, inquiryType: true, status: true, createdAt: true },
     }),
     prisma.sellApplication.findMany({
       orderBy: { createdAt: 'desc' },
@@ -261,7 +264,7 @@ export default async function AdminDashboardPage() {
                   <div key={lead.id} className="px-6 py-3 flex items-center justify-between gap-3 hover:bg-white/[0.02] transition-colors">
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-white truncate">{lead.name}</p>
-                      <p className="text-xs text-white/30 truncate">{lead.inquiryCategory}</p>
+                      <p className="text-xs text-white/30 truncate">{lead.inquiryType}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${st.color}`}>

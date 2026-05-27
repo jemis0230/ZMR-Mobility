@@ -4,22 +4,19 @@ import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Edit, Trash2, X, Car, AlertTriangle, ImageIcon, Search } from 'lucide-react';
 import EVImage from '@/presentation/components/EVImage';
-import {
-  createBrand, updateBrand, deleteBrand,
-  createModel, updateModel, deleteModel,
-  type BrandItem, type ModelItem,
-} from '@/app/actions/evCatalogActions';
+import { api } from '@/lib/api-client';
+import type { BrandItem, ModelItem } from '@/app/actions/evCatalogActions';
 
 // ─────────────────────────────────────────────────────────────
 // Constants
 // ─────────────────────────────────────────────────────────────
 
 const VEHICLE_CATEGORIES = [
-  { value: '2 Wheeler', short: '2W', color: 'teal' },
-  { value: '3 Wheeler (Passenger)', short: '3W-P', color: 'amber' },
-  { value: '3 Wheeler (Cargo)', short: '3W-C', color: 'amber' },
-  { value: '4 Wheeler (Passenger)', short: '4W-P', color: 'blue' },
-  { value: '4 Wheeler (Cargo)', short: '4W-C', color: 'blue' },
+  { value: 'TWO_WHEELER',             label: '2 Wheeler',            short: '2W',  color: 'teal'  },
+  { value: 'THREE_WHEELER_PASSENGER', label: '3 Wheeler (Passenger)', short: '3W-P', color: 'amber' },
+  { value: 'THREE_WHEELER_CARGO',     label: '3 Wheeler (Cargo)',    short: '3W-C', color: 'amber' },
+  { value: 'FOUR_WHEELER_PASSENGER',  label: '4 Wheeler (Passenger)', short: '4W-P', color: 'blue'  },
+  { value: 'FOUR_WHEELER_CARGO',      label: '4 Wheeler (Cargo)',    short: '4W-C', color: 'blue'  },
 ] as const;
 
 type CategoryColor = 'teal' | 'amber' | 'blue';
@@ -170,8 +167,8 @@ function ModelForm({
           className="w-full mt-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-primary [&>option]:bg-[#0d1117]"
         >
           <option value="">Select category…</option>
-          {availableCategories.map(({ value, short }) => (
-            <option key={value} value={value}>{value} ({short})</option>
+          {availableCategories.map(({ value, label, short }) => (
+            <option key={value} value={value}>{label} ({short})</option>
           ))}
         </select>
       </div>
@@ -276,8 +273,10 @@ function BrandPanel({
     e.preventDefault();
     setError('');
     const fd = new FormData(e.currentTarget);
+    const name = fd.get('name') as string;
+    const categories = fd.getAll('categories') as string[];
     startTransition(async () => {
-      const res = await createBrand(fd);
+      const res = await api.post('/brands', { name, categories });
       if (res.success) { setShowForm(false); router.refresh(); onBrandMutated(); }
       else setError(res.error ?? 'Failed');
     });
@@ -288,9 +287,11 @@ function BrandPanel({
     if (!editingBrand) return;
     setError('');
     const fd = new FormData(e.currentTarget);
-    fd.set('isActive', fd.get('isActive') === 'on' ? 'true' : 'false');
+    const name = fd.get('name') as string;
+    const categories = fd.getAll('categories') as string[];
+    const isActive = fd.get('isActive') === 'on';
     startTransition(async () => {
-      const res = await updateBrand(editingBrand.id, fd);
+      const res = await api.put(`/brands/${editingBrand.id}`, { name, categories, isActive });
       if (res.success) { setEditingBrand(null); router.refresh(); onBrandMutated(); }
       else setError(res.error ?? 'Failed');
     });
@@ -298,7 +299,7 @@ function BrandPanel({
 
   const handleDelete = (brand: BrandItem) => {
     startTransition(async () => {
-      await deleteBrand(brand.id);
+      await api.del(`/brands/${brand.id}`);
       if (selectedBrandId === brand.id) onSelectBrand(null);
       router.refresh();
       onBrandMutated();
@@ -461,8 +462,9 @@ function ModelPanel({
     setFormError('');
     const fd = new FormData(e.currentTarget);
     if (selectedBrandId) fd.set('brandId', selectedBrandId);
+    const brandId = fd.get('brandId') as string;
     startTransition(async () => {
-      const res = await createModel(fd);
+      const res = await api.upload(`/brands/${brandId}/models`, fd);
       if (res.success) { resetForm(); router.refresh(); }
       else setFormError(res.error ?? 'Failed');
     });
@@ -475,7 +477,7 @@ function ModelPanel({
     const fd = new FormData(e.currentTarget);
     fd.set('isActive', fd.get('isActive') === 'on' ? 'true' : 'false');
     startTransition(async () => {
-      const res = await updateModel(editingModel.id, fd);
+      const res = await api.upload(`/brands/${editingModel.brandId}/models/${editingModel.id}`, fd, 'PUT');
       if (res.success) { resetForm(); router.refresh(); }
       else setFormError(res.error ?? 'Failed');
     });
@@ -483,7 +485,7 @@ function ModelPanel({
 
   const handleDelete = (model: ModelItem) => {
     startTransition(async () => {
-      await deleteModel(model.id);
+      await api.del(`/brands/${model.brandId}/models/${model.id}`);
       router.refresh();
       setDeleteTarget(null);
     });

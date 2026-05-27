@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
@@ -14,247 +8,326 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ── Enums ──────────────────────────────────────────────────────────────────────
+
+enum VehicleCategory {
+  TWO_WHEELER
+  THREE_WHEELER_CARGO
+  THREE_WHEELER_PASSENGER
+  FOUR_WHEELER_PASSENGER
+  FOUR_WHEELER_CARGO
+}
+
+enum ChargerType {
+  NORMAL
+  FAST
+  BOTH
+}
+
+enum TransmissionType {
+  AUTO
+  MANUAL
+  SEMI_AUTO
+}
+
+enum InquiryType {
+  VEHICLE_LEASING
+  VEHICLE_RENTING
+  VEHICLE_PURCHASE
+  CORPORATE_ENTERPRISE
+  FLEET_LOGISTICS
+  DEALERSHIP_FRANCHISE
+  B2B_PARTNERSHIP
+  OTHER
+}
+
+enum LeadStatus {
+  PENDING
+  CONTACTED
+  QUALIFIED
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum SellStatus {
+  NEW
+  REVIEWING
+  VALUED
+  ACCEPTED
+  REJECTED
+}
+
+// ── Vehicle Lookup Tables ─────────────────────────────────────────────────────
+
+model BatteryType {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  isActive  Boolean   @default(true)
+  vehicles  Vehicle[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model MotorType {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  isActive  Boolean   @default(true)
+  vehicles  Vehicle[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// ── Vehicle ────────────────────────────────────────────────────────────────────
+
 model Vehicle {
-  id           String      @id @default(cuid())
-  make         String
-  model        String
-  category     String      // "2 Wheeler", "3 Wheeler (Cargo)", "3 Wheeler (Passenger)", "4 Wheeler (Passenger)", "4 Wheeler (Cargo)"
-  range        Int         // Certified Range in KMs
-  trueRange    Int?        // Specifically for 4W Cargo
-  topSpeed     Int         // In KM/H
-  batteryCap   Float       // In kWh
-  mainImage    String      // Main thumbnail image
-  sideImages   String      // 4-5 side images (stored as comma-separated string for SQLite)
-  basePrice    Float       // Base price for leasing
-  deposit      Float       @default(0)
-  warranty     String      @default("")
-  
-  // Dimensions
-  kerbWeight   Float       @default(0)
-  gvW          Float?      // Gross Vehicle Weight (3W/4W)
-  width        Float       @default(0)
-  height       Float       @default(0)
-  length       Float       @default(0)
-  groundClearance Float    @default(0)
-  wheelbase    Float       @default(0)
-  
-  // Drivetrain
-  batteryType  String      @default("")
-  peakVoltage  Int?        // Specifically for 3W
-  motorType    String      @default("")
-  peakPower    String      @default("")
-  peakTorque   String      @default("")
-  transmission String      @default("Auto")
-  gradability  Float?      // Max Gradability %
-  
-  // Charging
-  chargingTime String      @default("")
-  fastChargingTime String? // Specifically for 4W
-  chargerType  String      @default("Normal")
-  onBoardCharger Boolean   @default(true)
-  
-  // Cargo specific (3W Cargo / 4W Cargo)
-  payload      Float?      // in kg
-  volume       Float?      // in ft3
-  containerDims String?    // L x B x H
-  
-  // Detailed Descriptions (Alt Mobility style)
-  overviewText String?      // Overview paragraph
-  techSpecsText String?     // Technical Specifications paragraph
-  performanceText String?   // Performance & Efficiency paragraph
-  leasingInfoText String?   // Leasing Information paragraph
-  
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  leasePlans   LeasePlan[]
+  id        String          @id @default(cuid())
+  make      String
+  model     String
+  category  VehicleCategory
+  warranty  String          @default("")
+  mainImage String
+
+  // Visibility flags — controls which section(s) this vehicle appears in
+  showInLeasing Boolean @default(false)
+  showInBuying  Boolean @default(false)
+  showInRent    Boolean @default(false)
+
+  // Buying price (flat; leasing & rent pricing live in plan tables)
+  buyingPrice Float?
+
+  // ── Performance ───────────────────────────────────────────────────
+  certifiedRangeKm Int
+  realWorldRangeKm Int?
+  topSpeedKmh      Int
+
+  // ── Battery & Drivetrain ──────────────────────────────────────────
+  batteryCapKwh    Float
+  batteryTypeId    String?
+  batteryType      BatteryType?    @relation(fields: [batteryTypeId], references: [id], onDelete: SetNull)
+  peakVoltageV     Int?
+  motorTypeId      String?
+  motorType        MotorType?      @relation(fields: [motorTypeId], references: [id], onDelete: SetNull)
+  peakPowerKw      Float?
+  peakTorqueNm     Float?
+  transmission     TransmissionType @default(AUTO)
+  gradabilityPct   Float?
+
+  // ── Charging ──────────────────────────────────────────────────────
+  chargingTimeMinutes Int         @default(0)   // stored as total minutes e.g. 90 = 1h 30m
+  chargerType         ChargerType @default(NORMAL)
+  hasOnBoardCharger Boolean     @default(true)
+
+  // ── Dimensions (SI units throughout) ─────────────────────────────
+  curbWeightKg      Float @default(0)
+  grossWeightKg     Float?
+  widthMm           Float @default(0)
+  heightMm          Float @default(0)
+  lengthMm          Float @default(0)
+  groundClearanceMm Float @default(0)
+  wheelbaseMm       Float @default(0)
+
+  // ── Cargo-specific (null for non-cargo categories) ────────────────
+  payloadKg           Float?
+  cargoVolumeL        Float?
+  containerDimensions String?
+
+  // ── Rich-text descriptions ────────────────────────────────────────
+  overview    String?
+  techSpecs   String?
+  performance String?
+  leasingInfo String?
+  buyingInfo  String?
+  rentalInfo  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images     VehicleImage[]
+  leasePlans LeasePlan[]
+  rentPlans  RentPlan[]
 
   @@index([category])
   @@index([make])
   @@index([chargerType])
   @@index([category, make])
-  @@index([category, chargerType])
+  @@index([showInLeasing])
+  @@index([showInBuying])
+  @@index([showInRent])
+  @@index([batteryTypeId])
+  @@index([motorTypeId])
 }
+
+// Replaces comma-separated sideImages — fixes 1NF violation
+model VehicleImage {
+  id        String  @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int     @default(0)
+
+  @@index([vehicleId])
+}
+
+// ── Pricing Plans ──────────────────────────────────────────────────────────────
 
 model LeasePlan {
-  id           String   @id @default(cuid())
-  vehicleId    String
-  vehicle      Vehicle  @relation(fields: [vehicleId], references: [id])
-  tenure       Int      // Months: 12, 24, 36
-  monthlyPrice Float
-  deposit      Float
-  isActive     Boolean  @default(true)
+  id             String   @id @default(cuid())
+  vehicleId      String
+  vehicle        Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  tenureMonths   Int                     // 12 | 24 | 36
+  monthlyPriceRs Float
+  depositRs      Float
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([vehicleId, tenureMonths])    // BCNF: one plan per vehicle per tenure
+  @@index([vehicleId, isActive])
 }
 
+model RentPlan {
+  id            String   @id @default(cuid())
+  vehicleId     String
+  vehicle       Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  durationDays  Int                     // 1 | 7 | 30
+  pricePerDayRs Float
+  depositRs     Float
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([vehicleId, durationDays])
+  @@index([vehicleId, isActive])
+}
+
+// ── CRM ───────────────────────────────────────────────────────────────────────
+
 model Lead {
-  id               String   @id @default(cuid())
-  name             String
-  phone            String
-  email            String?  // Optional: captured from general inquiry form
-  state            String   @default("")
-  city             String   @default("")
-  inquiryCategory  String   // Vehicle Leasing | Corporate / Enterprise Requirement | Fleet / Logistics / Ride Hailing | Dealership / Franchise Inquiry | B2B Partnership | Other
-  vehicleId        String?  // Which vehicle the lead came from (optional)
-  vehicleName      String?  // Denormalized vehicle name for easy admin display
-  notes            String?  // Optional: message/notes from general inquiry form
-  status           String   @default("PENDING") // PENDING, CONTACTED, CLOSED
-  createdAt        DateTime @default(now())
+  id          String      @id @default(cuid())
+  name        String
+  phone       String
+  email       String?
+  state       String      @default("")
+  city        String      @default("")
+  inquiryType InquiryType
+  vehicleId   String?
+  vehicleName String?     // snapshot — vehicle may be deleted later
+  notes       String?
+  status      LeadStatus  @default(PENDING)
+  createdAt   DateTime    @default(now())
 
   @@index([status])
   @@index([createdAt])
   @@index([status, createdAt])
 }
 
+// ── Content ───────────────────────────────────────────────────────────────────
+
 model Faq {
-  id          String   @id @default(cuid())
-  question    String
-  answer      String
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model BlogPost {
-  id           String    @id @default(cuid())
-  title        String
-  slug         String    @unique
-  content      String    // HTML or JSON content from editor
-  excerpt      String?   // Short summary
-  coverImage   String?   // URL to cover image
-  category     String    // e.g., "EV Tech", "Sustainability", "Fleet Management"
-  tags         String?   // Comma-separated tags
-  published    Boolean   @default(false)
-  authorName   String    @default("ZMR Mobility Team")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  content    String
+  excerpt    String?
+  coverImage String?
+  category   String
+  tags       String[]
+  published  Boolean  @default(false)
+  authorName String   @default("ZMR Mobility Team")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([published])
   @@index([category])
   @@index([published, createdAt])
 }
 
+// ── EV Brand Catalogue ────────────────────────────────────────────────────────
+
 model EvBrand {
-  id         String         @id @default(cuid())
+  id         String            @id @default(cuid())
   name       String
-  categories String         @default("") // comma-separated e.g. "2 Wheeler,4 Wheeler (Passenger)"
-  isActive   Boolean        @default(true)
+  categories VehicleCategory[]
+  isActive   Boolean           @default(true)
   models     EvBrandModel[]
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 }
 
 model EvBrandModel {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   name      String
   brandId   String
-  brand     EvBrand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  photo     String?  // /uploads/ev-models/[filename] or null
-  category  String   @default("") // e.g. "2 Wheeler" — a model belongs to exactly one category
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  brand     EvBrand         @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  photo     String?
+  category  VehicleCategory
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([brandId])
 }
 
+// ── Sell Applications ─────────────────────────────────────────────────────────
+
 model SellApplication {
-  id               String   @id @default(cuid())
-  applicationId    String   @unique
+  id            String          @id @default(cuid())
+  applicationId String          @unique
+  category      VehicleCategory
+  sellerType    String
 
-  category         String
-  sellerType       String
+  // Brand & model snapshot (name kept even if brand/model is deleted)
+  brandId   String
+  brandName String
+  modelId   String
+  modelName String
 
-  brandId          String
-  brandName        String
-  modelId          String
-  modelName        String
   year             Int
-
   ownership        String
   batteryCondition String
   vehicleCondition String
   hasAccident      Boolean
   loanStatus       String
-  documents        String   @default("")
-  expectedPrice    Float
+  documents        String[]
+  expectedPriceRs  Float
 
-  contactName      String
-  contactPhone     String
-  contactEmail     String
-  contactCity      String
+  contactName  String
+  contactPhone String
+  contactEmail String
+  contactCity  String
 
-  status           String   @default("NEW") // NEW | REVIEWING | VALUED | CLOSED
-  adminNotes       String?
+  status     SellStatus @default(NEW)
+  adminNotes String?
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+// ── Admin ─────────────────────────────────────────────────────────────────────
 
 model AdminUser {
   id           String    @id @default(cuid())
   email        String    @unique
   name         String    @default("")
   passwordHash String
-  role         String    @default("admin")   // "superadmin" | "admin"
+  role         AdminRole @default(ADMIN)
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   lastLoginAt  DateTime?
-}
-
-model BuyingVehicle {
-  id               String   @id @default(cuid())
-  make             String
-  model            String
-  category         String
-  range            Int
-  trueRange        Int?
-  topSpeed         Int
-  batteryCap       Float
-  mainImage        String
-  sideImages       String
-  buyingPrice      Float
-  warranty         String   @default("")
-
-  // Dimensions
-  kerbWeight       Float    @default(0)
-  gvW              Float?
-  width            Float    @default(0)
-  height           Float    @default(0)
-  length           Float    @default(0)
-  groundClearance  Float    @default(0)
-  wheelbase        Float    @default(0)
-
-  // Drivetrain
-  batteryType      String   @default("")
-  peakVoltage      Int?
-  motorType        String   @default("")
-  peakPower        String   @default("")
-  peakTorque       String   @default("")
-  transmission     String   @default("Auto")
-  gradability      Float?
-
-  // Charging
-  chargingTime     String   @default("")
-  fastChargingTime String?
-  chargerType      String   @default("Normal")
-  onBoardCharger   Boolean  @default(true)
-
-  // Cargo specific
-  payload          Float?
-  volume           Float?
-  containerDims    String?
-
-  // Detailed Descriptions
-  overviewText     String?
-  techSpecsText    String?
-  performanceText  String?
-  buyingInfoText   String?
-
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  @@index([category])
-  @@index([make])
-  @@index([chargerType])
-  @@index([category, make])
-  @@index([category, chargerType])
 }

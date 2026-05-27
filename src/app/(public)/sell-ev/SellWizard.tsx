@@ -6,9 +6,9 @@ import {
   ChevronLeft, ChevronRight, CheckCircle, Loader2, Copy, Check,
   Zap, Car, Bike, Truck, AlertCircle, Search, X,
 } from 'lucide-react';
-import { getBrands, getModelsByBrand } from '@/app/actions/evCatalogActions';
 import EVImage from '@/presentation/components/EVImage';
-import { submitSellApplication, type WizardFormData } from '@/app/actions/sellActions';
+import { api } from '@/lib/api-client';
+import type { WizardFormData } from '@/app/actions/sellActions';
 import { type VehicleCategory } from '@/lib/constants';
 
 // ─────────────────────────────────────────────────────────────
@@ -18,11 +18,11 @@ import { type VehicleCategory } from '@/lib/constants';
 const TOTAL_STEPS = 13;
 
 const CATEGORIES: { value: VehicleCategory; label: string; icon: React.ElementType; desc: string }[] = [
-  { value: '2 Wheeler',             label: '2 Wheeler',    icon: Bike,  desc: 'Scooters, E-bikes' },
-  { value: '3 Wheeler (Passenger)', label: '3W Passenger', icon: Car,   desc: 'E-Rickshaws, Autos' },
-  { value: '3 Wheeler (Cargo)',     label: '3W Cargo',     icon: Truck, desc: 'Cargo Autos' },
-  { value: '4 Wheeler (Passenger)', label: '4W Passenger', icon: Car,   desc: 'Cars, SUVs' },
-  { value: '4 Wheeler (Cargo)',     label: '4W Cargo',     icon: Truck, desc: 'Vans, Pickups' },
+  { value: 'TWO_WHEELER',             label: '2 Wheeler',    icon: Bike,  desc: 'Scooters, E-bikes' },
+  { value: 'THREE_WHEELER_PASSENGER', label: '3W Passenger', icon: Car,   desc: 'E-Rickshaws, Autos' },
+  { value: 'THREE_WHEELER_CARGO',     label: '3W Cargo',     icon: Truck, desc: 'Cargo Autos' },
+  { value: 'FOUR_WHEELER_PASSENGER',  label: '4W Passenger', icon: Car,   desc: 'Cars, SUVs' },
+  { value: 'FOUR_WHEELER_CARGO',      label: '4W Cargo',     icon: Truck, desc: 'Vans, Pickups' },
 ];
 
 const SELLER_TYPES = [
@@ -58,6 +58,15 @@ const LOAN_OPTIONS = [
 ];
 
 const DOCUMENTS = ['RC', 'Insurance', 'Charger'];
+
+const INDIA_STATES = [
+  'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat',
+  'Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh',
+  'Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan',
+  'Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal',
+  'Andaman & Nicobar Islands','Chandigarh','Dadra & Nagar Haveli','Daman & Diu',
+  'Delhi','Jammu & Kashmir','Ladakh','Lakshadweep','Puducherry',
+];
 
 const YEAR_OPTIONS = (() => {
   const currentYear = new Date().getFullYear();
@@ -188,21 +197,26 @@ export default function SellWizard() {
   const [appId, setAppId] = useState('');
   const [copied, setCopied] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
+  const [contactTouched, setContactTouched] = useState<Record<string, boolean>>({});
+  const [citySearch, setCitySearch] = useState('');
+  const [cityOpen, setCityOpen] = useState(false);
 
   // Fetch brands for the selected category when leaving step 1
   const fetchBrandsForCategory = useCallback(async (category: string) => {
     setBrandsLoading(true);
     setBrands([]);
-    const res = await getBrands(category);
-    if (res.success && res.data) setBrands(res.data);
+    const res = await api.get<{ id: string; name: string; categories: string[] }[]>('/brands', { category });
+    if (res.success) setBrands(res.data);
     setBrandsLoading(false);
   }, []);
 
   // Fetch models when brand selected — filter by selected category
   const fetchModels = useCallback(async (brandId: string, category?: string) => {
     setModelsLoading(true);
-    const res = await getModelsByBrand(brandId, category);
-    if (res.success && res.data) setModels(res.data);
+    const params: Record<string, string> = {};
+    if (category) params.category = category;
+    const res = await api.get<{ id: string; name: string; photo: string | null }[]>(`/brands/${brandId}/models`, params);
+    if (res.success) setModels(res.data);
     else setModels([]);
     setModelsLoading(false);
   }, []);
@@ -229,10 +243,10 @@ export default function SellWizard() {
   const handleSubmit = async () => {
     setSubmitting(true);
     setSubmitError('');
-    const res = await submitSellApplication(form as WizardFormData);
+    const res = await api.post<{ applicationId: string }>('/sell-applications', form as WizardFormData);
     setSubmitting(false);
-    if (res.success && res.applicationId) {
-      setAppId(res.applicationId);
+    if (res.success) {
+      setAppId(res.data.applicationId);
       setDirection(1);
       setStep(14);
     } else {
@@ -590,8 +604,8 @@ export default function SellWizard() {
       case 11:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">Which documents do you have?</h2>
-            <p className="text-white/40 text-sm mb-6">Select all that apply. More documents = higher valuation.</p>
+            <h2 className="text-2xl font-black text-white mb-1">What do you have with the vehicle?</h2>
+            <p className="text-white/40 text-sm mb-6">Select all that apply. More items = higher valuation.</p>
             <div className="space-y-3">
               {DOCUMENTS.map((doc) => {
                 const checked = form.documents.includes(doc);
@@ -630,9 +644,9 @@ export default function SellWizard() {
                 type="number"
                 min={0}
                 placeholder="e.g. 80000"
-                value={form.expectedPrice ?? ''}
-                onChange={(e) => set('expectedPrice', parseFloat(e.target.value) || 0)}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-4 text-white text-lg font-semibold outline-none focus:border-primary transition-all placeholder:text-white/20"
+                value={form.expectedPrice || ''}
+                onChange={(e) => { const v = parseFloat(e.target.value); set('expectedPrice', isNaN(v) ? undefined : v); }}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-4 text-white text-lg font-semibold outline-none focus:border-primary transition-all placeholder:text-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
             <NavButtons step={step} onBack={() => go(11)} onNext={() => go(13)} nextDisabled={!form.expectedPrice || form.expectedPrice <= 0} />
@@ -641,33 +655,139 @@ export default function SellWizard() {
 
       // ── Step 13: Contact ──
       case 13: {
-        const phoneValid = !form.contactPhone || /^[6-9]\d{9}$/.test(form.contactPhone.replace(/\s/g, ''));
-        const emailValid = !form.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contactEmail);
-        const allFilled = !!(form.contactName?.trim() && form.contactPhone?.trim() && form.contactEmail?.trim() && form.contactCity?.trim());
-        const canSubmit = allFilled && phoneValid && emailValid;
+        const touch = (field: string) => setContactTouched(prev => ({ ...prev, [field]: true }));
+
+        const nameVal   = form.contactName?.trim() ?? '';
+        const phoneRaw  = form.contactPhone?.replace(/\s/g, '') ?? '';
+        const emailVal  = form.contactEmail?.trim() ?? '';
+        const cityVal   = form.contactCity?.trim() ?? '';
+
+        const phoneValid = /^[6-9]\d{9}$/.test(phoneRaw);
+        const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+
+        const errors = {
+          contactName:  !nameVal ? 'Full name is required' : '',
+          contactPhone: !phoneRaw ? 'Mobile number is required' : !phoneValid ? 'Enter a valid 10-digit Indian mobile number' : '',
+          contactEmail: !emailVal ? 'Email address is required' : !emailValid ? 'Enter a valid email address (e.g. you@example.com)' : '',
+          contactCity:  !cityVal ? 'Please select your state' : '',
+        };
+
+        const canSubmit = !Object.values(errors).some(Boolean);
+
+        const filteredCities = INDIA_STATES.filter(s =>
+          s.toLowerCase().includes(citySearch.toLowerCase())
+        );
 
         return (
           <div>
             <h2 className="text-2xl font-black text-white mb-1">Your contact details</h2>
             <p className="text-white/40 text-sm mb-6">Our team will reach out to you with the valuation.</p>
             <div className="space-y-4">
-              {[
-                { label: 'Full Name', key: 'contactName', type: 'text', placeholder: 'Rahul Sharma' },
-                { label: 'Mobile Number', key: 'contactPhone', type: 'tel', placeholder: '9876543210' },
-                { label: 'Email Address', key: 'contactEmail', type: 'email', placeholder: 'rahul@example.com' },
-                { label: 'City', key: 'contactCity', type: 'text', placeholder: 'Mumbai' },
-              ].map(({ label, key, type, placeholder }) => (
-                <div key={key} className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest text-white/30">{label}</label>
+
+              {/* Full Name */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-widest text-white/30">Full Name</label>
+                <input
+                  type="text"
+                  placeholder="Rahul Sharma"
+                  value={form.contactName ?? ''}
+                  onChange={(e) => set('contactName', e.target.value as never)}
+                  onBlur={() => touch('contactName')}
+                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white text-sm outline-none transition-all placeholder:text-white/20 ${contactTouched.contactName && errors.contactName ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-primary'}`}
+                />
+                {contactTouched.contactName && errors.contactName && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400"><AlertCircle className="w-3.5 h-3.5 shrink-0" />{errors.contactName}</p>
+                )}
+              </div>
+
+              {/* Mobile */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-widest text-white/30">Mobile Number</label>
+                <div className="flex">
+                  <span className="flex items-center px-3 bg-white/5 border border-r-0 border-white/10 rounded-l-xl text-white/40 text-sm font-semibold">+91</span>
                   <input
-                    type={type}
-                    placeholder={placeholder}
-                    value={(form as Record<string, unknown>)[key] as string ?? ''}
-                    onChange={(e) => set(key as keyof FormState, e.target.value as never)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-primary transition-all placeholder:text-white/20"
+                    type="tel"
+                    placeholder="9876543210"
+                    maxLength={10}
+                    value={form.contactPhone ?? ''}
+                    onChange={(e) => set('contactPhone', e.target.value.replace(/\D/g, '').slice(0, 10) as never)}
+                    onBlur={() => touch('contactPhone')}
+                    className={`flex-1 bg-white/5 border rounded-r-xl px-4 py-3 text-white text-sm outline-none transition-all placeholder:text-white/20 ${contactTouched.contactPhone && errors.contactPhone ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-primary'}`}
                   />
                 </div>
-              ))}
+                {contactTouched.contactPhone && errors.contactPhone && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400"><AlertCircle className="w-3.5 h-3.5 shrink-0" />{errors.contactPhone}</p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-widest text-white/30">Email Address</label>
+                <input
+                  type="email"
+                  placeholder="rahul@example.com"
+                  value={form.contactEmail ?? ''}
+                  onChange={(e) => set('contactEmail', e.target.value as never)}
+                  onBlur={() => touch('contactEmail')}
+                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white text-sm outline-none transition-all placeholder:text-white/20 ${contactTouched.contactEmail && errors.contactEmail ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-primary'}`}
+                />
+                {contactTouched.contactEmail && errors.contactEmail && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400"><AlertCircle className="w-3.5 h-3.5 shrink-0" />{errors.contactEmail}</p>
+                )}
+              </div>
+
+              {/* City — searchable dropdown */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-widest text-white/30">State</label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => { setCityOpen(o => !o); setCitySearch(''); }}
+                    onBlur={() => { if (!cityOpen) touch('contactCity'); }}
+                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-sm text-left outline-none transition-all flex items-center justify-between ${contactTouched.contactCity && errors.contactCity ? 'border-red-500/60' : 'border-white/10 focus:border-primary'} ${cityVal ? 'text-white' : 'text-white/20'}`}
+                  >
+                    {cityVal || 'Select your state'}
+                    <ChevronRight className={`w-4 h-4 text-white/30 transition-transform shrink-0 ${cityOpen ? 'rotate-90' : ''}`} />
+                  </button>
+
+                  {cityOpen && (
+                    <div className="absolute z-50 w-full mt-1 bg-[#0d1117] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                      <div className="p-2 border-b border-white/10">
+                        <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
+                          <Search className="w-3.5 h-3.5 text-white/30 shrink-0" />
+                          <input
+                            autoFocus
+                            type="text"
+                            placeholder="Search state…"
+                            value={citySearch}
+                            onChange={(e) => setCitySearch(e.target.value)}
+                            className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/20"
+                          />
+                          {citySearch && <button onClick={() => setCitySearch('')}><X className="w-3.5 h-3.5 text-white/30" /></button>}
+                        </div>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {filteredCities.length === 0 ? (
+                          <p className="text-center text-white/30 text-sm py-4">No states found</p>
+                        ) : filteredCities.map(city => (
+                          <button
+                            key={city}
+                            type="button"
+                            onClick={() => { set('contactCity', city as never); setCityOpen(false); touch('contactCity'); }}
+                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 transition-colors ${cityVal === city ? 'text-primary font-semibold' : 'text-white/70'}`}
+                          >
+                            {city}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {contactTouched.contactCity && errors.contactCity && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400"><AlertCircle className="w-3.5 h-3.5 shrink-0" />{errors.contactCity}</p>
+                )}
+              </div>
+
             </div>
             {submitError && (
               <p className="flex items-center gap-2 mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-sm">
@@ -677,8 +797,11 @@ export default function SellWizard() {
             <NavButtons
               step={step}
               onBack={() => go(12)}
-              onNext={handleSubmit}
-              nextDisabled={!canSubmit}
+              onNext={() => {
+                setContactTouched({ contactName: true, contactPhone: true, contactEmail: true, contactCity: true });
+                if (canSubmit) handleSubmit();
+              }}
+              nextDisabled={false}
               nextLabel="Submit Application"
               loading={submitting}
             />
@@ -728,6 +851,27 @@ export default function SellWizard() {
             <div className="bg-white/5 rounded-2xl p-5 text-sm text-white/40 text-center leading-relaxed">
               We'll evaluate your <span className="text-white/70 font-semibold">{form.brandName} {form.modelName} ({form.year})</span> and get back to you at <span className="text-white/70 font-semibold">{form.contactPhone}</span>.
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setForm({ documents: [] });
+                setBrands([]);
+                setModels([]);
+                setAppId('');
+                setCopied(false);
+                setSubmitError('');
+                setContactTouched({});
+                setCitySearch('');
+                setCityOpen(false);
+                setDirection(1);
+                setStep(1);
+              }}
+              className="w-full flex items-center justify-center gap-2 border border-white/10 rounded-2xl py-3.5 text-sm font-bold text-white/50 hover:text-white hover:border-white/20 transition-all"
+            >
+              <Bike className="w-4 h-4" />
+              Sell Another Vehicle
+            </button>
           </div>
         );
 

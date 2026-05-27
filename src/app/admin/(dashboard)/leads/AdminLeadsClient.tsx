@@ -16,7 +16,8 @@ import {
   Trash2,
   AlertTriangle,
 } from 'lucide-react';
-import { updateLeadStatus, deleteLead, type LeadItem } from '@/app/actions/leadActions';
+import { api } from '@/lib/api-client';
+import type { LeadItem } from '@/app/actions/leadActions';
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -34,25 +35,52 @@ const STATUS_CONFIG = {
     label: 'Contacted',
     dot: 'bg-yellow-500',
     badge: 'bg-yellow-500/10 text-yellow-400',
-    next: 'CLOSED' as const,
-    nextLabel: 'Mark as Closed',
+    next: 'QUALIFIED' as const,
+    nextLabel: 'Mark as Qualified',
   },
-  CLOSED: {
-    label: 'Closed',
+  QUALIFIED: {
+    label: 'Qualified',
+    dot: 'bg-blue-500',
+    badge: 'bg-blue-500/10 text-blue-400',
+    next: 'CLOSED_WON' as const,
+    nextLabel: 'Mark as Won',
+  },
+  CLOSED_WON: {
+    label: 'Won',
     dot: 'bg-green-500',
     badge: 'bg-green-500/10 text-green-400',
     next: 'PENDING' as const,
     nextLabel: 'Re-open',
   },
+  CLOSED_LOST: {
+    label: 'Lost',
+    dot: 'bg-red-500',
+    badge: 'bg-red-500/10 text-red-400',
+    next: 'PENDING' as const,
+    nextLabel: 'Re-open',
+  },
 } as const;
 
-const CATEGORY_COLOR: Record<string, string> = {
-  'Vehicle Leasing': 'bg-purple-500/10 text-purple-400',
-  'Corporate / Enterprise Requirement': 'bg-blue-500/10 text-blue-400',
-  'Fleet / Logistics / Ride Hailing': 'bg-cyan-500/10 text-cyan-400',
-  'Dealership / Franchise Inquiry': 'bg-orange-500/10 text-orange-400',
-  'B2B Partnership': 'bg-pink-500/10 text-pink-400',
-  Other: 'bg-white/10 text-white/50',
+const INQUIRY_TYPE_COLOR: Record<string, string> = {
+  VEHICLE_LEASING:      'bg-purple-500/10 text-purple-400',
+  VEHICLE_RENTING:      'bg-teal-500/10 text-teal-400',
+  VEHICLE_PURCHASE:     'bg-green-500/10 text-green-400',
+  CORPORATE_ENTERPRISE: 'bg-blue-500/10 text-blue-400',
+  FLEET_LOGISTICS:      'bg-cyan-500/10 text-cyan-400',
+  DEALERSHIP_FRANCHISE: 'bg-orange-500/10 text-orange-400',
+  B2B_PARTNERSHIP:      'bg-pink-500/10 text-pink-400',
+  OTHER:                'bg-white/10 text-white/50',
+};
+
+const INQUIRY_TYPE_LABEL: Record<string, string> = {
+  VEHICLE_LEASING:      'Vehicle Leasing',
+  VEHICLE_RENTING:      'Vehicle Renting',
+  VEHICLE_PURCHASE:     'Vehicle Purchase',
+  CORPORATE_ENTERPRISE: 'Corporate / Enterprise',
+  FLEET_LOGISTICS:      'Fleet / Logistics',
+  DEALERSHIP_FRANCHISE: 'Dealership / Franchise',
+  B2B_PARTNERSHIP:      'B2B Partnership',
+  OTHER:                'Other',
 };
 
 // Show full date + time; relative suffix for today/yesterday
@@ -99,7 +127,7 @@ function StatusToggle({ lead }: { lead: LeadItem }) {
       <button
         onClick={() =>
           startTransition(async () => {
-            await updateLeadStatus(lead.id, config.next);
+            await api.patch(`/leads/${lead.id}`, { status: config.next });
             router.refresh();
           })
         }
@@ -135,7 +163,7 @@ function DeleteConfirmModal({
 
   const handleDelete = () => {
     startTransition(async () => {
-      await deleteLead(lead.id);
+      await api.del(`/leads/${lead.id}`);
       router.refresh();
       onDeleted();
     });
@@ -208,7 +236,7 @@ function LeadDetailModal({
 
   const handleStatusChange = (newStatus: string) => {
     startTransition(async () => {
-      await updateLeadStatus(lead.id, newStatus);
+      await api.patch(`/leads/${lead.id}`, { status: newStatus });
       setCurrentStatus(newStatus);
       router.refresh();
     });
@@ -308,9 +336,9 @@ function LeadDetailModal({
                 Inquiry Type
               </p>
               <span
-                className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${CATEGORY_COLOR[lead.inquiryCategory] ?? 'bg-white/10 text-white/50'}`}
+                className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${INQUIRY_TYPE_COLOR[lead.inquiryType] ?? 'bg-white/10 text-white/50'}`}
               >
-                {lead.inquiryCategory}
+                {INQUIRY_TYPE_LABEL[lead.inquiryType] ?? lead.inquiryType}
               </span>
             </div>
 
@@ -575,8 +603,8 @@ export default function AdminLeadsClient({
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${CATEGORY_COLOR[lead.inquiryCategory] ?? 'bg-white/10 text-white/50'}`}>
-                      {lead.inquiryCategory}
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${INQUIRY_TYPE_COLOR[lead.inquiryType] ?? 'bg-white/10 text-white/50'}`}>
+                      {INQUIRY_TYPE_LABEL[lead.inquiryType] ?? lead.inquiryType}
                     </span>
                     {location && (
                       <span className="text-white/40 flex items-center gap-1">
@@ -635,8 +663,8 @@ export default function AdminLeadsClient({
                           )}
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${CATEGORY_COLOR[lead.inquiryCategory] ?? 'bg-white/10 text-white/50'}`}>
-                            {lead.inquiryCategory}
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${INQUIRY_TYPE_COLOR[lead.inquiryType] ?? 'bg-white/10 text-white/50'}`}>
+                            {INQUIRY_TYPE_LABEL[lead.inquiryType] ?? lead.inquiryType}
                           </span>
                           {lead.vehicleName && (
                             <div className="text-xs text-white/30 flex items-center gap-1 mt-1">

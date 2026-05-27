@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { saveUploadedFile } from '@/lib/upload';
+import { VEHICLE_CATEGORIES, type VehicleCategory } from '@/lib/constants';
+import { VehicleCategory as PrismaVehicleCategory } from '@prisma/client';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -50,7 +52,7 @@ export async function getBrands(category?: string): Promise<{ success: boolean; 
     const parsed = brands.map((b) => ({
       id: b.id,
       name: b.name,
-      categories: b.categories ? b.categories.split(',').map((c) => c.trim()).filter(Boolean) : [],
+      categories: b.categories as string[],
     }));
     if (!category) return { success: true, data: parsed };
     return { success: true, data: parsed.filter((b) => b.categories.includes(category)) };
@@ -71,7 +73,7 @@ export async function getAllBrandsAdmin(): Promise<{ success: boolean; data?: Br
       data: brands.map((b) => ({
         id: b.id,
         name: b.name,
-        categories: b.categories ? b.categories.split(',').map((c) => c.trim()).filter(Boolean) : [],
+        categories: b.categories as string[],
         isActive: b.isActive,
         modelCount: b._count.models,
         createdAt: b.createdAt.toISOString(),
@@ -86,7 +88,9 @@ export async function getAllBrandsAdmin(): Promise<{ success: boolean; data?: Br
 export async function createBrand(formData: FormData): Promise<{ success: boolean; error?: string }> {
   const name = (formData.get('name') as string)?.trim();
   if (!name || name.length < 1) return { success: false, error: 'Brand name is required.' };
-  const categories = formData.getAll('categories').join(',');
+  const categories = (formData.getAll('categories') as string[]).filter((c): c is VehicleCategory =>
+    VEHICLE_CATEGORIES.includes(c as VehicleCategory)
+  );
 
   try {
     await prisma.evBrand.create({ data: { name, categories } });
@@ -101,7 +105,9 @@ export async function createBrand(formData: FormData): Promise<{ success: boolea
 export async function updateBrand(id: string, formData: FormData): Promise<{ success: boolean; error?: string }> {
   const name = (formData.get('name') as string)?.trim();
   const isActive = formData.get('isActive') === 'true';
-  const categories = formData.getAll('categories').join(',');
+  const categories = (formData.getAll('categories') as string[]).filter((c): c is VehicleCategory =>
+    VEHICLE_CATEGORIES.includes(c as VehicleCategory)
+  );
   if (!name) return { success: false, error: 'Brand name is required.' };
 
   try {
@@ -138,7 +144,7 @@ export async function getModelsByBrand(
       where: {
         brandId,
         isActive: true,
-        ...(category ? { category } : {}),
+        ...(category ? { category: category as PrismaVehicleCategory } : {}),
       },
       orderBy: { name: 'asc' },
       select: { id: true, name: true, photo: true },
@@ -189,7 +195,7 @@ export async function createModel(formData: FormData): Promise<{ success: boolea
     if (photoFile && photoFile.size > 0) {
       photo = await saveModelPhoto(photoFile);
     }
-    await prisma.evBrandModel.create({ data: { name, brandId, photo, category } });
+    await prisma.evBrandModel.create({ data: { name, brandId, photo, category: category as PrismaVehicleCategory } });
     revalidatePath('/admin/ev-catalog');
     return { success: true };
   } catch (error) {
@@ -205,7 +211,7 @@ export async function updateModel(id: string, formData: FormData): Promise<{ suc
   if (!name) return { success: false, error: 'Model name is required.' };
 
   try {
-    const data: { name: string; isActive: boolean; category: string; photo?: string } = { name, isActive, category };
+    const data: { name: string; isActive: boolean; category: PrismaVehicleCategory; photo?: string } = { name, isActive, category: category as PrismaVehicleCategory };
     const photoFile = formData.get('photo') as File | null;
     if (photoFile && photoFile.size > 0) {
       data.photo = await saveModelPhoto(photoFile);

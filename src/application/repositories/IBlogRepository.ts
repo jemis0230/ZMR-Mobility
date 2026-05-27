@@ -6,7 +6,7 @@ export interface BlogPost {
   excerpt: string | null;
   coverImage: string | null;
   category: string;
-  tags: string | null;
+  tags: string[];
   published: boolean;
   authorName: string;
   createdAt: Date;

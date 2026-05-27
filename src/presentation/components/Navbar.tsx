@@ -10,6 +10,7 @@ import CategoryModal from "./CategoryModal";
 export default function Navbar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBuyingModalOpen, setIsBuyingModalOpen] = useState(false);
+  const [isRentModalOpen, setIsRentModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -29,13 +30,13 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
-            <div className="relative h-10 md:h-16">
+            <div className="rounded-xl overflow-hidden">
               <Image
-                src="/compnay_logo..webp"
+                src="/companyLogo.webp"
                 alt="ZMR Mobility"
-                width={220}
-                height={64}
-                className="h-full w-auto object-contain group-hover:opacity-90 transition-opacity"
+                width={300}
+                height={80}
+                className="h-16 md:h-20 w-auto object-contain"
                 priority
               />
             </div>
@@ -45,6 +46,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
             <button onClick={() => setIsModalOpen(true)} className="hover:text-primary transition-colors font-medium">Leasing</button>
             <button onClick={() => setIsBuyingModalOpen(true)} className="hover:text-primary transition-colors font-medium">Buying</button>
+            <button onClick={() => setIsRentModalOpen(true)} className="hover:text-primary transition-colors font-medium">Rent</button>
             <Link href="/compare" className="hover:text-primary transition-colors font-medium">Compare</Link>
             <Link href="/sell-ev" className="hover:text-primary transition-colors font-medium">Sell EV</Link>
             <Link href="/blogs" className="hover:text-primary transition-colors font-medium">Blog</Link>
@@ -83,6 +85,12 @@ export default function Navbar() {
             >
               Buying
             </button>
+            <button
+              onClick={() => { setIsRentModalOpen(true); setIsMobileMenuOpen(false); }}
+              className="text-left px-2 py-3 hover:text-primary transition-colors border-b border-white/5"
+            >
+              Rent
+            </button>
             <Link href="/compare" onClick={() => setIsMobileMenuOpen(false)} className="px-2 py-3 hover:text-primary transition-colors border-b border-white/5">Compare</Link>
             <Link href="/sell-ev" onClick={() => setIsMobileMenuOpen(false)} className="px-2 py-3 hover:text-primary transition-colors border-b border-white/5">Sell EV</Link>
             <Link href="/blogs" onClick={() => setIsMobileMenuOpen(false)} className="px-2 py-3 hover:text-primary transition-colors border-b border-white/5">Blog</Link>
@@ -93,6 +101,7 @@ export default function Navbar() {
 
       <CategoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <CategoryModal isOpen={isBuyingModalOpen} onClose={() => setIsBuyingModalOpen(false)} mode="buying" />
+      <CategoryModal isOpen={isRentModalOpen} onClose={() => setIsRentModalOpen(false)} mode="rent" />
     </>
   );
 }

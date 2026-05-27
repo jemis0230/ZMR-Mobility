@@ -1,9 +1,11 @@
 'use server';
 
 import { revalidatePath, revalidateTag } from 'next/cache';
-import prisma from '@/lib/prisma';
+import { PrismaVehicleRepository } from '@/infrastructure/repositories/PrismaVehicleRepository';
 import { saveUploadedFile } from '@/lib/upload';
 import { VehicleFormSchema } from '@/lib/schemas/vehicle';
+
+const vehicleRepo = new PrismaVehicleRepository();
 
 function extractTextFields(formData: FormData): Record<string, string> {
   const result: Record<string, string> = {};
@@ -21,8 +23,8 @@ function extractTextFields(formData: FormData): Record<string, string> {
 
 export async function deleteVehicle(id: string) {
   try {
-    await prisma.vehicle.delete({ where: { id } });
-    revalidateTag('vehicle-filter-options-leasing');
+    await vehicleRepo.delete(id);
+    revalidateTag('vehicle-filter-options');
     revalidatePath('/admin/vehicles');
     return { success: true };
   } catch (error) {
@@ -54,25 +56,22 @@ export async function updateVehicle(id: string, formData: FormData) {
     }
 
     // Side images: keep existing paths + append new uploads
-    const existingSideImages = (Array.from(formData.getAll('existingSideImages')) as string[]).filter(Boolean);
-    const newSidePaths: string[] = [];
+    const existingImageUrls = (Array.from(formData.getAll('existingSideImages')) as string[]).filter(Boolean);
+    const newImagePaths: string[] = [];
     for (const file of Array.from(formData.getAll('sideImages')) as File[]) {
       if (file && file.size > 0) {
-        newSidePaths.push(await saveUploadedFile(file, 'uploads'));
+        newImagePaths.push(await saveUploadedFile(file, 'uploads'));
       }
     }
-    const sideImages = [...existingSideImages, ...newSidePaths].join(',');
+    const imageUrls = [...existingImageUrls, ...newImagePaths];
 
-    await prisma.vehicle.update({
-      where: { id },
-      data: {
-        ...parsed.data,
-        ...(mainImage ? { mainImage } : {}),
-        sideImages,
-      },
+    await vehicleRepo.update(id, {
+      ...parsed.data,
+      ...(mainImage ? { mainImage } : {}),
+      imageUrls,
     });
 
-    revalidateTag('vehicle-filter-options-leasing');
+    revalidateTag('vehicle-filter-options');
     revalidatePath('/admin/vehicles');
     return { success: true };
   } catch (error) {

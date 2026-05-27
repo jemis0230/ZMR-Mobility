@@ -15,11 +15,11 @@ const footerLinks = {
   company: [
     { name: "About Us", href: "/about" },
     { name: "Blog", href: "/blogs" },
-    { name: "Contact Us", href: "#" },
+    { name: "Contact Us", href: "/#contact" },
     { name: "Our Impact", href: "/about#impact" },
   ],
   services: [
-    { name: "EV Leasing", href: "/leasing" },
+    { name: "EV Leasing", href: "/leasing/vehicles/2-wheeler" },
     { name: "IoT Monitoring", href: "/about#tech" },
     { name: "Aftersales Support", href: "/about#solutions" },
     { name: "Vehicle Procurement", href: "/#procurement" },
@@ -38,13 +38,15 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-8">
             <Link href="/" className="inline-block">
-              <Image
-                src="/compnay_logo..webp"
-                alt="ZMR Mobility"
-                width={180}
-                height={52}
-                className="h-12 w-auto object-contain"
-              />
+              <div className="rounded-xl overflow-hidden">
+                <Image
+                  src="/companyLogo.webp"
+                  alt="ZMR Mobility"
+                  width={260}
+                  height={72}
+                  className="h-20 w-auto object-contain"
+                />
+              </div>
             </Link>
             <p className="text-white/50 text-sm leading-relaxed max-w-sm">
               India's technology-first EV asset management company. 
@@ -114,7 +116,7 @@ export default function Footer() {
                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                   <MapPin className="w-4 h-4 text-primary" />
                 </div>
-                <span className="pt-1">Lucknow & Dehradun,<br />Uttar Pradesh & Uttarakhand</span>
+                <span className="pt-1">Lucknow & Dehradun,<br />Uttar Pradesh & Uttarakhand<br />Chennai & Bangalore</span>
               </li>
               <li className="flex items-center gap-3 group">
                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">

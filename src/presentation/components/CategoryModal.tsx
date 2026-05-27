@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, Zap, Package, Users, Car } from "lucide-react";
 import Link from "next/link";
@@ -52,7 +52,7 @@ const categories = [
 interface CategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mode?: 'leasing' | 'buying';
+  mode?: 'leasing' | 'buying' | 'rent';
 }
 
 function CategoryCardImage({
@@ -84,6 +84,21 @@ function CategoryCardImage({
 }
 
 export default function CategoryModal({ isOpen, onClose, mode = 'leasing' }: CategoryModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -92,24 +107,29 @@ export default function CategoryModal({ isOpen, onClose, mode = 'leasing' }: Cat
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="absolute inset-0 bg-background/80 backdrop-blur-md"
+            className="absolute inset-0 bg-background/75 backdrop-blur-sm"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            style={{ willChange: 'transform, opacity' }}
             className="relative w-[96vw] max-w-[1400px] bg-secondary/95 border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
           >
             <div className="p-6 md:p-10 lg:p-12">
               <div className="flex justify-between items-start md:items-center mb-8 md:mb-12">
                 <div>
                   <h2 className="text-2xl md:text-4xl font-bold tracking-tight">
-                    Select <span className="text-primary">{mode === 'buying' ? 'Buying' : 'Leasing'} Category</span>
+                    Select <span className="text-primary">{mode === 'buying' ? 'Buying' : mode === 'rent' ? 'Rental' : 'Leasing'} Category</span>
                   </h2>
                   <p className="text-white/40 mt-2 text-sm md:text-base">
                     {mode === 'buying'
                       ? 'Choose the type of EV you would like to purchase.'
+                      : mode === 'rent'
+                      ? 'Choose the type of EV you would like to rent.'
                       : 'Choose the type of EV you are interested in leasing.'}
                   </p>
                 </div>
@@ -126,7 +146,7 @@ export default function CategoryModal({ isOpen, onClose, mode = 'leasing' }: Cat
                 {categories.map((cat) => (
                   <Link
                     key={cat.slug}
-                    href={mode === 'buying' ? `/buying/vehicles/${cat.slug}` : `/leasing/vehicles/${cat.slug}`}
+                    href={mode === 'buying' ? `/buying/vehicles/${cat.slug}` : mode === 'rent' ? `/rent/vehicles/${cat.slug}` : `/leasing/vehicles/${cat.slug}`}
                     onClick={onClose}
                     className="group relative flex flex-row lg:flex-col h-[90px] lg:h-[340px] rounded-2xl lg:rounded-[2rem] glass-card overflow-hidden border border-white/5 hover:border-primary/40 transition-all duration-500 lg:hover:-translate-y-2 lg:hover:shadow-[0_15px_40px_-10px_rgba(var(--primary),0.3)] bg-white/5 hover:bg-white/10"
                   >

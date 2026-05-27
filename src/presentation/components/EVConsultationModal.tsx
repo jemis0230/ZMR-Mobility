@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Zap, CheckCircle, Loader2, ChevronDown, AlertCircle } from 'lucide-react';
-import { submitLeadAction, type LeadFormState } from '@/app/actions/leadActions';
+import { api } from '@/lib/api-client';
 import { INQUIRY_CATEGORIES } from '@/lib/constants';
 import { INDIA_STATES_CITIES, STATE_NAMES } from '@/lib/data/india-locations';
 
@@ -74,10 +73,9 @@ function StyledSelect({
 }
 
 // ─────────────────────────────────────────────────────────────
-// Submit Button (uses useFormStatus for pending state)
+// Submit Button
 // ─────────────────────────────────────────────────────────────
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <button
       type="submit"
@@ -125,13 +123,39 @@ export default function EVConsultationModal({
   vehicleId,
   vehicleName,
 }: EVConsultationModalProps) {
-  const initialState: LeadFormState = { success: false };
-  const [state, formAction] = useFormState(submitLeadAction, initialState);
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; state?: string; city?: string; general?: string }>({});
 
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setErrors({});
+    const form = e.currentTarget;
+    const getValue = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '';
+
+    const result = await api.post('/leads', {
+      name: getValue('name'),
+      phone: getValue('phone'),
+      state: selectedState,
+      city: selectedCity,
+      inquiryType: selectedCategory || 'VEHICLE_LEASING',
+      vehicleId: vehicleId,
+      vehicleName: vehicleName,
+    });
+
+    setLoading(false);
+    if (!result.success) {
+      setErrors({ general: result.error ?? 'Something went wrong. Please try again.' });
+      return;
+    }
+    setSuccess(true);
+  }
 
   const cities = selectedState ? (INDIA_STATES_CITIES[selectedState] ?? []) : [];
 
@@ -186,7 +210,7 @@ export default function EVConsultationModal({
                 boxShadow: '0 0 0 1px rgba(0,255,133,0.05), 0 25px 60px rgba(0,0,0,0.7), 0 0 80px rgba(0,255,133,0.06)',
               }}
             >
-              {state.success ? (
+              {success ? (
                 /* ─── Success State ─── */
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -259,13 +283,7 @@ export default function EVConsultationModal({
                   <div className="mx-6 mt-4 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
                   {/* Form */}
-                  <form ref={formRef} action={formAction} className="p-6 space-y-4">
-                    {/* Hidden fields */}
-                    {vehicleId && <input type="hidden" name="vehicleId" value={vehicleId} />}
-                    {vehicleName && <input type="hidden" name="vehicleName" value={vehicleName} />}
-                    <input type="hidden" name="state" value={selectedState} />
-                    <input type="hidden" name="city" value={selectedCity} />
-                    <input type="hidden" name="inquiryCategory" value={selectedCategory} />
+                  <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-4">
 
                     {/* Row: Name + Phone */}
                     <div className="grid grid-cols-2 gap-3">
@@ -281,12 +299,12 @@ export default function EVConsultationModal({
                           placeholder="Rahul Sharma"
                           autoComplete="name"
                           className={`w-full bg-white/5 border rounded-xl px-4 py-3 outline-none transition-all duration-200 text-sm text-white placeholder:text-white/25
-                            ${state.errors?.name ? 'border-red-500/70 bg-red-500/5' : 'border-white/10 focus:border-[#00FF85]/60 hover:border-white/20'}`}
+                            ${errors.name ? 'border-red-500/70 bg-red-500/5' : 'border-white/10 focus:border-[#00FF85]/60 hover:border-white/20'}`}
                         />
-                        {state.errors?.name && (
+                        {errors.name && (
                           <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
                             className="flex items-center gap-1 text-xs text-red-400">
-                            <AlertCircle className="w-3 h-3 flex-shrink-0" />{state.errors.name}
+                            <AlertCircle className="w-3 h-3 flex-shrink-0" />{errors.name}
                           </motion.p>
                         )}
                       </div>
@@ -297,7 +315,7 @@ export default function EVConsultationModal({
                           Phone Number
                         </label>
                         <div className={`flex items-center bg-white/5 border rounded-xl overflow-hidden transition-all duration-200
-                          ${state.errors?.phone ? 'border-red-500/70 bg-red-500/5' : 'border-white/10 focus-within:border-[#00FF85]/60 hover:border-white/20'}`}>
+                          ${errors.phone ? 'border-red-500/70 bg-red-500/5' : 'border-white/10 focus-within:border-[#00FF85]/60 hover:border-white/20'}`}>
                           <span className="px-3 text-sm font-bold text-[#00FF85]/80 border-r border-white/10 py-3 bg-[#00FF85]/5 flex-shrink-0">+91</span>
                           <input
                             id="modal-phone"
@@ -310,10 +328,10 @@ export default function EVConsultationModal({
                             className="flex-1 bg-transparent px-3 py-3 outline-none text-sm text-white placeholder:text-white/25 min-w-0"
                           />
                         </div>
-                        {state.errors?.phone && (
+                        {errors.phone && (
                           <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
                             className="flex items-center gap-1 text-xs text-red-400">
-                            <AlertCircle className="w-3 h-3 flex-shrink-0" />{state.errors.phone}
+                            <AlertCircle className="w-3 h-3 flex-shrink-0" />{errors.phone}
                           </motion.p>
                         )}
                       </div>
@@ -330,7 +348,7 @@ export default function EVConsultationModal({
                           onChange={setSelectedState}
                           placeholder="Select state"
                           options={STATE_NAMES}
-                          error={state.errors?.state}
+                          error={errors.state}
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -342,7 +360,7 @@ export default function EVConsultationModal({
                           onChange={setSelectedCity}
                           placeholder={selectedState ? 'Select city' : 'Select state first'}
                           options={cities}
-                          error={state.errors?.city}
+                          error={errors.city}
                           disabled={!selectedState}
                         />
                       </div>
@@ -370,18 +388,18 @@ export default function EVConsultationModal({
                     </div>
 
                     {/* General error */}
-                    {state.errors?.general && (
+                    {errors.general && (
                       <motion.div
                         initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
                         className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-sm"
                       >
                         <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                        {state.errors.general}
+                        {errors.general}
                       </motion.div>
                     )}
 
                     {/* Submit */}
-                    <SubmitButton />
+                    <SubmitButton pending={loading} />
 
                     <p className="text-center text-xs text-white/20">
                       🔒 Your information is 100% secure. No spam, ever.

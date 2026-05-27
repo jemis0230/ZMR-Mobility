@@ -11,17 +11,11 @@ export default async function ComparePage(props: { params: Promise<{ category?: 
   const categorySlug = params.category?.[0] ?? "2-wheeler";
   const categoryName = CATEGORY_SLUG_MAP[categorySlug] ?? "2 Wheeler";
   const vehicles = await vehicleRepo.findByCategory(categoryName);
-  
-  // Convert to plain objects for client
-  const plainVehicles = vehicles.map(v => ({
-    ...v,
-    sideImages: v.sideImages,
-  }));
 
   return (
-    <ComparePageClient 
-      params={params} 
-      initialVehicles={plainVehicles} 
+    <ComparePageClient
+      params={params}
+      initialVehicles={vehicles}
     />
   );
 }

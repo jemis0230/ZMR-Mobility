@@ -7,11 +7,9 @@ export const metadata = {
 };
 
 const stats = [
-  { value: "360+", label: "EVs Managed", sub: "51 women operators" },
-  { value: "₹141L", label: "Revenue", sub: "As on March 2026" },
-  { value: "104L km", label: "Green KM", sub: "Carbon-free travel" },
-  { value: "200,000 kg", label: "CO₂ Saved", sub: "Reducing emissions" },
-  { value: "340,000 L", label: "Fuel Saved", sub: "Fossil fuel avoided" },
+  { value: "176 Lakh Km", label: "Green KM Travelled", sub: "Carbon-free travel" },
+  { value: "200 Ton", label: "CO₂ Saved", sub: "Reducing emissions" },
+  { value: "198 Lakh L", label: "Fuel Saved", sub: "Fossil fuel avoided" },
   { value: "6,000 kg", label: "Plastics Saved", sub: "Waste eliminated" },
 ];
 
@@ -49,19 +47,33 @@ const techHighlights = [
   { icon: Truck, title: "Doorstep Service", desc: "Complete doorstep inspection and delivery for ultimate customer convenience across cities." },
 ];
 
-const expansionPlan = [
-  {
-    year: "2025", status: "Current", color: "primary",
-    cities: ["Lucknow", "NCR", "Dehradun", "Chennai", "Bangalore"],
+const PHASE_CLASSES = {
+  primary: {
+    card:  'border-primary/20',
+    bar:   'bg-primary',
+    year:  'text-primary',
+    badge: 'bg-primary/10 text-primary',
   },
-  {
-    year: "2026", status: "Next Phase", color: "accent",
-    cities: ["Jaipur", "Agra", "Udaipur", "Bhopal", "Nagpur"],
+  accent: {
+    card:  'border-accent/20',
+    bar:   'bg-accent',
+    year:  'text-accent',
+    badge: 'bg-accent/10 text-accent',
   },
-  {
-    year: "2027", status: "Future", color: "white",
-    cities: ["Kochi", "Meerut", "Mysore", "Chandigarh", "Kashmir"],
+  white: {
+    card:  'border-white/20',
+    bar:   'bg-white/30',
+    year:  'text-white/60',
+    badge: 'bg-white/5 text-white/40',
   },
+} as const;
+
+type PhaseColor = keyof typeof PHASE_CLASSES;
+
+const expansionPlan: { year: string; status: string; color: PhaseColor; cities: string[] }[] = [
+  { year: "2025", status: "Completed",  color: "white",   cities: ["Lucknow", "NCR", "Dehradun", "Chennai", "Bangalore"] },
+  { year: "2026", status: "Current",    color: "primary", cities: ["Jaipur", "Agra", "Udaipur", "Bhopal", "Nagpur"]     },
+  { year: "2027", status: "Next Phase", color: "accent",  cities: ["Kochi", "Meerut", "Mysore", "Chandigarh", "Kashmir"] },
 ];
 
 const team = [
@@ -125,14 +137,14 @@ export default function AboutPage() {
       </section>
 
       {/* Live Stats */}
-      <section className="py-24 px-6">
+      <section id="impact" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary text-xs font-bold uppercase tracking-widest">Traction</span>
             <h2 className="text-4xl font-black mt-2">Real Impact, Real Numbers</h2>
             <p className="text-white/50 mt-3">Transforming mobility for 40+ million people in India.</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((s) => (
               <div key={s.value} className="glass-card p-6 text-center border-white/5 hover:border-primary/30 transition-colors group">
                 <div className="text-3xl md:text-4xl font-black text-primary mb-1 group-hover:scale-105 transition-transform">{s.value}</div>
@@ -232,7 +244,7 @@ export default function AboutPage() {
       </section>
 
       {/* Technology */}
-      <section className="py-24 px-6">
+      <section id="tech" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary text-xs font-bold uppercase tracking-widest">Technology & Innovation</span>
@@ -275,12 +287,14 @@ export default function AboutPage() {
             <h2 className="text-4xl font-black mt-2">Scaling Across Bharat</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {expansionPlan.map((phase) => (
-              <div key={phase.year} className={`glass-card p-8 border-${phase.color === 'primary' ? 'primary' : phase.color === 'accent' ? 'accent' : 'white'}/20 relative overflow-hidden`}>
-                <div className={`absolute top-0 left-0 right-0 h-1 bg-${phase.color === 'primary' ? 'primary' : phase.color === 'accent' ? 'accent' : 'white/30'}`} />
+            {expansionPlan.map((phase) => {
+              const cls = PHASE_CLASSES[phase.color];
+              return (
+              <div key={phase.year} className={`glass-card p-8 ${cls.card} relative overflow-hidden`}>
+                <div className={`absolute top-0 left-0 right-0 h-1 ${cls.bar}`} />
                 <div className="flex items-center justify-between mb-6">
-                  <div className={`text-4xl font-black ${phase.color === 'primary' ? 'text-primary' : phase.color === 'accent' ? 'text-accent' : 'text-white/60'}`}>{phase.year}</div>
-                  <span className={`text-xs px-3 py-1 rounded-full font-bold ${phase.color === 'primary' ? 'bg-primary/10 text-primary' : phase.color === 'accent' ? 'bg-accent/10 text-accent' : 'bg-white/5 text-white/40'}`}>{phase.status}</span>
+                  <div className={`text-4xl font-black ${cls.year}`}>{phase.year}</div>
+                  <span className={`text-xs px-3 py-1 rounded-full font-bold ${cls.badge}`}>{phase.status}</span>
                 </div>
                 <div className="mb-4">
                   <div className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Cities</div>
@@ -293,7 +307,8 @@ export default function AboutPage() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -341,7 +356,7 @@ export default function AboutPage() {
           <h2 className="text-4xl font-black mb-4">Ready to Go Electric?</h2>
           <p className="text-white/50 mb-10">Join hundreds of businesses and individuals already driving India's clean mobility future with ZMR Mobility.</p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <a href="/leasing" className="bg-primary text-background font-bold px-8 py-3.5 rounded-full hover:scale-105 transition-transform electric-glow flex items-center gap-2">
+            <a href="/leasing/vehicles/2-wheeler" className="bg-primary text-background font-bold px-8 py-3.5 rounded-full hover:scale-105 transition-transform electric-glow flex items-center gap-2">
               Explore EV Leasing <ArrowRight className="w-4 h-4" />
             </a>
             <a href="/#procurement" className="border border-white/20 text-white px-8 py-3.5 rounded-full hover:border-primary/50 hover:text-primary transition-colors">

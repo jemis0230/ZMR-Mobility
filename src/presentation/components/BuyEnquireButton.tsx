@@ -8,9 +8,10 @@ import EVConsultationModal from './EVConsultationModal';
 interface BuyEnquireButtonProps {
   vehicleId: string;
   vehicleName: string;
+  label?: string;
 }
 
-export default function BuyEnquireButton({ vehicleId, vehicleName }: BuyEnquireButtonProps) {
+export default function BuyEnquireButton({ vehicleId, vehicleName, label = 'Enquire to Buy' }: BuyEnquireButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -31,7 +32,7 @@ export default function BuyEnquireButton({ vehicleId, vehicleName }: BuyEnquireB
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 2 }}
           className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12 pointer-events-none"
         />
-        <span className="relative">Enquire to Buy</span>
+        <span className="relative">{label}</span>
         <ChevronRight className="relative w-5 h-5" />
       </motion.button>
 
