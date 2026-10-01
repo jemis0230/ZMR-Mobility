@@ -1,4 +1,4 @@
-import { IVehicleRepository, VehicleFilterParams, PaginatedResult, FilterOptions, VehicleCreateInput, VehicleUpdateInput } from "@/application/repositories/IVehicleRepository";
+import { IVehicleRepository, ExploreFilterParams, ExploreMenuData, VehicleFilterParams, PaginatedResult, FilterOptions, VehicleCreateInput, VehicleUpdateInput } from "@/application/repositories/IVehicleRepository";
 import { Vehicle, LeasePlan, RentPlan, VehicleImage } from "@/domain/entities/Vehicle";
 import { VehicleCategory, ChargerType, TransmissionType } from "@/lib/constants";
 import { Prisma, TransmissionType as PrismaTransmissionType, ChargerType as PrismaChargerType } from "@prisma/client";
@@ -49,6 +49,84 @@ export class PrismaVehicleRepository implements IVehicleRepository {
 
   async getFilterOptionsForRent(category: VehicleCategory): Promise<FilterOptions> {
     return this._getFilterOptions({ category, showInRent: true });
+  }
+
+  // ── Explore (all buying vehicles, cross-category) ────────────
+
+  async findForExplore(filters: ExploreFilterParams): Promise<PaginatedResult<Vehicle>> {
+    const {
+      q, minPrice, maxPrice, makes, model, minYear, maxKm, categories, transmission, minRange,
+      sortBy = 'newest', page = 1, pageSize = 12,
+    } = filters;
+
+    const and: Prisma.VehicleWhereInput[] = [{ showInBuying: true }];
+
+    if (q && q.trim()) {
+      const terms = q.trim().split(/\s+/).slice(0, 5);
+      for (const term of terms) {
+        and.push({
+          OR: [
+            { make: { contains: term, mode: 'insensitive' } },
+            { model: { contains: term, mode: 'insensitive' } },
+          ],
+        });
+      }
+    }
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      and.push({ buyingPrice: { ...(minPrice !== undefined ? { gte: minPrice } : {}), ...(maxPrice !== undefined ? { lte: maxPrice } : {}) } });
+    }
+    if (makes && makes.length > 0) and.push({ make: { in: makes, mode: 'insensitive' } });
+    if (model) and.push({ model: { equals: model, mode: 'insensitive' } });
+    if (minYear !== undefined) and.push({ manufactureYear: { gte: minYear } });
+    if (maxKm !== undefined) and.push({ kmDriven: { lte: maxKm } });
+    if (categories && categories.length > 0) and.push({ category: { in: categories } });
+    if (transmission) and.push({ transmission: transmission as PrismaTransmissionType });
+    if (minRange !== undefined) and.push({ certifiedRangeKm: { gte: minRange } });
+
+    const where: Prisma.VehicleWhereInput = { AND: and };
+
+    const orderBy: Prisma.VehicleOrderByWithRelationInput[] =
+      sortBy === 'price_asc'  ? [{ buyingPrice: { sort: 'asc', nulls: 'last' } }] :
+      sortBy === 'price_desc' ? [{ buyingPrice: { sort: 'desc', nulls: 'last' } }] :
+      sortBy === 'year_desc'  ? [{ manufactureYear: { sort: 'desc', nulls: 'last' } }] :
+      sortBy === 'km_asc'     ? [{ kmDriven: { sort: 'asc', nulls: 'last' } }] :
+      [{ createdAt: 'desc' }];
+    orderBy.push({ id: 'asc' });
+
+    const skip = (page - 1) * pageSize;
+    const [total, vehicles] = await Promise.all([
+      prisma.vehicle.count({ where }),
+      prisma.vehicle.findMany({ where, skip, take: pageSize, orderBy, include: vehicleInclude }),
+    ]);
+
+    return {
+      data: vehicles.map((v) => this.mapToEntity(v)),
+      total,
+      page,
+      totalPages: Math.ceil(total / pageSize) || 1,
+    };
+  }
+
+  async getExploreMenuData(): Promise<ExploreMenuData> {
+    const groups = await prisma.vehicle.groupBy({
+      by: ['make', 'model'],
+      where: { showInBuying: true },
+      _count: { _all: true },
+    });
+
+    const byMake = new Map<string, { make: string; models: string[]; count: number }>();
+    for (const g of groups) {
+      const entry = byMake.get(g.make) ?? { make: g.make, models: [], count: 0 };
+      entry.models.push(g.model);
+      entry.count += g._count._all;
+      byMake.set(g.make, entry);
+    }
+
+    return {
+      makes: Array.from(byMake.values())
+        .map((m) => ({ ...m, models: m.models.sort((a, b) => a.localeCompare(b)) }))
+        .sort((a, b) => b.count - a.count || a.make.localeCompare(b.make)),
+    };
   }
 
   // ── Shared helpers ───────────────────────────────────────────
@@ -287,6 +365,8 @@ export class PrismaVehicleRepository implements IVehicleRepository {
       showInRent: v.showInRent,
 
       buyingPrice: v.buyingPrice,
+      manufactureYear: v.manufactureYear,
+      kmDriven: v.kmDriven,
 
       certifiedRangeKm: v.certifiedRangeKm,
       realWorldRangeKm: v.realWorldRangeKm,

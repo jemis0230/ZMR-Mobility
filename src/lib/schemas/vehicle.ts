@@ -72,6 +72,10 @@ export const VehicleFormSchema = z.object({
   // Buying pricing (flat price)
   buyingPrice: optFloat,
 
+  // Pre-owned details
+  manufactureYear: optInt,
+  kmDriven: optInt,
+
   // Performance
   certifiedRangeKm: reqInt,
   realWorldRangeKm: optInt,

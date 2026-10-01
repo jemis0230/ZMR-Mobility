@@ -22,7 +22,7 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Leads & Contacts</h1>
-          <p className="text-white/40 text-sm mt-1">
+          <p className="text-ink/60 text-sm mt-1">
             {result.success
               ? `${total} lead${total !== 1 ? 's' : ''}${pendingCount > 0 ? ` · ${pendingCount} pending on this page` : ''}`
               : 'Manage inquiries from your website forms.'}

@@ -27,7 +27,7 @@ export default async function CategoryLeasingPage(props: {
   if (!category) {
     return (
       <main className="min-h-screen bg-background text-foreground">
-        <div className="pt-32 pb-20 px-6 max-w-7xl mx-auto text-center">
+        <div className="pt-24 lg:pt-40 pb-20 px-6 max-w-7xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Category Not Found</h1>
           <Link href="/" className="text-primary hover:underline">Back to Home</Link>
         </div>
@@ -72,23 +72,23 @@ export default async function CategoryLeasingPage(props: {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+      <div className="pt-24 lg:pt-40 pb-20 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/30 hover:text-primary transition-colors mb-6">
+            <Link href="/" className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ink/50 hover:text-primary transition-colors mb-6">
               <ArrowLeft className="w-3 h-3" />
               Back to Home
             </Link>
             <h1 className="text-2xl sm:text-4xl md:text-6xl font-extrabold tracking-tight">
               Lease <span className="text-primary">{CATEGORY_DISPLAY[category]}</span>
             </h1>
-            <p className="text-white/40 max-w-xl text-sm md:text-lg">
+            <p className="text-ink/60 max-w-xl text-sm md:text-lg">
               Explore our range of premium electric {CATEGORY_DISPLAY[category].toLowerCase()} designed for efficiency and sustainable growth.
             </p>
           </div>
           <div className="glass-card px-6 py-3 border-primary/20 bg-primary/5 shrink-0">
             <span className="text-primary font-bold">{total}</span>
-            <span className="text-white/40 ml-2 text-sm font-medium uppercase tracking-wider">Models Found</span>
+            <span className="text-ink/60 ml-2 text-sm font-medium uppercase tracking-wider">Models Found</span>
           </div>
         </div>
 
@@ -114,9 +114,9 @@ export default async function CategoryLeasingPage(props: {
                 />
               </>
             ) : (
-              <div className="py-32 text-center glass-card border-dashed border-white/10">
-                <h3 className="text-xl font-bold text-white/40 mb-2">No Vehicles Found</h3>
-                <p className="text-white/20 text-sm">Try adjusting your filters.</p>
+              <div className="py-32 text-center glass-card border-dashed border-ink/10">
+                <h3 className="text-xl font-bold text-ink/60 mb-2">No Vehicles Found</h3>
+                <p className="text-ink/40 text-sm">Try adjusting your filters.</p>
                 <Link href={`/leasing/vehicles/${params.slug}`} className="inline-block mt-6 text-primary font-bold hover:underline">
                   Clear All Filters
                 </Link>

@@ -47,17 +47,17 @@ function StyledSelect({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className={`w-full appearance-none bg-white/5 border rounded-xl px-4 py-3 pr-10 outline-none transition-all duration-200 text-sm
-          ${error ? 'border-red-500/70 bg-red-500/5 text-white' : 'border-white/10 focus:border-[#00FF85]/60 text-white/80 focus:text-white'}
-          ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-white/20'}
-          [&>option]:bg-[#0d1117] [&>option]:text-white`}
+        className={`w-full appearance-none bg-ink/5 border rounded-xl px-4 py-3 pr-10 outline-none transition-all duration-200 text-sm
+          ${error ? 'border-red-500/70 bg-red-500/5 text-ink' : 'border-ink/10 focus:border-[#1A73E8]/60 text-ink/85 focus:text-ink'}
+          ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-ink/15'}
+          [&>option]:bg-white [&>option]:text-ink`}
       >
         <option value="">{placeholder}</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>{opt}</option>
         ))}
       </select>
-      <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${disabled ? 'text-white/20' : 'text-white/40'}`} />
+      <ChevronDown className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${disabled ? 'text-ink/40' : 'text-ink/60'}`} />
       {error && (
         <motion.p
           initial={{ opacity: 0, y: -4 }}
@@ -83,11 +83,11 @@ function SubmitButton({ pending }: { pending: boolean }) {
       className="w-full relative overflow-hidden rounded-xl py-3.5 text-sm font-extrabold tracking-wide transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
       style={{
         background: pending
-          ? 'rgba(0,255,133,0.15)'
-          : 'linear-gradient(135deg, #00FF85 0%, #00d46e 100%)',
-        color: pending ? '#00FF85' : '#050d0a',
-        border: pending ? '1px solid rgba(0,255,133,0.3)' : '1px solid transparent',
-        boxShadow: pending ? 'none' : '0 0 30px rgba(0,255,133,0.35), 0 4px 20px rgba(0,0,0,0.3)',
+          ? 'rgba(26,115,232,0.15)'
+          : 'linear-gradient(135deg, #1A73E8 0%, #1557B0 100%)',
+        color: pending ? '#1A73E8' : '#ffffff',
+        border: pending ? '1px solid rgba(26,115,232,0.3)' : '1px solid transparent',
+        boxShadow: pending ? 'none' : '0 0 30px rgba(26,115,232,0.35), 0 4px 20px rgba(0,0,0,0.3)',
       }}
     >
       <span className="flex items-center justify-center gap-2">
@@ -107,7 +107,7 @@ function SubmitButton({ pending }: { pending: boolean }) {
         <motion.div
           animate={{ x: ['-100%', '200%'] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
-          className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
+          className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-ink/30 to-transparent skew-x-12"
         />
       )}
     </button>
@@ -205,9 +205,9 @@ export default function EVConsultationModal({
             <div
               className="pointer-events-auto w-full max-w-md max-h-[95vh] overflow-y-auto rounded-2xl"
               style={{
-                background: 'linear-gradient(145deg, #0f1923 0%, #0a1118 100%)',
-                border: '1px solid rgba(0,255,133,0.18)',
-                boxShadow: '0 0 0 1px rgba(0,255,133,0.05), 0 25px 60px rgba(0,0,0,0.7), 0 0 80px rgba(0,255,133,0.06)',
+                background: 'linear-gradient(145deg, #ffffff 0%, #f5f9ff 100%)',
+                border: '1px solid rgba(26,115,232,0.18)',
+                boxShadow: '0 0 0 1px rgba(26,115,232,0.05), 0 25px 60px rgba(15,23,42,0.18), 0 0 80px rgba(26,115,232,0.06)',
               }}
             >
               {success ? (
@@ -224,32 +224,32 @@ export default function EVConsultationModal({
                     transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.1 }}
                     className="relative"
                   >
-                    <div className="w-20 h-20 rounded-full bg-[#00FF85]/10 border border-[#00FF85]/30 flex items-center justify-center"
-                      style={{ boxShadow: '0 0 40px rgba(0,255,133,0.25)' }}>
-                      <CheckCircle className="w-10 h-10 text-[#00FF85]" />
+                    <div className="w-20 h-20 rounded-full bg-[#1A73E8]/10 border border-[#1A73E8]/30 flex items-center justify-center"
+                      style={{ boxShadow: '0 0 40px rgba(26,115,232,0.25)' }}>
+                      <CheckCircle className="w-10 h-10 text-[#1A73E8]" />
                     </div>
                     {/* Pulse rings */}
                     <motion.div
                       animate={{ scale: [1, 1.6], opacity: [0.4, 0] }}
                       transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
-                      className="absolute inset-0 rounded-full border border-[#00FF85]/40"
+                      className="absolute inset-0 rounded-full border border-[#1A73E8]/40"
                     />
                   </motion.div>
 
                   <div>
-                    <h3 className="text-2xl font-extrabold text-white mb-2">You're all set! 🎉</h3>
-                    <p className="text-white/50 text-sm leading-relaxed">
-                      Our EV expert will call you within <span className="text-[#00FF85] font-bold">24 hours</span> to discuss your requirements.
+                    <h3 className="text-2xl font-extrabold text-ink mb-2">You're all set! 🎉</h3>
+                    <p className="text-ink/65 text-sm leading-relaxed">
+                      Our EV expert will call you within <span className="text-[#1A73E8] font-bold">24 hours</span> to discuss your requirements.
                     </p>
                   </div>
 
-                  <div className="w-full p-4 rounded-xl bg-white/5 border border-white/8 text-xs text-white/40 text-center">
+                  <div className="w-full p-4 rounded-xl bg-ink/5 border border-ink/10 text-xs text-ink/60 text-center">
                     India's #1 EV Leasing Platform · Zero Upfront Hassle
                   </div>
 
                   <button
                     onClick={handleClose}
-                    className="text-sm text-white/40 hover:text-white/70 transition-colors font-medium"
+                    className="text-sm text-ink/60 hover:text-ink/75 transition-colors font-medium"
                   >
                     Close
                   </button>
@@ -260,27 +260,27 @@ export default function EVConsultationModal({
                   {/* Header */}
                   <div className="flex items-start justify-between p-6 pb-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#00FF85]/10 border border-[#00FF85]/25 flex items-center justify-center flex-shrink-0"
-                        style={{ boxShadow: '0 0 20px rgba(0,255,133,0.15)' }}>
-                        <Zap className="w-5 h-5 text-[#00FF85]" />
+                      <div className="w-9 h-9 rounded-xl bg-[#1A73E8]/10 border border-[#1A73E8]/25 flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0 0 20px rgba(26,115,232,0.15)' }}>
+                        <Zap className="w-5 h-5 text-[#1A73E8]" />
                       </div>
                       <div>
-                        <h2 className="text-lg font-extrabold text-white leading-tight">
+                        <h2 className="text-lg font-extrabold text-ink leading-tight">
                           Book a Free EV Consultation
                         </h2>
-                        <p className="text-white/35 text-xs mt-0.5">We'll call you within 24 hours</p>
+                        <p className="text-ink/55 text-xs mt-0.5">We'll call you within 24 hours</p>
                       </div>
                     </div>
                     <button
                       onClick={handleClose}
-                      className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all flex-shrink-0 ml-2"
+                      className="w-8 h-8 rounded-lg bg-ink/5 border border-ink/10 flex items-center justify-center hover:bg-ink/10 hover:border-ink/15 transition-all flex-shrink-0 ml-2"
                     >
-                      <X className="w-4 h-4 text-white/60" />
+                      <X className="w-4 h-4 text-ink/70" />
                     </button>
                   </div>
 
                   {/* Divider */}
-                  <div className="mx-6 mt-4 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                  <div className="mx-6 mt-4 h-px bg-gradient-to-r from-transparent via-ink/10 to-transparent" />
 
                   {/* Form */}
                   <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -289,7 +289,7 @@ export default function EVConsultationModal({
                     <div className="grid grid-cols-2 gap-3">
                       {/* Full Name */}
                       <div className="space-y-1.5">
-                        <label htmlFor="modal-name" className="block text-xs font-bold uppercase tracking-widest text-white/35">
+                        <label htmlFor="modal-name" className="block text-xs font-bold uppercase tracking-widest text-ink/55">
                           Full Name
                         </label>
                         <input
@@ -298,8 +298,8 @@ export default function EVConsultationModal({
                           type="text"
                           placeholder="Rahul Sharma"
                           autoComplete="name"
-                          className={`w-full bg-white/5 border rounded-xl px-4 py-3 outline-none transition-all duration-200 text-sm text-white placeholder:text-white/25
-                            ${errors.name ? 'border-red-500/70 bg-red-500/5' : 'border-white/10 focus:border-[#00FF85]/60 hover:border-white/20'}`}
+                          className={`w-full bg-ink/5 border rounded-xl px-4 py-3 outline-none transition-all duration-200 text-sm text-ink placeholder:text-ink/45
+                            ${errors.name ? 'border-red-500/70 bg-red-500/5' : 'border-ink/10 focus:border-[#1A73E8]/60 hover:border-ink/15'}`}
                         />
                         {errors.name && (
                           <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
@@ -311,12 +311,12 @@ export default function EVConsultationModal({
 
                       {/* Phone */}
                       <div className="space-y-1.5">
-                        <label htmlFor="modal-phone" className="block text-xs font-bold uppercase tracking-widest text-white/35">
+                        <label htmlFor="modal-phone" className="block text-xs font-bold uppercase tracking-widest text-ink/55">
                           Phone Number
                         </label>
-                        <div className={`flex items-center bg-white/5 border rounded-xl overflow-hidden transition-all duration-200
-                          ${errors.phone ? 'border-red-500/70 bg-red-500/5' : 'border-white/10 focus-within:border-[#00FF85]/60 hover:border-white/20'}`}>
-                          <span className="px-3 text-sm font-bold text-[#00FF85]/80 border-r border-white/10 py-3 bg-[#00FF85]/5 flex-shrink-0">+91</span>
+                        <div className={`flex items-center bg-ink/5 border rounded-xl overflow-hidden transition-all duration-200
+                          ${errors.phone ? 'border-red-500/70 bg-red-500/5' : 'border-ink/10 focus-within:border-[#1A73E8]/60 hover:border-ink/15'}`}>
+                          <span className="px-3 text-sm font-bold text-[#1A73E8]/80 border-r border-ink/10 py-3 bg-[#1A73E8]/5 flex-shrink-0">+91</span>
                           <input
                             id="modal-phone"
                             name="phone"
@@ -325,7 +325,7 @@ export default function EVConsultationModal({
                             maxLength={10}
                             placeholder="9876543210"
 
-                            className="flex-1 bg-transparent px-3 py-3 outline-none text-sm text-white placeholder:text-white/25 min-w-0"
+                            className="flex-1 bg-transparent px-3 py-3 outline-none text-sm text-ink placeholder:text-ink/45 min-w-0"
                           />
                         </div>
                         {errors.phone && (
@@ -340,7 +340,7 @@ export default function EVConsultationModal({
                     {/* Row: State + City */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-bold uppercase tracking-widest text-white/35">State</label>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-ink/55">State</label>
                         <StyledSelect
                           id="modal-state"
                           name="_state_display"
@@ -352,7 +352,7 @@ export default function EVConsultationModal({
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-bold uppercase tracking-widest text-white/35">City</label>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-ink/55">City</label>
                         <StyledSelect
                           id="modal-city"
                           name="_city_display"
@@ -368,22 +368,22 @@ export default function EVConsultationModal({
 
                     {/* Category */}
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-bold uppercase tracking-widest text-white/35">
-                        Category <span className="text-white/20 normal-case font-normal tracking-normal">(optional)</span>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-ink/55">
+                        Category <span className="text-ink/40 normal-case font-normal tracking-normal">(optional)</span>
                       </label>
                       <div className="relative">
                         <select
                           id="modal-category"
                           value={selectedCategory}
                           onChange={(e) => setSelectedCategory(e.target.value)}
-                          className="w-full appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-10 outline-none transition-all duration-200 text-sm text-white/80 focus:border-[#00FF85]/60 focus:text-white hover:border-white/20 cursor-pointer [&>option]:bg-[#0d1117] [&>option]:text-white"
+                          className="w-full appearance-none bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 pr-10 outline-none transition-all duration-200 text-sm text-ink/85 focus:border-[#1A73E8]/60 focus:text-ink hover:border-ink/15 cursor-pointer [&>option]:bg-white [&>option]:text-ink"
                         >
                           <option value="">Please select the category that best represents your requirement</option>
                           {INQUIRY_CATEGORIES.map((cat) => (
                             <option key={cat} value={cat}>{cat}</option>
                           ))}
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/60" />
                       </div>
                     </div>
 
@@ -401,7 +401,7 @@ export default function EVConsultationModal({
                     {/* Submit */}
                     <SubmitButton pending={loading} />
 
-                    <p className="text-center text-xs text-white/20">
+                    <p className="text-center text-xs text-ink/40">
                       🔒 Your information is 100% secure. No spam, ever.
                     </p>
                   </form>

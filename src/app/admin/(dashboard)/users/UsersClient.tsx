@@ -53,8 +53,8 @@ function PasswordRevealModal({
             <KeyRound className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <h2 className="text-lg font-black text-white">{title}</h2>
-            <p className="text-white/40 text-sm mt-0.5">Share this password with the user</p>
+            <h2 className="text-lg font-black text-ink">{title}</h2>
+            <p className="text-ink/60 text-sm mt-0.5">Share this password with the user</p>
           </div>
         </div>
 
@@ -66,10 +66,10 @@ function PasswordRevealModal({
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-bold uppercase tracking-widest text-white/40">
+          <p className="text-xs font-bold uppercase tracking-widest text-ink/60">
             Generated Password
           </p>
-          <div className="bg-white/5 border border-white/10 rounded-xl p-4 font-mono text-lg text-white tracking-wider break-all">
+          <div className="bg-ink/5 border border-ink/10 rounded-xl p-4 font-mono text-lg text-ink tracking-wider break-all">
             {password}
           </div>
         </div>
@@ -77,14 +77,14 @@ function PasswordRevealModal({
         <div className="flex gap-3">
           <button
             onClick={copy}
-            className="flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white font-bold py-3 rounded-xl transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-ink/10 hover:bg-ink/15 text-ink font-bold py-3 rounded-xl transition-all"
           >
             {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
             {copied ? 'Copied!' : 'Copy Password'}
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-primary text-background font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow"
+            className="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow"
           >
             I've Saved It
           </button>
@@ -115,17 +115,17 @@ function AddUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="glass-card border-white/10 w-full max-w-md p-8 space-y-6">
+      <div className="glass-card border-ink/10 w-full max-w-md p-8 space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-black">Add New Admin User</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-ink/60 hover:text-ink transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-white/50">
+            <label className="text-xs font-bold uppercase tracking-widest text-ink/65">
               Email Address
             </label>
             <input
@@ -133,18 +133,18 @@ function AddUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
               name="email"
               required
               placeholder="client@example.com"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:border-primary focus:outline-none transition-all"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink placeholder-ink/40 focus:border-primary focus:outline-none transition-all"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-white/50">
+            <label className="text-xs font-bold uppercase tracking-widest text-ink/65">
               Display Name
             </label>
             <input
               type="text"
               name="name"
               placeholder="e.g. Client Name"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:border-primary focus:outline-none transition-all"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink placeholder-ink/40 focus:border-primary focus:outline-none transition-all"
             />
           </div>
 
@@ -157,7 +157,7 @@ function AddUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-background font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow disabled:opacity-50"
+            className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow disabled:opacity-50"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin mx-auto" />
@@ -249,10 +249,10 @@ export default function UsersClient({
       <div className="space-y-4">
         {/* Header row */}
         <div className="flex items-center justify-between">
-          <p className="text-white/40 text-sm">{users.length} admin user{users.length !== 1 ? 's' : ''}</p>
+          <p className="text-ink/60 text-sm">{users.length} admin user{users.length !== 1 ? 's' : ''}</p>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-primary text-background font-bold px-4 py-2.5 rounded-xl hover:bg-primary/90 transition-all electric-glow text-sm"
+            className="flex items-center gap-2 bg-primary text-white font-bold px-4 py-2.5 rounded-xl hover:bg-primary/90 transition-all electric-glow text-sm"
           >
             <Plus className="w-4 h-4" />
             Add User
@@ -260,40 +260,40 @@ export default function UsersClient({
         </div>
 
         {/* Users table */}
-        <div className="glass-card border-white/5 overflow-hidden">
+        <div className="glass-card border-ink/[0.08] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/5">
-                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-white/30">User</th>
-                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-white/30">Role</th>
-                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-white/30">Status</th>
-                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-white/30">Last Login</th>
-                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-white/30">Joined</th>
+                <tr className="border-b border-ink/[0.08]">
+                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-ink/50">User</th>
+                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-ink/50">Role</th>
+                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-ink/50">Status</th>
+                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-ink/50">Last Login</th>
+                  <th className="text-left px-6 py-4 text-xs font-black uppercase tracking-widest text-ink/50">Joined</th>
                   <th className="px-6 py-4"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-ink/[0.08]">
                 {users.map((user) => {
                   const isSelf = user.id === currentUserId;
                   const isSuperadmin = user.role === 'superadmin';
                   const canModify = !isSelf && !isSuperadmin;
 
                   return (
-                    <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
+                    <tr key={user.id} className="hover:bg-ink/[0.02] transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xs font-black flex-shrink-0">
                             {(user.name || user.email)[0].toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-white">
+                            <p className="text-sm font-bold text-ink">
                               {user.name || '—'}
                               {isSelf && (
                                 <span className="ml-2 text-[10px] text-primary/70 font-normal">(you)</span>
                               )}
                             </p>
-                            <p className="text-xs text-white/40">{user.email}</p>
+                            <p className="text-xs text-ink/60">{user.email}</p>
                           </div>
                         </div>
                       </td>
@@ -304,7 +304,7 @@ export default function UsersClient({
                             Superadmin
                           </span>
                         ) : (
-                          <span className="text-[10px] font-black uppercase tracking-wider text-white/50 bg-white/5 border border-white/10 px-2 py-1 rounded-full">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-ink/65 bg-ink/5 border border-ink/10 px-2 py-1 rounded-full">
                             Admin
                           </span>
                         )}
@@ -313,13 +313,13 @@ export default function UsersClient({
                         <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full ${
                           user.isActive
                             ? 'text-green-400 bg-green-400/10 border border-green-400/20'
-                            : 'text-white/30 bg-white/5 border border-white/10'
+                            : 'text-ink/50 bg-ink/5 border border-ink/10'
                         }`}>
                           {user.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-white/40">{formatDate(user.lastLoginAt)}</td>
-                      <td className="px-6 py-4 text-sm text-white/40">{formatDate(user.createdAt)}</td>
+                      <td className="px-6 py-4 text-sm text-ink/60">{formatDate(user.lastLoginAt)}</td>
+                      <td className="px-6 py-4 text-sm text-ink/60">{formatDate(user.createdAt)}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2 justify-end">
                           {/* Reset password — only for non-superadmin users */}
@@ -328,7 +328,7 @@ export default function UsersClient({
                               onClick={() => handleResetPassword(user.id)}
                               disabled={isPending}
                               title="Reset Password"
-                              className="p-2 rounded-lg hover:bg-amber-500/10 text-white/30 hover:text-amber-400 transition-all disabled:opacity-40"
+                              className="p-2 rounded-lg hover:bg-amber-500/10 text-ink/50 hover:text-amber-400 transition-all disabled:opacity-40"
                             >
                               <KeyRound className="w-4 h-4" />
                             </button>
@@ -340,7 +340,7 @@ export default function UsersClient({
                               onClick={() => handleToggleActive(user.id)}
                               disabled={isPending}
                               title={user.isActive ? 'Deactivate' : 'Activate'}
-                              className="p-2 rounded-lg hover:bg-white/5 text-white/30 hover:text-white transition-all disabled:opacity-40"
+                              className="p-2 rounded-lg hover:bg-ink/5 text-ink/50 hover:text-ink transition-all disabled:opacity-40"
                             >
                               {user.isActive ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                             </button>
@@ -359,7 +359,7 @@ export default function UsersClient({
                                 </button>
                                 <button
                                   onClick={() => setConfirmDelete(null)}
-                                  className="px-2 py-1 rounded-lg text-white/40 text-xs hover:text-white transition-all"
+                                  className="px-2 py-1 rounded-lg text-ink/60 text-xs hover:text-ink transition-all"
                                 >
                                   Cancel
                                 </button>
@@ -368,7 +368,7 @@ export default function UsersClient({
                               <button
                                 onClick={() => setConfirmDelete(user.id)}
                                 title="Delete User"
-                                className="p-2 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-all"
+                                className="p-2 rounded-lg hover:bg-red-500/10 text-ink/50 hover:text-red-400 transition-all"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>

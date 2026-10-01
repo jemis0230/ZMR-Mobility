@@ -55,8 +55,8 @@ export default function LeasingContactForm() {
   const set = (key: FieldKey, value: string) => setFields(prev => ({ ...prev, [key]: value }));
 
   const fieldCls = (key: FieldKey) =>
-    `w-full bg-white/5 border rounded-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-white/20 text-white text-sm ${
-      touched[key] && errors[key] ? 'border-red-500/60 focus:border-red-500' : 'border-white/10'
+    `w-full bg-ink/5 border rounded-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-ink/40 text-ink text-sm ${
+      touched[key] && errors[key] ? 'border-red-500/60 focus:border-red-500' : 'border-ink/10'
     }`;
 
   if (success) {
@@ -64,7 +64,7 @@ export default function LeasingContactForm() {
       <div className="glass-card p-12 text-center space-y-4 border-primary/20">
         <CheckCircle className="w-12 h-12 text-primary mx-auto" />
         <h3 className="text-2xl font-bold">Inquiry Sent!</h3>
-        <p className="text-white/60">Our EV expert will contact you within 24 hours.</p>
+        <p className="text-ink/70">Our EV expert will contact you within 24 hours.</p>
       </div>
     );
   }
@@ -99,7 +99,7 @@ export default function LeasingContactForm() {
   return (
     <div className="glass-card p-8 md:p-12">
       <h3 className="text-2xl font-bold mb-2">Tell Us How We Can Help</h3>
-      <p className="text-white/40 mb-8 text-sm">
+      <p className="text-ink/60 mb-8 text-sm">
         Fill out the form below and our team will get back to you shortly.
       </p>
 
@@ -108,7 +108,7 @@ export default function LeasingContactForm() {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Full Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-white/40">Full Name</label>
+            <label className="text-xs font-bold uppercase tracking-widest text-ink/60">Full Name</label>
             <input
               type="text"
               placeholder="Rahul Sharma"
@@ -126,9 +126,9 @@ export default function LeasingContactForm() {
 
           {/* Phone */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-white/40">Phone Number</label>
+            <label className="text-xs font-bold uppercase tracking-widest text-ink/60">Phone Number</label>
             <div className="flex">
-              <span className="flex items-center px-3 bg-white/5 border border-r-0 border-white/10 rounded-l-xl text-white/40 text-sm font-semibold shrink-0">
+              <span className="flex items-center px-3 bg-ink/5 border border-r-0 border-ink/10 rounded-l-xl text-ink/60 text-sm font-semibold shrink-0">
                 +91
               </span>
               <input
@@ -138,8 +138,8 @@ export default function LeasingContactForm() {
                 value={fields.phone}
                 onChange={(e) => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
                 onBlur={() => touch('phone')}
-                className={`flex-1 bg-white/5 border rounded-r-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-white/20 text-white text-sm ${
-                  touched.phone && errors.phone ? 'border-red-500/60 focus:border-red-500' : 'border-white/10'
+                className={`flex-1 bg-ink/5 border rounded-r-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-ink/40 text-ink text-sm ${
+                  touched.phone && errors.phone ? 'border-red-500/60 focus:border-red-500' : 'border-ink/10'
                 }`}
               />
             </div>
@@ -153,7 +153,7 @@ export default function LeasingContactForm() {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-white/40">Email Address</label>
+          <label className="text-xs font-bold uppercase tracking-widest text-ink/60">Email Address</label>
           <input
             type="email"
             placeholder="rahul@example.com"
@@ -171,16 +171,16 @@ export default function LeasingContactForm() {
 
         {/* Interest */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-white/40">I'm interested in</label>
+          <label className="text-xs font-bold uppercase tracking-widest text-ink/60">I'm interested in</label>
           <select
             value={fields.inquiryCategory}
             onChange={(e) => { set('inquiryCategory', e.target.value); touch('inquiryCategory'); }}
             onBlur={() => touch('inquiryCategory')}
-            className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:border-primary outline-none transition-all appearance-none cursor-pointer [&>option]:bg-[#0d1117] text-sm ${
+            className={`w-full bg-ink/5 border rounded-xl px-4 py-3 focus:border-primary outline-none transition-all appearance-none cursor-pointer [&>option]:bg-white text-sm ${
               touched.inquiryCategory && errors.inquiryCategory
-                ? 'border-red-500/60 focus:border-red-500 text-white'
-                : 'border-white/10'
-            } ${fields.inquiryCategory ? 'text-white' : 'text-white/30'}`}
+                ? 'border-red-500/60 focus:border-red-500 text-ink'
+                : 'border-ink/10'
+            } ${fields.inquiryCategory ? 'text-ink' : 'text-ink/50'}`}
           >
             <option value="" disabled>Select an option…</option>
             {INTEREST_OPTIONS.map((opt) => (
@@ -196,15 +196,15 @@ export default function LeasingContactForm() {
 
         {/* Message */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-white/40">
-            Message <span className="text-white/20 normal-case font-normal tracking-normal">(Optional)</span>
+          <label className="text-xs font-bold uppercase tracking-widest text-ink/60">
+            Message <span className="text-ink/40 normal-case font-normal tracking-normal">(Optional)</span>
           </label>
           <textarea
             rows={4}
             value={fields.notes}
             onChange={(e) => set('notes', e.target.value)}
             placeholder="Tell us about your fleet requirements..."
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-primary outline-none transition-all resize-none placeholder:text-white/20 text-white text-sm"
+            className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 focus:border-primary outline-none transition-all resize-none placeholder:text-ink/40 text-ink text-sm"
           />
         </div>
 
@@ -217,7 +217,7 @@ export default function LeasingContactForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary text-background font-bold py-4 rounded-xl hover:bg-primary/90 transition-all electric-glow flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary/90 transition-all electric-glow flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>

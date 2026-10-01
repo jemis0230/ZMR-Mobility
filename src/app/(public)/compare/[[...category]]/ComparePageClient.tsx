@@ -60,12 +60,12 @@ export default function ComparePageClient({
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+      <div className="pt-24 lg:pt-40 pb-20 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
             Compare <span className="text-primary">{categoryLabel}</span>
           </h1>
-          <p className="text-white/40 max-w-2xl mx-auto text-lg">
+          <p className="text-ink/60 max-w-2xl mx-auto text-lg">
             Find the perfect electric {categoryLabel.toLowerCase()} by comparing specifications, performance, and pricing side by side.
           </p>
         </div>
@@ -75,10 +75,10 @@ export default function ComparePageClient({
         </div>
 
         {initialVehicles.length < 2 ? (
-          <div className="glass-card p-16 text-center border-dashed border-white/10">
-            <h3 className="text-2xl font-bold text-white/40 mb-4">Not Enough Vehicles to Compare</h3>
-            <p className="text-white/20 mb-8 max-w-md mx-auto">We need at least 2 vehicles in this category to show a comparison. Please check back soon or browse our fleet!</p>
-            <Link href={`/leasing/vehicles/${categorySlug}`} className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-background px-8 py-3 rounded-full font-bold transition-all electric-glow">
+          <div className="glass-card p-16 text-center border-dashed border-ink/10">
+            <h3 className="text-2xl font-bold text-ink/60 mb-4">Not Enough Vehicles to Compare</h3>
+            <p className="text-ink/40 mb-8 max-w-md mx-auto">We need at least 2 vehicles in this category to show a comparison. Please check back soon or browse our fleet!</p>
+            <Link href={`/leasing/vehicles/${categorySlug}`} className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full font-bold transition-all electric-glow">
               Browse Fleet
             </Link>
           </div>
@@ -86,11 +86,11 @@ export default function ComparePageClient({
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
               <div className="glass-card p-4 md:p-8">
-                <label className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4 block">Vehicle 1</label>
+                <label className="text-ink/60 text-sm font-bold uppercase tracking-widest mb-4 block">Vehicle 1</label>
                 <select
                   value={selectedVehicle1Id || ""}
                   onChange={(e) => setSelectedVehicle1Id(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/80 focus:outline-none focus:border-primary transition-colors"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink/85 focus:outline-none focus:border-primary transition-colors"
                 >
                   {initialVehicles.map((vehicle) => (
                     <option key={vehicle.id} value={vehicle.id}>{vehicle.make} {vehicle.model}</option>
@@ -99,11 +99,11 @@ export default function ComparePageClient({
               </div>
 
               <div className="glass-card p-4 md:p-8">
-                <label className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4 block">Vehicle 2</label>
+                <label className="text-ink/60 text-sm font-bold uppercase tracking-widest mb-4 block">Vehicle 2</label>
                 <select
                   value={selectedVehicle2Id || ""}
                   onChange={(e) => setSelectedVehicle2Id(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/80 focus:outline-none focus:border-primary transition-colors"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink/85 focus:outline-none focus:border-primary transition-colors"
                 >
                   {initialVehicles.map((vehicle) => (
                     <option key={vehicle.id} value={vehicle.id}>{vehicle.make} {vehicle.model}</option>
@@ -117,14 +117,14 @@ export default function ComparePageClient({
                 <div className="min-w-[540px]">
                   <div className="grid grid-cols-3 gap-4 md:gap-8 mb-4 md:mb-8">
                     <div className="opacity-50 flex items-end pb-4 md:pb-8">
-                      <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-white/40">Specification</span>
+                      <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-ink/60">Specification</span>
                     </div>
                     {[selectedVehicle1, selectedVehicle2].map((vehicle) => {
                       const leasePrice = getLowestLeasePrice(vehicle);
                       return (
                         <div key={vehicle.id} className="flex flex-col">
                           <div className="glass-card p-4 md:p-8 border-primary/10 text-center">
-                            <div className="w-full aspect-video bg-white/5 rounded-xl overflow-hidden mb-3 md:mb-6">
+                            <div className="w-full aspect-video bg-ink/5 rounded-xl overflow-hidden mb-3 md:mb-6">
                               <img src={vehicle.mainImage} alt={vehicle.model} className="w-full h-full object-contain p-2" />
                             </div>
                             <h3 className="text-sm md:text-xl font-bold tracking-tight mb-1 md:mb-2">
@@ -132,10 +132,10 @@ export default function ComparePageClient({
                             </h3>
                             {leasePrice && (
                               <div className="text-xl md:text-3xl font-black text-primary italic mb-2 md:mb-4">
-                                ₹{leasePrice.toLocaleString('en-IN')}<span className="text-[10px] md:text-xs text-white/40 font-normal not-italic">/mo</span>
+                                ₹{leasePrice.toLocaleString('en-IN')}<span className="text-[10px] md:text-xs text-ink/60 font-normal not-italic">/mo</span>
                               </div>
                             )}
-                            <Link href={`/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`} className="inline-flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary hover:text-white/80 transition-colors">
+                            <Link href={`/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`} className="inline-flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary hover:text-ink/85 transition-colors">
                               View Details
                             </Link>
                           </div>
@@ -150,14 +150,14 @@ export default function ComparePageClient({
                       const v2 = attr.getValue(selectedVehicle2);
                       return (
                         <div key={idx} className="grid grid-cols-3 gap-4 md:gap-8 items-center">
-                          <div className="bg-white/5 p-3 md:p-6 rounded-xl border border-white/5">
-                            <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-white/40">{attr.label}</span>
+                          <div className="bg-ink/5 p-3 md:p-6 rounded-xl border border-ink/[0.08]">
+                            <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-ink/60">{attr.label}</span>
                           </div>
-                          <div className="p-3 md:p-6 text-center border border-white/5 rounded-xl">
-                            <span className="text-sm md:text-lg font-bold text-white/80">{v1}</span>
+                          <div className="p-3 md:p-6 text-center border border-ink/[0.08] rounded-xl">
+                            <span className="text-sm md:text-lg font-bold text-ink/85">{v1}</span>
                           </div>
-                          <div className="p-3 md:p-6 text-center border border-white/5 rounded-xl">
-                            <span className="text-sm md:text-lg font-bold text-white/80">{v2}</span>
+                          <div className="p-3 md:p-6 text-center border border-ink/[0.08] rounded-xl">
+                            <span className="text-sm md:text-lg font-bold text-ink/85">{v2}</span>
                           </div>
                         </div>
                       );

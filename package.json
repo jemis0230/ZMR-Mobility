@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:demo": "node prisma/seed-demo.js"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",

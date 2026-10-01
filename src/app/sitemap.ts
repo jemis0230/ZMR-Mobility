@@ -3,11 +3,13 @@ import { PrismaVehicleRepository } from '@/infrastructure/repositories/PrismaVeh
 import { slugifyVehicle } from '@/lib/vehicleSlug';
 import { CATEGORY_TO_SLUG } from '@/lib/constants';
 import prisma from '@/lib/prisma';
+import { SITE_URL } from '@/lib/site';
+import { BODY_TYPES, bodyTypeHref } from '@/lib/explore';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
-const BASE = 'https://zmrmobility.in';
+const BASE = SITE_URL;
 
 const vehicleRepo = new PrismaVehicleRepository();
 
@@ -15,6 +17,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static pages ────────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
     { url: `${BASE}/`,                     priority: 1.0, changeFrequency: 'weekly'  },
+    { url: `${BASE}/explore`,              priority: 0.9, changeFrequency: 'daily'   },
+    ...BODY_TYPES.map((b) => ({ url: `${BASE}${bodyTypeHref(b.category)}`, priority: 0.7, changeFrequency: 'daily' as const })),
     { url: `${BASE}/about`,                priority: 0.6, changeFrequency: 'monthly' },
     { url: `${BASE}/blogs`,                priority: 0.8, changeFrequency: 'weekly'  },
     { url: `${BASE}/sell-ev`,              priority: 0.7, changeFrequency: 'monthly' },

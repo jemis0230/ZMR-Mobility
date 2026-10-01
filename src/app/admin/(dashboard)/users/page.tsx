@@ -24,7 +24,7 @@ export default async function UsersPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-black">User Management</h1>
-        <p className="text-white/40 mt-1">Manage who can access the admin panel</p>
+        <p className="text-ink/60 mt-1">Manage who can access the admin panel</p>
       </div>
       <UsersClient
         users={users.map((u) => ({

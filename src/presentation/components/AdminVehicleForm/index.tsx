@@ -28,18 +28,18 @@ function ToggleField({ label, name, checked, onChange, description }: {
   label: string; name: string; checked: boolean; onChange: (v: boolean) => void; description?: string;
 }) {
   return (
-    <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+    <div className="flex items-start gap-4 p-4 rounded-xl bg-ink/5 border border-ink/10">
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className={`relative w-11 h-6 rounded-full transition-colors shrink-0 mt-0.5 ${checked ? 'bg-primary' : 'bg-white/20'}`}
+        className={`relative w-11 h-6 rounded-full transition-colors shrink-0 mt-0.5 ${checked ? 'bg-primary' : 'bg-ink/20'}`}
       >
         <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
         <input type="hidden" name={name} value={checked ? 'on' : ''} />
       </button>
       <div>
-        <p className="font-semibold text-sm text-white">{label}</p>
-        {description && <p className="text-xs text-white/40 mt-0.5">{description}</p>}
+        <p className="font-semibold text-sm text-ink">{label}</p>
+        {description && <p className="text-xs text-ink/60 mt-0.5">{description}</p>}
       </div>
     </div>
   );
@@ -55,25 +55,25 @@ function ChargingTimePicker({ defaultMinutes }: { defaultMinutes?: number | null
 
   return (
     <div className="md:col-span-2 space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-white/40">Charging Time</label>
+      <label className="text-xs font-bold uppercase tracking-widest text-ink/60">Charging Time</label>
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <input
             type="number" min="0" max="23" value={hours}
             onChange={(e) => setHours(Math.max(0, Math.min(23, parseInt(e.target.value) || 0)))}
-            className="w-20 bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-center outline-none focus:border-primary transition-all"
+            className="w-20 bg-ink/5 border border-ink/10 rounded-xl px-3 py-3 text-center outline-none focus:border-primary transition-all"
           />
-          <span className="text-white/40 text-sm">hrs</span>
+          <span className="text-ink/60 text-sm">hrs</span>
         </div>
         <div className="flex items-center gap-2">
           <input
             type="number" min="0" max="59" value={mins}
             onChange={(e) => setMins(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
-            className="w-20 bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-center outline-none focus:border-primary transition-all"
+            className="w-20 bg-ink/5 border border-ink/10 rounded-xl px-3 py-3 text-center outline-none focus:border-primary transition-all"
           />
-          <span className="text-white/40 text-sm">min</span>
+          <span className="text-ink/60 text-sm">min</span>
         </div>
-        <span className="text-white/30 text-sm">= {total} min total</span>
+        <span className="text-ink/50 text-sm">= {total} min total</span>
       </div>
       <input type="hidden" name="chargingTimeMinutes" value={total} />
     </div>
@@ -84,10 +84,10 @@ function ChargingTimePicker({ defaultMinutes }: { defaultMinutes?: number | null
 
 function LeasePlanRow({ plan, onDelete, onToggle }: { plan: LeasePlan; onDelete: () => void; onToggle: () => void }) {
   return (
-    <div className={`flex items-center justify-between p-3 border rounded-lg text-sm transition-colors ${plan.isActive ? 'bg-white/5 border-white/10' : 'bg-white/2 border-white/5 opacity-60'}`}>
-      <span className="text-white/70">{plan.tenureMonths} months</span>
+    <div className={`flex items-center justify-between p-3 border rounded-lg text-sm transition-colors ${plan.isActive ? 'bg-ink/5 border-ink/10' : 'bg-ink/2 border-ink/[0.08] opacity-60'}`}>
+      <span className="text-ink/75">{plan.tenureMonths} months</span>
       <span className="font-semibold">₹{plan.monthlyPriceRs.toLocaleString('en-IN')}/mo</span>
-      <span className="text-white/50 text-xs">Dep: ₹{plan.depositRs.toLocaleString('en-IN')}</span>
+      <span className="text-ink/65 text-xs">Dep: ₹{plan.depositRs.toLocaleString('en-IN')}</span>
       <div className="flex gap-1">
         <button type="button" onClick={onToggle} title={plan.isActive ? 'Deactivate' : 'Activate'}
           className={`p-1.5 rounded-lg transition-colors ${plan.isActive ? 'hover:bg-yellow-500/20 text-yellow-400' : 'hover:bg-green-500/20 text-green-400'}`}>
@@ -103,10 +103,10 @@ function LeasePlanRow({ plan, onDelete, onToggle }: { plan: LeasePlan; onDelete:
 
 function RentPlanRow({ plan, onDelete, onToggle }: { plan: RentPlan; onDelete: () => void; onToggle: () => void }) {
   return (
-    <div className={`flex items-center justify-between p-3 border rounded-lg text-sm transition-colors ${plan.isActive ? 'bg-white/5 border-white/10' : 'bg-white/2 border-white/5 opacity-60'}`}>
-      <span className="text-white/70">{plan.durationDays} day{plan.durationDays !== 1 ? 's' : ''}</span>
+    <div className={`flex items-center justify-between p-3 border rounded-lg text-sm transition-colors ${plan.isActive ? 'bg-ink/5 border-ink/10' : 'bg-ink/2 border-ink/[0.08] opacity-60'}`}>
+      <span className="text-ink/75">{plan.durationDays} day{plan.durationDays !== 1 ? 's' : ''}</span>
       <span className="font-semibold">₹{plan.pricePerDayRs.toLocaleString('en-IN')}/day</span>
-      <span className="text-white/50 text-xs">Dep: ₹{plan.depositRs.toLocaleString('en-IN')}</span>
+      <span className="text-ink/65 text-xs">Dep: ₹{plan.depositRs.toLocaleString('en-IN')}</span>
       <div className="flex gap-1">
         <button type="button" onClick={onToggle} title={plan.isActive ? 'Deactivate' : 'Activate'}
           className={`p-1.5 rounded-lg transition-colors ${plan.isActive ? 'hover:bg-yellow-500/20 text-yellow-400' : 'hover:bg-green-500/20 text-green-400'}`}>
@@ -125,9 +125,9 @@ function RentPlanRow({ plan, onDelete, onToggle }: { plan: RentPlan; onDelete: (
 function PendingLeasePlanRow({ plan, onDelete }: { plan: PendingLeasePlan; onDelete: () => void }) {
   return (
     <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-lg text-sm">
-      <span className="text-white/70">{plan.tenureMonths} months</span>
+      <span className="text-ink/75">{plan.tenureMonths} months</span>
       <span className="font-semibold">₹{plan.monthlyPriceRs.toLocaleString('en-IN')}/mo</span>
-      <span className="text-white/50 text-xs">Dep: ₹{plan.depositRs.toLocaleString('en-IN')}</span>
+      <span className="text-ink/65 text-xs">Dep: ₹{plan.depositRs.toLocaleString('en-IN')}</span>
       <button type="button" onClick={onDelete} className="p-1.5 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
         <Trash2 className="w-4 h-4" />
       </button>
@@ -138,9 +138,9 @@ function PendingLeasePlanRow({ plan, onDelete }: { plan: PendingLeasePlan; onDel
 function PendingRentPlanRow({ plan, onDelete }: { plan: PendingRentPlan; onDelete: () => void }) {
   return (
     <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-lg text-sm">
-      <span className="text-white/70">{plan.durationDays} day{plan.durationDays !== 1 ? 's' : ''}</span>
+      <span className="text-ink/75">{plan.durationDays} day{plan.durationDays !== 1 ? 's' : ''}</span>
       <span className="font-semibold">₹{plan.pricePerDayRs.toLocaleString('en-IN')}/day</span>
-      <span className="text-white/50 text-xs">Dep: ₹{plan.depositRs.toLocaleString('en-IN')}</span>
+      <span className="text-ink/65 text-xs">Dep: ₹{plan.depositRs.toLocaleString('en-IN')}</span>
       <button type="button" onClick={onDelete} className="p-1.5 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors">
         <Trash2 className="w-4 h-4" />
       </button>
@@ -174,11 +174,11 @@ function AddPlanPanel({ type, vehicleId, onAdded }: {
     onAdded(result.data);
   }
 
-  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary';
-  const labelCls = 'text-[10px] font-bold uppercase tracking-wider text-white/40';
+  const inputCls = 'w-full bg-ink/5 border border-ink/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary';
+  const labelCls = 'text-[10px] font-bold uppercase tracking-wider text-ink/60';
 
   return (
-    <div className="grid grid-cols-3 gap-3 p-3 bg-white/3 border border-white/5 rounded-lg mt-2">
+    <div className="grid grid-cols-3 gap-3 p-3 bg-ink/3 border border-ink/[0.08] rounded-lg mt-2">
       {error && <p className="col-span-3 text-red-400 text-xs">{error}</p>}
       {type === 'lease' ? (
         <>
@@ -223,11 +223,11 @@ function AddPendingPlanPanel({ type, onAdd }: {
     setF1(''); setF2(''); setDeposit('');
   }
 
-  const inputCls = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary';
-  const labelCls = 'text-[10px] font-bold uppercase tracking-wider text-white/40';
+  const inputCls = 'w-full bg-ink/5 border border-ink/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary';
+  const labelCls = 'text-[10px] font-bold uppercase tracking-wider text-ink/60';
 
   return (
-    <div className="grid grid-cols-3 gap-3 p-3 bg-white/3 border border-white/5 rounded-lg mt-2">
+    <div className="grid grid-cols-3 gap-3 p-3 bg-ink/3 border border-ink/[0.08] rounded-lg mt-2">
       {type === 'lease' ? (
         <>
           <div className="space-y-1"><label className={labelCls}>Tenure (months)</label><input type="number" min="1" placeholder="24" value={f1} onChange={e => setF1(e.target.value)} className={inputCls} /></div>
@@ -307,7 +307,7 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
     <div className="glass-card p-8 max-w-3xl mx-auto border-primary/20">
       <div className="flex items-center gap-3 mb-8">
         <div className="bg-primary p-2 rounded-lg">
-          {isEdit ? <Edit2 className="w-5 h-5 text-background" /> : <Plus className="w-5 h-5 text-background" />}
+          {isEdit ? <Edit2 className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
         </div>
         <h2 className="text-2xl font-bold">
           {isEdit ? `Edit ${initialData.make} ${initialData.model}` : 'Add New Vehicle'}
@@ -331,6 +331,8 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
           {VEHICLE_CATEGORIES.map((cat) => <option key={cat} value={cat}>{CATEGORY_DISPLAY[cat]}</option>)}
         </SelectField>
         <InputField label="Warranty" name="warranty" placeholder="e.g. 3 years or 100,000 km" defaultValue={initialData?.warranty} />
+        <InputField label="Manufacture Year" name="manufactureYear" type="number" step="1" placeholder="e.g. 2023 (used for Year filter)" defaultValue={initialData?.manufactureYear ?? undefined} />
+        <InputField label="KM Driven" name="kmDriven" type="number" step="1" placeholder="e.g. 12000 (0 for brand new)" defaultValue={initialData?.kmDriven ?? undefined} />
 
         {/* ── Performance ───────────────────────────────── */}
         <SectionHeader title="Performance" />
@@ -342,8 +344,8 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
         <SectionHeader title="Battery & Drivetrain" />
         <InputField label="Battery Capacity (kWh)" name="batteryCapKwh" type="number" step="0.1" required placeholder="e.g. 3.7" defaultValue={initialData?.batteryCapKwh} />
         <div className="space-y-2">
-          <label className="text-[11px] font-bold uppercase tracking-wider text-white/50">Battery Type</label>
-          <select name="batteryTypeId" defaultValue={initialData?.batteryTypeId ?? ''} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 focus:border-primary outline-none transition-all appearance-none [&>option]:bg-[#0d1117]">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-ink/65">Battery Type</label>
+          <select name="batteryTypeId" defaultValue={initialData?.batteryTypeId ?? ''} className="w-full bg-ink/5 border border-ink/10 rounded-lg px-4 py-2.5 focus:border-primary outline-none transition-all appearance-none [&>option]:bg-white">
             <option value="">— None —</option>
             {batteryTypes.map((bt) => <option key={bt.id} value={bt.id}>{bt.name}</option>)}
           </select>
@@ -352,8 +354,8 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
           <InputField label="Peak Voltage (V)" name="peakVoltageV" type="number" placeholder="e.g. 48" defaultValue={initialData?.peakVoltageV} />
         )}
         <div className="space-y-2">
-          <label className="text-[11px] font-bold uppercase tracking-wider text-white/50">Motor Type</label>
-          <select name="motorTypeId" defaultValue={initialData?.motorTypeId ?? ''} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 focus:border-primary outline-none transition-all appearance-none [&>option]:bg-[#0d1117]">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-ink/65">Motor Type</label>
+          <select name="motorTypeId" defaultValue={initialData?.motorTypeId ?? ''} className="w-full bg-ink/5 border border-ink/10 rounded-lg px-4 py-2.5 focus:border-primary outline-none transition-all appearance-none [&>option]:bg-white">
             <option value="">— None —</option>
             {motorTypes.map((mt) => <option key={mt.id} value={mt.id}>{mt.name}</option>)}
           </select>
@@ -427,10 +429,10 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
 
         {/* Lease plans */}
         <div className="md:col-span-2 space-y-2">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-white/50">Lease Plans</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-ink/65">Lease Plans</p>
           {isEdit ? (
             <>
-              {leasePlans.length === 0 && <p className="text-sm text-white/30 italic py-1">No lease plans yet.</p>}
+              {leasePlans.length === 0 && <p className="text-sm text-ink/50 italic py-1">No lease plans yet.</p>}
               {leasePlans.map((plan) => (
                 <LeasePlanRow
                   key={plan.id}
@@ -443,7 +445,7 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
             </>
           ) : (
             <>
-              {pendingLease.length === 0 && <p className="text-sm text-white/30 italic py-1">No lease plans yet — add below.</p>}
+              {pendingLease.length === 0 && <p className="text-sm text-ink/50 italic py-1">No lease plans yet — add below.</p>}
               {pendingLease.map((plan) => (
                 <PendingLeasePlanRow key={plan.key} plan={plan} onDelete={() => setPendingLease((p) => p.filter((x) => x.key !== plan.key))} />
               ))}
@@ -475,10 +477,10 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
 
         {/* Rent plans */}
         <div className="md:col-span-2 space-y-2">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-white/50">Rent Plans</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-ink/65">Rent Plans</p>
           {isEdit ? (
             <>
-              {rentPlans.length === 0 && <p className="text-sm text-white/30 italic py-1">No rent plans yet.</p>}
+              {rentPlans.length === 0 && <p className="text-sm text-ink/50 italic py-1">No rent plans yet.</p>}
               {rentPlans.map((plan) => (
                 <RentPlanRow
                   key={plan.id}
@@ -491,7 +493,7 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
             </>
           ) : (
             <>
-              {pendingRent.length === 0 && <p className="text-sm text-white/30 italic py-1">No rent plans yet — add below.</p>}
+              {pendingRent.length === 0 && <p className="text-sm text-ink/50 italic py-1">No rent plans yet — add below.</p>}
               {pendingRent.map((plan) => (
                 <PendingRentPlanRow key={plan.key} plan={plan} onDelete={() => setPendingRent((p) => p.filter((x) => x.key !== plan.key))} />
               ))}
@@ -505,7 +507,7 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-background font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin" />

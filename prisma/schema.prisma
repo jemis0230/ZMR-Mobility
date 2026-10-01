@@ -100,6 +100,10 @@ model Vehicle {
   // Buying price (flat; leasing & rent pricing live in plan tables)
   buyingPrice Float?
 
+  // ── Pre-owned details (used for Year / KM Driven filters) ─────────
+  manufactureYear Int?
+  kmDriven        Int?
+
   // ── Performance ───────────────────────────────────────────────────
   certifiedRangeKm Int
   realWorldRangeKm Int?
@@ -160,6 +164,9 @@ model Vehicle {
   @@index([showInRent])
   @@index([batteryTypeId])
   @@index([motorTypeId])
+  @@index([buyingPrice])
+  @@index([manufactureYear])
+  @@index([kmDriven])
 }
 
 // Replaces comma-separated sideImages — fixes 1NF violation

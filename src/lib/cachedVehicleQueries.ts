@@ -25,3 +25,10 @@ export const getCachedRentFilterOptions = unstable_cache(
   ['rent-filter-options'],
   { tags: ['vehicle-filter-options', 'vehicle-filter-options-rent'], revalidate: 3600 }
 );
+
+// Make → models list for the navbar "Make and Model" mega-menu and /explore sidebar.
+export const getCachedExploreMenuData = unstable_cache(
+  async () => vehicleRepo.getExploreMenuData(),
+  ['explore-menu-data'],
+  { tags: ['vehicle-filter-options', 'vehicle-filter-options-buying'], revalidate: 3600 }
+);

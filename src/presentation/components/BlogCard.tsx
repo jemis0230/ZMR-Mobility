@@ -22,7 +22,7 @@ export default function BlogCard({ blog, index }: { blog: any; index: number }) 
     >
       <Link 
         href={`/blogs/${blog.slug}`}
-        className="group block relative h-full glass-card border-white/5 hover:border-primary/30 transition-all duration-500 overflow-hidden bg-white/[0.02]"
+        className="group block relative h-full glass-card border-ink/[0.08] hover:border-primary/30 transition-all duration-500 overflow-hidden bg-ink/[0.02]"
       >
         {/* Image Container */}
         <div className="relative aspect-[16/10] overflow-hidden">
@@ -32,7 +32,7 @@ export default function BlogCard({ blog, index }: { blog: any; index: number }) 
               <div className={`absolute inset-0 ev-shimmer-base z-10 transition-opacity duration-500 pointer-events-none ${coverLoaded ? 'opacity-0' : 'opacity-100'}`}>
                 <div className="ev-shimmer-sweep" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Zap className="w-8 h-8 text-[#00FF85]/15 animate-pulse" />
+                  <Zap className="w-8 h-8 text-[#1A73E8]/15 animate-pulse" />
                 </div>
               </div>
               <Image
@@ -45,13 +45,13 @@ export default function BlogCard({ blog, index }: { blog: any; index: number }) 
             </>
           ) : (
             <div className="w-full h-full ev-shimmer-base flex items-center justify-center">
-              <span className="text-[#00FF85]/10 font-black text-4xl">ZMR</span>
+              <span className="text-[#1A73E8]/10 font-black text-4xl">ZMR</span>
             </div>
           )}
           
           {/* Category Badge */}
           <div className="absolute top-4 left-4 z-10">
-            <span className="px-3 py-1 rounded-full bg-background/80 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-widest text-primary">
+            <span className="px-3 py-1 rounded-full bg-background/80 backdrop-blur-md border border-ink/10 text-[10px] font-black uppercase tracking-widest text-primary">
               {blog.category}
             </span>
           </div>
@@ -61,7 +61,7 @@ export default function BlogCard({ blog, index }: { blog: any; index: number }) 
 
         {/* Content */}
         <div className="p-6 space-y-4">
-          <div className="flex items-center gap-4 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+          <div className="flex items-center gap-4 text-[10px] font-bold text-ink/60 uppercase tracking-widest">
             <span className="flex items-center gap-1.5">
               <Clock className="w-3 h-3 text-primary" />
               {readTime} min read
@@ -72,11 +72,11 @@ export default function BlogCard({ blog, index }: { blog: any; index: number }) 
             </span>
           </div>
 
-          <h3 className="text-xl font-black text-white group-hover:text-primary transition-colors leading-tight line-clamp-2">
+          <h3 className="text-xl font-black text-ink group-hover:text-primary transition-colors leading-tight line-clamp-2">
             {blog.title}
           </h3>
 
-          <p className="text-white/40 text-sm leading-relaxed line-clamp-3">
+          <p className="text-ink/60 text-sm leading-relaxed line-clamp-3">
             {blog.excerpt || "Click to read more about this exciting development in the EV industry..."}
           </p>
 

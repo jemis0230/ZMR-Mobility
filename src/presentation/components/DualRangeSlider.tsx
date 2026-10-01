@@ -61,7 +61,7 @@ export default function DualRangeSlider({
 
       <div className="relative w-full h-6 flex items-center group">
         {/* Track Background */}
-        <div className="absolute w-full h-1.5 bg-white/10 rounded-lg" />
+        <div className="absolute w-full h-1.5 bg-ink/10 rounded-lg" />
 
         {/* Track Highlight */}
         <div
@@ -128,7 +128,7 @@ export default function DualRangeSlider({
         />
       </div>
 
-      <div className="flex justify-between mt-1 text-[10px] text-white/30 font-medium">
+      <div className="flex justify-between mt-1 text-[10px] text-ink/50 font-medium">
         <span>{formatLabel(min)}</span>
         <span>{formatLabel(max)}</span>
       </div>

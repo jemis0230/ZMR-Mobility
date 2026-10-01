@@ -23,12 +23,12 @@ export default function Pagination({ currentPage, totalPages, basePath, searchPa
     <div className="flex items-center justify-center gap-2 mt-12">
       <Link
         href={createPageUrl(Math.max(1, currentPage - 1))}
-        className={`p-2 rounded-xl border border-white/10 flex items-center justify-center transition-colors ${
-          currentPage === 1 ? "opacity-50 pointer-events-none" : "hover:bg-white/10 hover:border-white/30 bg-white/5"
+        className={`p-2 rounded-xl border border-ink/10 flex items-center justify-center transition-colors ${
+          currentPage === 1 ? "opacity-50 pointer-events-none" : "hover:bg-ink/10 hover:border-ink/25 bg-ink/5"
         }`}
         aria-disabled={currentPage === 1}
       >
-        <ChevronLeft className="w-5 h-5 text-white" />
+        <ChevronLeft className="w-5 h-5 text-ink" />
       </Link>
 
       <div className="flex items-center gap-1 mx-2">
@@ -41,8 +41,8 @@ export default function Pagination({ currentPage, totalPages, basePath, searchPa
               href={createPageUrl(page)}
               className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
                 isActive 
-                  ? "bg-primary text-background shadow-[0_0_15px_rgba(var(--primary),0.4)]" 
-                  : "text-white/50 hover:bg-white/10 hover:text-white"
+                  ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--primary),0.4)]" 
+                  : "text-ink/65 hover:bg-ink/10 hover:text-ink"
               }`}
             >
               {page}
@@ -53,12 +53,12 @@ export default function Pagination({ currentPage, totalPages, basePath, searchPa
 
       <Link
         href={createPageUrl(Math.min(totalPages, currentPage + 1))}
-        className={`p-2 rounded-xl border border-white/10 flex items-center justify-center transition-colors ${
-          currentPage === totalPages ? "opacity-50 pointer-events-none" : "hover:bg-white/10 hover:border-white/30 bg-white/5"
+        className={`p-2 rounded-xl border border-ink/10 flex items-center justify-center transition-colors ${
+          currentPage === totalPages ? "opacity-50 pointer-events-none" : "hover:bg-ink/10 hover:border-ink/25 bg-ink/5"
         }`}
         aria-disabled={currentPage === totalPages}
       >
-        <ChevronRight className="w-5 h-5 text-white" />
+        <ChevronRight className="w-5 h-5 text-ink" />
       </Link>
     </div>
   );

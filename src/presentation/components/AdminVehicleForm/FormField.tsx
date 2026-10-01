@@ -1,14 +1,14 @@
 import React from 'react';
 
 const INPUT_CLASS =
-  'w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 focus:border-primary outline-none transition-all';
-const LABEL_CLASS = 'text-[11px] font-bold uppercase tracking-wider text-white/50';
+  'w-full bg-ink/5 border border-ink/10 rounded-lg px-4 py-2.5 focus:border-primary outline-none transition-all';
+const LABEL_CLASS = 'text-[11px] font-bold uppercase tracking-wider text-ink/65';
 
 // ─── Section header ───────────────────────────────────────────
 
 export function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="md:col-span-2 border-b border-white/5 pb-2 mt-4">
+    <div className="md:col-span-2 border-b border-ink/[0.08] pb-2 mt-4">
       <h3 className="text-xs font-bold uppercase tracking-widest text-primary">{title}</h3>
     </div>
   );

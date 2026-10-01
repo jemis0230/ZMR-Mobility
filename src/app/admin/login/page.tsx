@@ -13,7 +13,7 @@ export default async function LoginPage() {
         {/* Logo */}
         <div className="flex items-center gap-3 justify-center">
           <div className="bg-primary p-2.5 rounded-xl">
-            <Zap className="w-6 h-6 text-background fill-background" />
+            <Zap className="w-6 h-6 text-white fill-background" />
           </div>
           <span className="text-2xl font-black tracking-tight">
             ZMR <span className="text-primary">ADMIN</span>
@@ -21,15 +21,15 @@ export default async function LoginPage() {
         </div>
 
         {/* Login card */}
-        <div className="glass-card p-8 space-y-6 border-white/10">
+        <div className="glass-card p-8 space-y-6 border-ink/10">
           <div>
-            <h1 className="text-xl font-black text-white">Sign in</h1>
-            <p className="text-white/40 text-sm mt-1">Admin access only</p>
+            <h1 className="text-xl font-black text-ink">Sign in</h1>
+            <p className="text-ink/60 text-sm mt-1">Admin access only</p>
           </div>
           <LoginForm />
         </div>
 
-        <p className="text-center text-white/20 text-xs">
+        <p className="text-center text-ink/40 text-xs">
           ZMR Mobility Admin Panel
         </p>
       </div>

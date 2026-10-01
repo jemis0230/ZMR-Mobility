@@ -11,7 +11,7 @@ export default async function EvCatalogPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">EV Catalog</h1>
-        <p className="text-white/40 text-sm mt-1">
+        <p className="text-ink/60 text-sm mt-1">
           Manage brands and models shown in the Sell Your EV wizard.
         </p>
       </div>

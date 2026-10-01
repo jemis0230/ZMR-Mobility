@@ -102,11 +102,11 @@ function ProgressBar({ step }: { step: number }) {
   const pct = Math.round((step / TOTAL_STEPS) * 100);
   return (
     <div className="mb-8">
-      <div className="flex justify-between text-xs text-white/30 mb-2">
+      <div className="flex justify-between text-xs text-ink/50 mb-2">
         <span>Step {step} of {TOTAL_STEPS}</span>
         <span>{pct}% complete</span>
       </div>
-      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+      <div className="h-1 bg-ink/10 rounded-full overflow-hidden">
         <motion.div
           className="h-full bg-primary rounded-full"
           initial={{ width: 0 }}
@@ -129,8 +129,8 @@ function OptionCard({
       onClick={onClick}
       className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 ${
         selected
-          ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(0,255,133,0.15)]'
-          : 'border-white/10 bg-white/[0.03] hover:border-white/30 hover:bg-white/[0.06]'
+          ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(26,115,232,0.15)]'
+          : 'border-ink/10 bg-ink/[0.03] hover:border-ink/25 hover:bg-ink/[0.06]'
       }`}
     >
       {children}
@@ -154,7 +154,7 @@ function NavButtons({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/30 transition-all text-sm font-medium"
+          className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-ink/10 text-ink/65 hover:text-ink hover:border-ink/25 transition-all text-sm font-medium"
         >
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
@@ -165,9 +165,9 @@ function NavButtons({
         disabled={nextDisabled || loading}
         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         style={{
-          background: nextDisabled || loading ? 'rgba(0,255,133,0.1)' : 'linear-gradient(135deg,#00FF85,#00d46e)',
-          color: nextDisabled || loading ? '#00FF85' : '#050d0a',
-          boxShadow: nextDisabled || loading ? 'none' : '0 0 24px rgba(0,255,133,0.3)',
+          background: nextDisabled || loading ? 'rgba(26,115,232,0.1)' : 'linear-gradient(135deg,#1A73E8,#1557B0)',
+          color: nextDisabled || loading ? '#1A73E8' : '#ffffff',
+          boxShadow: nextDisabled || loading ? 'none' : '0 0 24px rgba(26,115,232,0.3)',
         }}
       >
         {loading ? (
@@ -267,8 +267,8 @@ export default function SellWizard() {
       case 1:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">What type of EV do you want to sell?</h2>
-            <p className="text-white/40 text-sm mb-6">Select the category that best describes your vehicle.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">What type of EV do you want to sell?</h2>
+            <p className="text-ink/60 text-sm mb-6">Select the category that best describes your vehicle.</p>
             <div className="space-y-3">
               {CATEGORIES.map(({ value, label, icon: Icon, desc }) => (
                 <OptionCard
@@ -290,12 +290,12 @@ export default function SellWizard() {
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${form.category === value ? 'bg-primary/20' : 'bg-white/5'}`}>
-                      <Icon className={`w-4 h-4 ${form.category === value ? 'text-primary' : 'text-white/40'}`} />
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${form.category === value ? 'bg-primary/20' : 'bg-ink/5'}`}>
+                      <Icon className={`w-4 h-4 ${form.category === value ? 'text-primary' : 'text-ink/60'}`} />
                     </div>
                     <div>
-                      <p className="font-bold text-white text-sm">{label}</p>
-                      <p className="text-white/40 text-xs">{desc}</p>
+                      <p className="font-bold text-ink text-sm">{label}</p>
+                      <p className="text-ink/60 text-xs">{desc}</p>
                     </div>
                     {form.category === value && <CheckCircle className="w-4 h-4 text-primary ml-auto flex-shrink-0" />}
                   </div>
@@ -318,15 +318,15 @@ export default function SellWizard() {
       case 2:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">What best describes you?</h2>
-            <p className="text-white/40 text-sm mb-6">This helps us tailor the valuation process.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">What best describes you?</h2>
+            <p className="text-ink/60 text-sm mb-6">This helps us tailor the valuation process.</p>
             <div className="space-y-3">
               {SELLER_TYPES.map(({ value, label, desc }) => (
                 <OptionCard key={value} selected={form.sellerType === value} onClick={() => set('sellerType', value)}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-bold text-white">{label}</p>
-                      <p className="text-white/40 text-sm mt-0.5">{desc}</p>
+                      <p className="font-bold text-ink">{label}</p>
+                      <p className="text-ink/60 text-sm mt-0.5">{desc}</p>
                     </div>
                     {form.sellerType === value && <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />}
                   </div>
@@ -341,17 +341,17 @@ export default function SellWizard() {
       case 3:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">Select the brand</h2>
-            <p className="text-white/40 text-sm mb-6">Who manufactured your EV?</p>
+            <h2 className="text-2xl font-black text-ink mb-1">Select the brand</h2>
+            <p className="text-ink/60 text-sm mb-6">Who manufactured your EV?</p>
             {brandsLoading ? (
-              <div className="py-16 flex flex-col items-center gap-3 text-white/30">
+              <div className="py-16 flex flex-col items-center gap-3 text-ink/50">
                 <Loader2 className="w-6 h-6 animate-spin" />
                 <p className="text-sm">Loading brands…</p>
               </div>
             ) : brands.length === 0 ? (
               <div className="py-12 text-center space-y-3">
-                <p className="text-white/40 text-sm">No brands found for <span className="text-white/70 font-semibold">{form.category}</span>.</p>
-                <p className="text-white/25 text-xs">Our catalog is being updated. Please contact us directly.</p>
+                <p className="text-ink/60 text-sm">No brands found for <span className="text-ink/75 font-semibold">{form.category}</span>.</p>
+                <p className="text-ink/45 text-xs">Our catalog is being updated. Please contact us directly.</p>
                 <a href="mailto:contact@zmrmobility.com" className="inline-block mt-1 text-primary text-xs font-bold hover:underline">contact@zmrmobility.com</a>
               </div>
             ) : (
@@ -369,7 +369,7 @@ export default function SellWizard() {
                     }}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-sm text-white truncate">{name}</span>
+                      <span className="font-semibold text-sm text-ink truncate">{name}</span>
                       {form.brandId === id && <CheckCircle className="w-3.5 h-3.5 text-primary flex-shrink-0" />}
                     </div>
                   </OptionCard>
@@ -388,34 +388,34 @@ export default function SellWizard() {
 
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">Select the model</h2>
-            <p className="text-white/40 text-sm mb-4">Choose the specific model of your {form.brandName}.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">Select the model</h2>
+            <p className="text-ink/60 text-sm mb-4">Choose the specific model of your {form.brandName}.</p>
             {modelsLoading ? (
-              <div className="py-16 flex flex-col items-center gap-3 text-white/30">
+              <div className="py-16 flex flex-col items-center gap-3 text-ink/50">
                 <Loader2 className="w-6 h-6 animate-spin" />
                 <p className="text-sm">Loading models…</p>
               </div>
             ) : models.length === 0 ? (
-              <div className="py-12 text-center text-white/30 text-sm">
+              <div className="py-12 text-center text-ink/50 text-sm">
                 No models found for this brand. Please go back and select a different brand.
               </div>
             ) : (
               <>
                 {/* Search */}
                 <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink/45 pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Search model name…"
                     value={modelSearch}
                     onChange={(e) => setModelSearch(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-8 py-2.5 text-sm text-white outline-none focus:border-primary/50 placeholder:text-white/20 transition-all"
+                    className="w-full bg-ink/5 border border-ink/10 rounded-xl pl-9 pr-8 py-2.5 text-sm text-ink outline-none focus:border-primary/50 placeholder:text-ink/40 transition-all"
                   />
                   {modelSearch && (
                     <button
                       type="button"
                       onClick={() => setModelSearch('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-ink/45 hover:text-ink/70 transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -425,7 +425,7 @@ export default function SellWizard() {
                 {/* Compact model list */}
                 <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                   {filteredModels.length === 0 ? (
-                    <p className="text-center text-white/25 text-sm py-8">No models match "{modelSearch}"</p>
+                    <p className="text-center text-ink/45 text-sm py-8">No models match "{modelSearch}"</p>
                   ) : filteredModels.map(({ id, name, photo }) => {
                     const selected = form.modelId === id;
                     return (
@@ -435,8 +435,8 @@ export default function SellWizard() {
                         onClick={() => { set('modelId', id); set('modelName', name); }}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all duration-150 ${
                           selected
-                            ? 'border-primary bg-primary/10 shadow-[0_0_16px_rgba(0,255,133,0.1)]'
-                            : 'border-white/8 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                            ? 'border-primary bg-primary/10 shadow-[0_0_16px_rgba(26,115,232,0.1)]'
+                            : 'border-ink/10 bg-ink/[0.03] hover:border-ink/15 hover:bg-ink/[0.06]'
                         }`}
                       >
                         {photo ? (
@@ -449,10 +449,10 @@ export default function SellWizard() {
                           />
                         ) : (
                           <div className="w-9 h-9 rounded-lg ev-shimmer-base flex items-center justify-center flex-shrink-0">
-                            <Car className="w-4 h-4 text-[#00FF85]/20" />
+                            <Car className="w-4 h-4 text-[#1A73E8]/20" />
                           </div>
                         )}
-                        <span className={`flex-1 text-sm font-semibold truncate ${selected ? 'text-white' : 'text-white/80'}`}>{name}</span>
+                        <span className={`flex-1 text-sm font-semibold truncate ${selected ? 'text-ink' : 'text-ink/85'}`}>{name}</span>
                         {selected && <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />}
                       </button>
                     );
@@ -469,20 +469,20 @@ export default function SellWizard() {
       case 5:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">What year was it manufactured?</h2>
-            <p className="text-white/40 text-sm mb-6">Select the registration / manufacturing year.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">What year was it manufactured?</h2>
+            <p className="text-ink/60 text-sm mb-6">Select the registration / manufacturing year.</p>
             <div className="relative">
               <select
                 value={form.year ?? ''}
                 onChange={(e) => set('year', parseInt(e.target.value))}
-                className="w-full appearance-none bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-lg font-semibold outline-none focus:border-primary transition-all [&>option]:bg-[#0d1117]"
+                className="w-full appearance-none bg-ink/5 border border-ink/10 rounded-2xl px-5 py-4 text-ink text-lg font-semibold outline-none focus:border-primary transition-all [&>option]:bg-white"
               >
                 <option value="">Select year…</option>
                 {YEAR_OPTIONS.map((y) => (
                   <option key={y} value={y}>{y}</option>
                 ))}
               </select>
-              <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 w-4 h-4 text-white/40 pointer-events-none" />
+              <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 w-4 h-4 text-ink/60 pointer-events-none" />
             </div>
             <NavButtons step={step} onBack={() => go(4)} onNext={() => go(6)} nextDisabled={!form.year} />
           </div>
@@ -492,13 +492,13 @@ export default function SellWizard() {
       case 6:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">How many owners has this vehicle had?</h2>
-            <p className="text-white/40 text-sm mb-6">Include yourself as the current owner.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">How many owners has this vehicle had?</h2>
+            <p className="text-ink/60 text-sm mb-6">Include yourself as the current owner.</p>
             <div className="space-y-3">
               {OWNERSHIP_OPTIONS.map(({ value, label }) => (
                 <OptionCard key={value} selected={form.ownership === value} onClick={() => set('ownership', value)}>
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white">{label}</span>
+                    <span className="font-semibold text-ink">{label}</span>
                     {form.ownership === value && <CheckCircle className="w-4 h-4 text-primary" />}
                   </div>
                 </OptionCard>
@@ -512,15 +512,15 @@ export default function SellWizard() {
       case 7:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">How is the battery performing?</h2>
-            <p className="text-white/40 text-sm mb-6">Choose the option that best describes current battery health.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">How is the battery performing?</h2>
+            <p className="text-ink/60 text-sm mb-6">Choose the option that best describes current battery health.</p>
             <div className="space-y-3">
               {BATTERY_OPTIONS.map(({ value, label, desc }) => (
                 <OptionCard key={value} selected={form.batteryCondition === value} onClick={() => set('batteryCondition', value)}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-white">{label}</p>
-                      <p className="text-white/40 text-xs mt-0.5">{desc}</p>
+                      <p className="font-semibold text-ink">{label}</p>
+                      <p className="text-ink/60 text-xs mt-0.5">{desc}</p>
                     </div>
                     {form.batteryCondition === value && <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />}
                   </div>
@@ -535,15 +535,15 @@ export default function SellWizard() {
       case 8:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">Overall condition of the vehicle?</h2>
-            <p className="text-white/40 text-sm mb-6">Physical and mechanical condition, excluding battery.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">Overall condition of the vehicle?</h2>
+            <p className="text-ink/60 text-sm mb-6">Physical and mechanical condition, excluding battery.</p>
             <div className="space-y-3">
               {CONDITION_OPTIONS.map(({ value, label, desc }) => (
                 <OptionCard key={value} selected={form.vehicleCondition === value} onClick={() => set('vehicleCondition', value)}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-white">{label}</p>
-                      <p className="text-white/40 text-xs mt-0.5">{desc}</p>
+                      <p className="font-semibold text-ink">{label}</p>
+                      <p className="text-ink/60 text-xs mt-0.5">{desc}</p>
                     </div>
                     {form.vehicleCondition === value && <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />}
                   </div>
@@ -558,15 +558,15 @@ export default function SellWizard() {
       case 9:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">Any major accident history?</h2>
-            <p className="text-white/40 text-sm mb-6">Include incidents that required significant repairs.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">Any major accident history?</h2>
+            <p className="text-ink/60 text-sm mb-6">Include incidents that required significant repairs.</p>
             <div className="space-y-3">
               {[{ value: false, label: 'No', desc: 'No major accidents' }, { value: true, label: 'Yes', desc: 'Vehicle has had a major accident' }].map(({ value, label, desc }) => (
                 <OptionCard key={String(value)} selected={form.hasAccident === value} onClick={() => set('hasAccident', value)}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-white">{label}</p>
-                      <p className="text-white/40 text-xs mt-0.5">{desc}</p>
+                      <p className="font-semibold text-ink">{label}</p>
+                      <p className="text-ink/60 text-xs mt-0.5">{desc}</p>
                     </div>
                     {form.hasAccident === value && <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />}
                   </div>
@@ -581,15 +581,15 @@ export default function SellWizard() {
       case 10:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">Is there any loan on this vehicle?</h2>
-            <p className="text-white/40 text-sm mb-6">Loan status affects the transfer process.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">Is there any loan on this vehicle?</h2>
+            <p className="text-ink/60 text-sm mb-6">Loan status affects the transfer process.</p>
             <div className="space-y-3">
               {LOAN_OPTIONS.map(({ value, label, desc }) => (
                 <OptionCard key={value} selected={form.loanStatus === value} onClick={() => set('loanStatus', value)}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-white">{label}</p>
-                      <p className="text-white/40 text-xs mt-0.5">{desc}</p>
+                      <p className="font-semibold text-ink">{label}</p>
+                      <p className="text-ink/60 text-xs mt-0.5">{desc}</p>
                     </div>
                     {form.loanStatus === value && <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />}
                   </div>
@@ -604,8 +604,8 @@ export default function SellWizard() {
       case 11:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">What do you have with the vehicle?</h2>
-            <p className="text-white/40 text-sm mb-6">Select all that apply. More items = higher valuation.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">What do you have with the vehicle?</h2>
+            <p className="text-ink/60 text-sm mb-6">Select all that apply. More items = higher valuation.</p>
             <div className="space-y-3">
               {DOCUMENTS.map((doc) => {
                 const checked = form.documents.includes(doc);
@@ -617,13 +617,13 @@ export default function SellWizard() {
                     className={`w-full flex items-center gap-3 p-4 rounded-2xl border transition-all duration-200 ${
                       checked
                         ? 'border-primary bg-primary/10'
-                        : 'border-white/10 bg-white/[0.03] hover:border-white/30'
+                        : 'border-ink/10 bg-ink/[0.03] hover:border-ink/25'
                     }`}
                   >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${checked ? 'bg-primary border-primary' : 'border-white/30'}`}>
-                      {checked && <Check className="w-3 h-3 text-background" />}
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${checked ? 'bg-primary border-primary' : 'border-ink/25'}`}>
+                      {checked && <Check className="w-3 h-3 text-white" />}
                     </div>
-                    <span className="font-semibold text-white">{doc}</span>
+                    <span className="font-semibold text-ink">{doc}</span>
                   </button>
                 );
               })}
@@ -636,8 +636,8 @@ export default function SellWizard() {
       case 12:
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">What's your expected selling price?</h2>
-            <p className="text-white/40 text-sm mb-6">Enter the amount you expect to receive. Our team will share the actual valuation.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">What's your expected selling price?</h2>
+            <p className="text-ink/60 text-sm mb-6">Enter the amount you expect to receive. Our team will share the actual valuation.</p>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-bold text-lg">₹</span>
               <input
@@ -646,7 +646,7 @@ export default function SellWizard() {
                 placeholder="e.g. 80000"
                 value={form.expectedPrice || ''}
                 onChange={(e) => { const v = parseFloat(e.target.value); set('expectedPrice', isNaN(v) ? undefined : v); }}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-5 py-4 text-white text-lg font-semibold outline-none focus:border-primary transition-all placeholder:text-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full bg-ink/5 border border-ink/10 rounded-2xl pl-10 pr-5 py-4 text-ink text-lg font-semibold outline-none focus:border-primary transition-all placeholder:text-ink/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
             <NavButtons step={step} onBack={() => go(11)} onNext={() => go(13)} nextDisabled={!form.expectedPrice || form.expectedPrice <= 0} />
@@ -680,20 +680,20 @@ export default function SellWizard() {
 
         return (
           <div>
-            <h2 className="text-2xl font-black text-white mb-1">Your contact details</h2>
-            <p className="text-white/40 text-sm mb-6">Our team will reach out to you with the valuation.</p>
+            <h2 className="text-2xl font-black text-ink mb-1">Your contact details</h2>
+            <p className="text-ink/60 text-sm mb-6">Our team will reach out to you with the valuation.</p>
             <div className="space-y-4">
 
               {/* Full Name */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-white/30">Full Name</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-ink/50">Full Name</label>
                 <input
                   type="text"
                   placeholder="Rahul Sharma"
                   value={form.contactName ?? ''}
                   onChange={(e) => set('contactName', e.target.value as never)}
                   onBlur={() => touch('contactName')}
-                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white text-sm outline-none transition-all placeholder:text-white/20 ${contactTouched.contactName && errors.contactName ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-primary'}`}
+                  className={`w-full bg-ink/5 border rounded-xl px-4 py-3 text-ink text-sm outline-none transition-all placeholder:text-ink/40 ${contactTouched.contactName && errors.contactName ? 'border-red-500/60 focus:border-red-500' : 'border-ink/10 focus:border-primary'}`}
                 />
                 {contactTouched.contactName && errors.contactName && (
                   <p className="flex items-center gap-1.5 text-xs text-red-400"><AlertCircle className="w-3.5 h-3.5 shrink-0" />{errors.contactName}</p>
@@ -702,9 +702,9 @@ export default function SellWizard() {
 
               {/* Mobile */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-white/30">Mobile Number</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-ink/50">Mobile Number</label>
                 <div className="flex">
-                  <span className="flex items-center px-3 bg-white/5 border border-r-0 border-white/10 rounded-l-xl text-white/40 text-sm font-semibold">+91</span>
+                  <span className="flex items-center px-3 bg-ink/5 border border-r-0 border-ink/10 rounded-l-xl text-ink/60 text-sm font-semibold">+91</span>
                   <input
                     type="tel"
                     placeholder="9876543210"
@@ -712,7 +712,7 @@ export default function SellWizard() {
                     value={form.contactPhone ?? ''}
                     onChange={(e) => set('contactPhone', e.target.value.replace(/\D/g, '').slice(0, 10) as never)}
                     onBlur={() => touch('contactPhone')}
-                    className={`flex-1 bg-white/5 border rounded-r-xl px-4 py-3 text-white text-sm outline-none transition-all placeholder:text-white/20 ${contactTouched.contactPhone && errors.contactPhone ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-primary'}`}
+                    className={`flex-1 bg-ink/5 border rounded-r-xl px-4 py-3 text-ink text-sm outline-none transition-all placeholder:text-ink/40 ${contactTouched.contactPhone && errors.contactPhone ? 'border-red-500/60 focus:border-red-500' : 'border-ink/10 focus:border-primary'}`}
                   />
                 </div>
                 {contactTouched.contactPhone && errors.contactPhone && (
@@ -722,14 +722,14 @@ export default function SellWizard() {
 
               {/* Email */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-white/30">Email Address</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-ink/50">Email Address</label>
                 <input
                   type="email"
                   placeholder="rahul@example.com"
                   value={form.contactEmail ?? ''}
                   onChange={(e) => set('contactEmail', e.target.value as never)}
                   onBlur={() => touch('contactEmail')}
-                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white text-sm outline-none transition-all placeholder:text-white/20 ${contactTouched.contactEmail && errors.contactEmail ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-primary'}`}
+                  className={`w-full bg-ink/5 border rounded-xl px-4 py-3 text-ink text-sm outline-none transition-all placeholder:text-ink/40 ${contactTouched.contactEmail && errors.contactEmail ? 'border-red-500/60 focus:border-red-500' : 'border-ink/10 focus:border-primary'}`}
                 />
                 {contactTouched.contactEmail && errors.contactEmail && (
                   <p className="flex items-center gap-1.5 text-xs text-red-400"><AlertCircle className="w-3.5 h-3.5 shrink-0" />{errors.contactEmail}</p>
@@ -738,43 +738,43 @@ export default function SellWizard() {
 
               {/* City — searchable dropdown */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-white/30">State</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-ink/50">State</label>
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => { setCityOpen(o => !o); setCitySearch(''); }}
                     onBlur={() => { if (!cityOpen) touch('contactCity'); }}
-                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-sm text-left outline-none transition-all flex items-center justify-between ${contactTouched.contactCity && errors.contactCity ? 'border-red-500/60' : 'border-white/10 focus:border-primary'} ${cityVal ? 'text-white' : 'text-white/20'}`}
+                    className={`w-full bg-ink/5 border rounded-xl px-4 py-3 text-sm text-left outline-none transition-all flex items-center justify-between ${contactTouched.contactCity && errors.contactCity ? 'border-red-500/60' : 'border-ink/10 focus:border-primary'} ${cityVal ? 'text-ink' : 'text-ink/40'}`}
                   >
                     {cityVal || 'Select your state'}
-                    <ChevronRight className={`w-4 h-4 text-white/30 transition-transform shrink-0 ${cityOpen ? 'rotate-90' : ''}`} />
+                    <ChevronRight className={`w-4 h-4 text-ink/50 transition-transform shrink-0 ${cityOpen ? 'rotate-90' : ''}`} />
                   </button>
 
                   {cityOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-[#0d1117] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-                      <div className="p-2 border-b border-white/10">
-                        <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
-                          <Search className="w-3.5 h-3.5 text-white/30 shrink-0" />
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-ink/10 rounded-xl shadow-2xl overflow-hidden">
+                      <div className="p-2 border-b border-ink/10">
+                        <div className="flex items-center gap-2 bg-ink/5 rounded-lg px-3 py-2">
+                          <Search className="w-3.5 h-3.5 text-ink/50 shrink-0" />
                           <input
                             autoFocus
                             type="text"
                             placeholder="Search state…"
                             value={citySearch}
                             onChange={(e) => setCitySearch(e.target.value)}
-                            className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/20"
+                            className="flex-1 bg-transparent text-ink text-sm outline-none placeholder:text-ink/40"
                           />
-                          {citySearch && <button onClick={() => setCitySearch('')}><X className="w-3.5 h-3.5 text-white/30" /></button>}
+                          {citySearch && <button onClick={() => setCitySearch('')}><X className="w-3.5 h-3.5 text-ink/50" /></button>}
                         </div>
                       </div>
                       <div className="max-h-48 overflow-y-auto">
                         {filteredCities.length === 0 ? (
-                          <p className="text-center text-white/30 text-sm py-4">No states found</p>
+                          <p className="text-center text-ink/50 text-sm py-4">No states found</p>
                         ) : filteredCities.map(city => (
                           <button
                             key={city}
                             type="button"
                             onClick={() => { set('contactCity', city as never); setCityOpen(false); touch('contactCity'); }}
-                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 transition-colors ${cityVal === city ? 'text-primary font-semibold' : 'text-white/70'}`}
+                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-ink/5 transition-colors ${cityVal === city ? 'text-primary font-semibold' : 'text-ink/75'}`}
                           >
                             {city}
                           </button>
@@ -814,7 +814,7 @@ export default function SellWizard() {
         return (
           <div className="text-center py-4 space-y-6">
             <div className="relative inline-block">
-              <div className="w-24 h-24 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto" style={{ boxShadow: '0 0 50px rgba(0,255,133,0.2)' }}>
+              <div className="w-24 h-24 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto" style={{ boxShadow: '0 0 50px rgba(26,115,232,0.2)' }}>
                 <CheckCircle className="w-12 h-12 text-primary" />
               </div>
               <motion.div
@@ -825,12 +825,12 @@ export default function SellWizard() {
             </div>
 
             <div>
-              <h2 className="text-3xl font-black text-white mb-2">Application Submitted!</h2>
-              <p className="text-white/50">Our team will review your submission and contact you within 24–48 hours.</p>
+              <h2 className="text-3xl font-black text-ink mb-2">Application Submitted!</h2>
+              <p className="text-ink/65">Our team will review your submission and contact you within 24–48 hours.</p>
             </div>
 
             <div className="glass-card p-6 space-y-3 text-left">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/30">Your Application ID</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-ink/50">Your Application ID</p>
               <div className="flex items-center gap-3">
                 <code className="flex-1 text-2xl font-black text-primary tracking-wider">{appId}</code>
                 <button
@@ -842,14 +842,14 @@ export default function SellWizard() {
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
               </div>
-              <p className="text-xs text-white/30 flex items-center gap-1.5">
+              <p className="text-xs text-ink/50 flex items-center gap-1.5">
                 <Zap className="w-3 h-3 text-primary flex-shrink-0" />
                 Take a screenshot of this ID for your reference. You'll need it to track your application.
               </p>
             </div>
 
-            <div className="bg-white/5 rounded-2xl p-5 text-sm text-white/40 text-center leading-relaxed">
-              We'll evaluate your <span className="text-white/70 font-semibold">{form.brandName} {form.modelName} ({form.year})</span> and get back to you at <span className="text-white/70 font-semibold">{form.contactPhone}</span>.
+            <div className="bg-ink/5 rounded-2xl p-5 text-sm text-ink/60 text-center leading-relaxed">
+              We'll evaluate your <span className="text-ink/75 font-semibold">{form.brandName} {form.modelName} ({form.year})</span> and get back to you at <span className="text-ink/75 font-semibold">{form.contactPhone}</span>.
             </div>
 
             <button
@@ -867,7 +867,7 @@ export default function SellWizard() {
                 setDirection(1);
                 setStep(1);
               }}
-              className="w-full flex items-center justify-center gap-2 border border-white/10 rounded-2xl py-3.5 text-sm font-bold text-white/50 hover:text-white hover:border-white/20 transition-all"
+              className="w-full flex items-center justify-center gap-2 border border-ink/10 rounded-2xl py-3.5 text-sm font-bold text-ink/65 hover:text-ink hover:border-ink/15 transition-all"
             >
               <Bike className="w-4 h-4" />
               Sell Another Vehicle
@@ -883,7 +883,7 @@ export default function SellWizard() {
   return (
     <div
       className="glass-card p-8 md:p-10"
-      style={{ border: '1px solid rgba(0,255,133,0.1)', boxShadow: '0 0 60px rgba(0,255,133,0.04)' }}
+      style={{ border: '1px solid rgba(26,115,232,0.1)', boxShadow: '0 0 60px rgba(26,115,232,0.04)' }}
     >
       {step <= TOTAL_STEPS && <ProgressBar step={step} />}
 

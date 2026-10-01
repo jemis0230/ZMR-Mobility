@@ -78,7 +78,7 @@ export default async function AdminDashboardPage() {
     <div className="space-y-10">
       <div>
         <h1 className="text-3xl font-black">Dashboard</h1>
-        <p className="text-white/40 mt-1">Live overview of your business activity</p>
+        <p className="text-ink/60 mt-1">Live overview of your business activity</p>
       </div>
 
       {/* ── Leads Pipeline ─────────────────────────────────────── */}
@@ -86,7 +86,7 @@ export default async function AdminDashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
-            <h2 className="text-xs font-black uppercase tracking-widest text-white/50">Leads Pipeline</h2>
+            <h2 className="text-xs font-black uppercase tracking-widest text-ink/65">Leads Pipeline</h2>
           </div>
           <Link href="/admin/leads" className="flex items-center gap-1 text-xs text-primary/70 hover:text-primary transition-colors font-bold">
             View all <ArrowRight className="w-3 h-3" />
@@ -94,42 +94,42 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="glass-card p-6 border-white/5 space-y-3">
+          <div className="glass-card p-6 border-ink/[0.08] space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Total Leads</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Total Leads</p>
               <TrendingUp className="w-4 h-4 text-primary/40" />
             </div>
-            <p className="text-4xl font-black text-white">{totalLeads}</p>
-            <p className="text-xs text-white/30">
+            <p className="text-4xl font-black text-ink">{totalLeads}</p>
+            <p className="text-xs text-ink/50">
               <span className="text-primary font-bold">{leadsThisMonth}</span> this month
             </p>
           </div>
 
           <div className="glass-card p-6 border-amber-400/10 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Pending</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Pending</p>
               <AlertCircle className="w-4 h-4 text-amber-400/50" />
             </div>
             <p className="text-4xl font-black text-amber-400">{pendingLeads}</p>
-            <p className="text-xs text-white/30">Awaiting contact</p>
+            <p className="text-xs text-ink/50">Awaiting contact</p>
           </div>
 
           <div className="glass-card p-6 border-blue-400/10 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Contacted</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Contacted</p>
               <Clock className="w-4 h-4 text-blue-400/50" />
             </div>
             <p className="text-4xl font-black text-blue-400">{contactedLeads}</p>
-            <p className="text-xs text-white/30">In progress</p>
+            <p className="text-xs text-ink/50">In progress</p>
           </div>
 
           <div className="glass-card p-6 border-green-400/10 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Closed</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Closed</p>
               <CheckCircle2 className="w-4 h-4 text-green-400/50" />
             </div>
             <p className="text-4xl font-black text-green-400">{closedLeads}</p>
-            <p className="text-xs text-white/30">
+            <p className="text-xs text-ink/50">
               <span className="text-green-400 font-bold">{leadConversionRate}%</span> conversion
             </p>
           </div>
@@ -141,7 +141,7 @@ export default async function AdminDashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-4 h-4 text-primary" />
-            <h2 className="text-xs font-black uppercase tracking-widest text-white/50">Sell Applications</h2>
+            <h2 className="text-xs font-black uppercase tracking-widest text-ink/65">Sell Applications</h2>
           </div>
           <Link href="/admin/sell-applications" className="flex items-center gap-1 text-xs text-primary/70 hover:text-primary transition-colors font-bold">
             View all <ArrowRight className="w-3 h-3" />
@@ -149,42 +149,42 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="glass-card p-6 border-white/5 space-y-3">
+          <div className="glass-card p-6 border-ink/[0.08] space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Total Apps</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Total Apps</p>
               <TrendingUp className="w-4 h-4 text-primary/40" />
             </div>
-            <p className="text-4xl font-black text-white">{totalApps}</p>
-            <p className="text-xs text-white/30">
+            <p className="text-4xl font-black text-ink">{totalApps}</p>
+            <p className="text-xs text-ink/50">
               <span className="text-primary font-bold">{appsThisMonth}</span> this month
             </p>
           </div>
 
           <div className="glass-card p-6 border-primary/10 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">New</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">New</p>
               <Zap className="w-4 h-4 text-primary/50" />
             </div>
             <p className="text-4xl font-black text-primary">{newApps}</p>
-            <p className="text-xs text-white/30">Needs review</p>
+            <p className="text-xs text-ink/50">Needs review</p>
           </div>
 
           <div className="glass-card p-6 border-amber-400/10 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Reviewing</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Reviewing</p>
               <RotateCcw className="w-4 h-4 text-amber-400/50" />
             </div>
             <p className="text-4xl font-black text-amber-400">{reviewingApps}</p>
-            <p className="text-xs text-white/30">Being assessed</p>
+            <p className="text-xs text-ink/50">Being assessed</p>
           </div>
 
           <div className="glass-card p-6 border-green-400/10 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Valued / Closed</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Valued / Closed</p>
               <CheckCircle2 className="w-4 h-4 text-green-400/50" />
             </div>
             <p className="text-4xl font-black text-green-400">{valuedClosedApps}</p>
-            <p className="text-xs text-white/30">
+            <p className="text-xs text-ink/50">
               <span className="text-green-400 font-bold">{sellConversionRate}%</span> of all apps
             </p>
           </div>
@@ -195,45 +195,45 @@ export default async function AdminDashboardPage() {
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <Car className="w-4 h-4 text-primary" />
-          <h2 className="text-xs font-black uppercase tracking-widest text-white/50">Inventory & Content</h2>
+          <h2 className="text-xs font-black uppercase tracking-widest text-ink/65">Inventory & Content</h2>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="glass-card p-6 border-white/5 space-y-3 md:col-span-2">
+          <div className="glass-card p-6 border-ink/[0.08] space-y-3 md:col-span-2">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Vehicles in Catalog</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Vehicles in Catalog</p>
               <Link href="/admin/vehicles" className="text-primary/60 hover:text-primary transition-colors">
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <p className="text-4xl font-black text-white">{totalVehicles}</p>
+            <p className="text-4xl font-black text-ink">{totalVehicles}</p>
             <div className="flex flex-wrap gap-2 pt-1">
               {vehiclesByCategory.map((g) => (
-                <span key={g.category} className="text-[10px] font-bold bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-white/50">
+                <span key={g.category} className="text-[10px] font-bold bg-ink/5 border border-ink/10 rounded-full px-2 py-0.5 text-ink/65">
                   {g.category.replace(' Wheeler', 'W')} · {g._count._all}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="glass-card p-6 border-white/5 space-y-3">
+          <div className="glass-card p-6 border-ink/[0.08] space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Lease Plans</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Lease Plans</p>
               <Star className="w-4 h-4 text-primary/40" />
             </div>
-            <p className="text-4xl font-black text-white">{activeLeasePlans}</p>
-            <p className="text-xs text-white/30">Active plans</p>
+            <p className="text-4xl font-black text-ink">{activeLeasePlans}</p>
+            <p className="text-xs text-ink/50">Active plans</p>
           </div>
 
-          <div className="glass-card p-6 border-white/5 space-y-3">
+          <div className="glass-card p-6 border-ink/[0.08] space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-white/40">Blog Posts</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Blog Posts</p>
               <Link href="/admin/blogs" className="text-primary/60 hover:text-primary transition-colors">
                 <BookOpen className="w-4 h-4" />
               </Link>
             </div>
-            <p className="text-4xl font-black text-white">{publishedBlogs}</p>
-            <p className="text-xs text-white/30">
+            <p className="text-4xl font-black text-ink">{publishedBlogs}</p>
+            <p className="text-xs text-ink/50">
               Published · <span className="text-amber-400 font-bold">{draftBlogs}</span> drafts
             </p>
           </div>
@@ -243,8 +243,8 @@ export default async function AdminDashboardPage() {
       {/* ── Recent Activity ────────────────────────────────────── */}
       <section className="grid md:grid-cols-2 gap-6">
 
-        <div className="glass-card border-white/5 overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+        <div className="glass-card border-ink/[0.08] overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-ink/[0.08]">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-primary" />
               <h3 className="text-sm font-black">Recent Leads</h3>
@@ -255,22 +255,22 @@ export default async function AdminDashboardPage() {
           </div>
 
           {recentLeads.length === 0 ? (
-            <div className="px-6 py-10 text-center text-white/20 text-sm">No leads yet</div>
+            <div className="px-6 py-10 text-center text-ink/40 text-sm">No leads yet</div>
           ) : (
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-ink/[0.08]">
               {recentLeads.map((lead) => {
                 const st = LEAD_STATUS[lead.status] ?? LEAD_STATUS.PENDING;
                 return (
-                  <div key={lead.id} className="px-6 py-3 flex items-center justify-between gap-3 hover:bg-white/[0.02] transition-colors">
+                  <div key={lead.id} className="px-6 py-3 flex items-center justify-between gap-3 hover:bg-ink/[0.02] transition-colors">
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{lead.name}</p>
-                      <p className="text-xs text-white/30 truncate">{lead.inquiryType}</p>
+                      <p className="text-sm font-bold text-ink truncate">{lead.name}</p>
+                      <p className="text-xs text-ink/50 truncate">{lead.inquiryType}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${st.color}`}>
                         {st.label}
                       </span>
-                      <span className="text-[10px] text-white/25">{timeAgo(lead.createdAt)}</span>
+                      <span className="text-[10px] text-ink/45">{timeAgo(lead.createdAt)}</span>
                     </div>
                   </div>
                 );
@@ -279,8 +279,8 @@ export default async function AdminDashboardPage() {
           )}
         </div>
 
-        <div className="glass-card border-white/5 overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+        <div className="glass-card border-ink/[0.08] overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-ink/[0.08]">
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-4 h-4 text-primary" />
               <h3 className="text-sm font-black">Recent Sell Applications</h3>
@@ -291,24 +291,24 @@ export default async function AdminDashboardPage() {
           </div>
 
           {recentApps.length === 0 ? (
-            <div className="px-6 py-10 text-center text-white/20 text-sm">No applications yet</div>
+            <div className="px-6 py-10 text-center text-ink/40 text-sm">No applications yet</div>
           ) : (
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-ink/[0.08]">
               {recentApps.map((app) => {
                 const st = SELL_STATUS[app.status] ?? SELL_STATUS.NEW;
                 return (
-                  <div key={app.id} className="px-6 py-3 flex items-center justify-between gap-3 hover:bg-white/[0.02] transition-colors">
+                  <div key={app.id} className="px-6 py-3 flex items-center justify-between gap-3 hover:bg-ink/[0.02] transition-colors">
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-white truncate">
+                      <p className="text-sm font-bold text-ink truncate">
                         {app.brandName} {app.modelName}
                       </p>
-                      <p className="text-xs text-white/30 font-mono">{app.applicationId}</p>
+                      <p className="text-xs text-ink/50 font-mono">{app.applicationId}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${st.color}`}>
                         {st.label}
                       </span>
-                      <span className="text-[10px] text-white/25">{timeAgo(app.createdAt)}</span>
+                      <span className="text-[10px] text-ink/45">{timeAgo(app.createdAt)}</span>
                     </div>
                   </div>
                 );

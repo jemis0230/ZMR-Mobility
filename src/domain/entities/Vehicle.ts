@@ -57,6 +57,10 @@ export interface Vehicle {
   // Buying pricing (flat; leasing & rent pricing live in plan tables)
   buyingPrice?: number | null;
 
+  // Pre-owned details
+  manufactureYear?: number | null;
+  kmDriven?: number | null;
+
   // Performance
   certifiedRangeKm: number;
   realWorldRangeKm?: number | null;

@@ -73,14 +73,14 @@ export default function AdminShell({ session, children }: AdminShellProps) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-24 z-40 w-64 border-r border-white/5 bg-background flex flex-col
+        fixed top-24 z-40 w-64 border-r border-ink/[0.08] bg-background flex flex-col
         h-[calc(100vh-6rem)] transform transition-transform duration-300 ease-in-out
         md:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-5 flex items-center gap-2 border-b border-white/5">
+        <div className="p-5 flex items-center gap-2 border-b border-ink/[0.08]">
           <div className="bg-primary p-1.5 rounded-lg">
-            <Zap className="w-5 h-5 text-background fill-background" />
+            <Zap className="w-5 h-5 text-white fill-background" />
           </div>
           <span className="text-lg font-bold tracking-tight">
             ZMR <span className="text-primary">ADMIN</span>
@@ -96,7 +96,7 @@ export default function AdminShell({ session, children }: AdminShellProps) {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
                 isActive(item.href)
                   ? 'bg-primary/10 text-primary border border-primary/20'
-                  : 'hover:bg-white/5 text-white/60 hover:text-primary border border-transparent'
+                  : 'hover:bg-ink/5 text-ink/70 hover:text-primary border border-transparent'
               }`}
             >
               <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0" />
@@ -106,16 +106,16 @@ export default function AdminShell({ session, children }: AdminShellProps) {
         </nav>
 
         {/* User info + logout */}
-        <div className="p-4 border-t border-white/5 space-y-2">
+        <div className="p-4 border-t border-ink/[0.08] space-y-2">
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-sm font-black flex-shrink-0">
               {(session.name || session.email)[0].toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-white truncate">
+              <p className="text-sm font-bold text-ink truncate">
                 {session.name || session.email}
               </p>
-              <p className="text-[10px] text-white/30 truncate">{session.email}</p>
+              <p className="text-[10px] text-ink/50 truncate">{session.email}</p>
             </div>
           </div>
 
@@ -130,7 +130,7 @@ export default function AdminShell({ session, children }: AdminShellProps) {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-white/40 hover:text-red-500 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-ink/60 hover:text-red-500 transition-all"
           >
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Sign out</span>
@@ -141,18 +141,18 @@ export default function AdminShell({ session, children }: AdminShellProps) {
       {/* Main area */}
       <div className="flex-1 flex flex-col md:ml-64">
         {/* Mobile top bar */}
-        <div className="md:hidden fixed top-14 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-white/5">
+        <div className="md:hidden fixed top-14 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-ink/[0.08]">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg bg-white/5 border border-white/10 text-white/70 hover:text-primary transition-colors"
+            className="p-2 rounded-lg bg-ink/5 border border-ink/10 text-ink/75 hover:text-primary transition-colors"
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div className="flex items-center gap-2">
             <div className="bg-primary p-1 rounded-md">
-              <Zap className="w-3.5 h-3.5 text-background fill-background" />
+              <Zap className="w-3.5 h-3.5 text-white fill-background" />
             </div>
-            <span className="text-sm font-bold text-white/80">{currentPage}</span>
+            <span className="text-sm font-bold text-ink/85">{currentPage}</span>
           </div>
           <div className="w-9" /> {/* spacer to balance hamburger */}
         </div>

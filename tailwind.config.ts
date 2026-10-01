@@ -8,19 +8,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // ZMR light-blue brand palette
         primary: {
-          DEFAULT: "#00D1FF", // Electric Blue
-          dark: "#00A3C7",
+          50: "#EEF5FF",
+          100: "#DCEAFE",
+          200: "#B9D5FC",
+          300: "#8DBAF8",
+          400: "#4F95F0",
+          DEFAULT: "#1A73E8", // ZMR Blue
+          dark: "#1557B0",
+          deep: "#0E3F86",
         },
         secondary: {
-          DEFAULT: "#1A1A1A", // Dark Slate
-          light: "#2D2D2D",
+          DEFAULT: "#EAF2FD", // Soft sky panel
+          light: "#F7FAFF",
         },
         accent: {
-          DEFAULT: "#70FF00", // Neon Green (Eco-friendly)
+          DEFAULT: "#16A34A", // Eco green (matches logo leaves)
+          light: "#DCFCE7",
         },
-        background: "#0A0A0A",
-        foreground: "#FFFFFF",
+        // Text/border ink — use with alpha (text-ink/60, border-ink/10)
+        ink: "rgb(15 23 42 / <alpha-value>)",
+        background: "#F4F8FE",
+        foreground: "#0F172A",
+      },
+      boxShadow: {
+        card: "0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.12)",
+        "card-hover": "0 2px 4px rgba(15,23,42,0.05), 0 20px 40px -16px rgba(26,115,232,0.28)",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
