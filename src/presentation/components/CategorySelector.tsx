@@ -90,44 +90,44 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
             href={`/leasing/vehicles/${currentSlug}`}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
               mode === 'leasing'
-                ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_16px_rgba(0,229,255,0.15)]'
-                : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white/70'
+                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(56,152,236,0.15)]'
+                : 'bg-ink/5 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/75'
             }`}
           >
-            <CalendarDays className={`w-4 h-4 ${mode === 'leasing' ? 'text-primary' : 'text-white/30'}`} />
+            <CalendarDays className={`w-4 h-4 ${mode === 'leasing' ? 'text-primary' : 'text-ink/50'}`} />
             Lease an EV
           </Link>
           <Link
             href={`/buying/vehicles/${currentSlug}`}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
               mode === 'buying'
-                ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_16px_rgba(0,229,255,0.15)]'
-                : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white/70'
+                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(56,152,236,0.15)]'
+                : 'bg-ink/5 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/75'
             }`}
           >
-            <ShoppingBag className={`w-4 h-4 ${mode === 'buying' ? 'text-primary' : 'text-white/30'}`} />
+            <ShoppingBag className={`w-4 h-4 ${mode === 'buying' ? 'text-primary' : 'text-ink/50'}`} />
             Buy an EV
           </Link>
           <Link
             href={`/rent/vehicles/${currentSlug}`}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
               mode === 'rent'
-                ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_16px_rgba(0,229,255,0.15)]'
-                : 'bg-white/5 border-white/10 text-white/40 hover:border-white/20 hover:text-white/70'
+                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(56,152,236,0.15)]'
+                : 'bg-ink/5 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/75'
             }`}
           >
-            <KeyRound className={`w-4 h-4 ${mode === 'rent' ? 'text-primary' : 'text-white/30'}`} />
+            <KeyRound className={`w-4 h-4 ${mode === 'rent' ? 'text-primary' : 'text-ink/50'}`} />
             Rent an EV
           </Link>
         </div>
       )}
-      <span className="text-white/40 text-xs font-bold uppercase tracking-widest block mb-3">Select Vehicle Category:</span>
+      <span className="text-ink/60 text-xs font-bold uppercase tracking-widest block mb-3">Select Vehicle Category:</span>
       <div className="grid grid-cols-5 gap-1.5 md:gap-2 lg:gap-3">
         {categories.map((cat) => {
           const isActive = currentSlug === cat.slug;
           const activeClass = isActive
-            ? "bg-primary/10 border-primary text-white electric-glow"
-            : "bg-white/5 border-white/5 text-white/50 hover:bg-white/10 hover:border-white/20 hover:text-white/90";
+            ? "bg-primary/10 border-primary text-ink electric-glow"
+            : "bg-ink/5 border-ink/[0.08] text-ink/65 hover:bg-ink/10 hover:border-ink/15 hover:text-ink/90";
 
           return (
             <Link
@@ -137,8 +137,8 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
             >
               {/* Mobile: compact icon + label pill, no image */}
               <div className="lg:hidden flex flex-col items-center justify-center gap-1 py-2.5 px-1">
-                <div className={`p-1.5 rounded-lg ${isActive ? "bg-primary/20" : "bg-white/5"}`}>
-                  <cat.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-white/40"}`} />
+                <div className={`p-1.5 rounded-lg ${isActive ? "bg-primary/20" : "bg-ink/5"}`}>
+                  <cat.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-ink/60"}`} />
                 </div>
                 <p className="text-[10px] font-bold leading-tight text-center">{cat.shortName}</p>
               </div>
@@ -151,7 +151,7 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
                   </div>
                 </div>
                 <div className="min-w-0 py-1">
-                  <div className={`mb-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest ${isActive ? "text-primary" : "text-white/30 group-hover:text-white/50"}`}>
+                  <div className={`mb-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest ${isActive ? "text-primary" : "text-ink/50 group-hover:text-ink/65"}`}>
                     <cat.icon className="w-3 h-3" />
                     Category
                   </div>

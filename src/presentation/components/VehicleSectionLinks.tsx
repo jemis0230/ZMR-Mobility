@@ -92,7 +92,7 @@ export default function VehicleSectionLinks({ vehicle, currentSection }: Props) 
 
   return (
     <div className="pt-2 space-y-3">
-      <p className="text-[11px] font-bold uppercase tracking-wider text-white/30">Also available as</p>
+      <p className="text-[11px] font-bold uppercase tracking-wider text-ink/50">Also available as</p>
       {visible.map(({ key, label, sublabel, price, href, borderCls, textCls, bgCls, Icon }) => (
         <Link
           key={key}
@@ -104,12 +104,12 @@ export default function VehicleSectionLinks({ vehicle, currentSection }: Props) 
           </div>
           <div className="flex-1 min-w-0">
             <p className={`font-bold text-sm ${textCls}`}>{label}</p>
-            <p className="text-xs text-white/40">{sublabel}</p>
+            <p className="text-xs text-ink/60">{sublabel}</p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-sm font-bold text-white/80">{price}</p>
+            <p className="text-sm font-bold text-ink/85">{price}</p>
           </div>
-          <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/60 transition-colors shrink-0" />
+          <ArrowRight className="w-4 h-4 text-ink/50 group-hover:text-ink/70 transition-colors shrink-0" />
         </Link>
       ))}
     </div>

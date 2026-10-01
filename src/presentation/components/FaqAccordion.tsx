@@ -30,9 +30,9 @@ export default function FaqAccordion({ faqs }: FaqAccordionProps) {
             className="glass-card overflow-hidden"
             style={{
               border: isOpen
-                ? '1px solid rgba(0,209,255,0.25)'
-                : '1px solid rgba(255,255,255,0.05)',
-              boxShadow: isOpen ? '0 0 24px rgba(0,209,255,0.06)' : 'none',
+                ? '1px solid rgba(26,115,232,0.25)'
+                : '1px solid rgba(15,23,42,0.08)',
+              boxShadow: isOpen ? '0 0 24px rgba(26,115,232,0.06)' : 'none',
               transition: 'border-color 0.3s, box-shadow 0.3s',
             }}
           >
@@ -45,15 +45,15 @@ export default function FaqAccordion({ faqs }: FaqAccordionProps) {
               <span
                 className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-colors"
                 style={{
-                  background: isOpen ? 'rgba(0,209,255,0.15)' : 'rgba(255,255,255,0.04)',
-                  color: isOpen ? '#00D1FF' : 'rgba(255,255,255,0.3)',
-                  border: isOpen ? '1px solid rgba(0,209,255,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                  background: isOpen ? 'rgba(26,115,232,0.15)' : 'rgba(15,23,42,0.04)',
+                  color: isOpen ? '#1A73E8' : 'rgba(15,23,42,0.45)',
+                  border: isOpen ? '1px solid rgba(26,115,232,0.3)' : '1px solid rgba(15,23,42,0.08)',
                 }}
               >
                 {String(i + 1).padStart(2, '0')}
               </span>
 
-              <span className="flex-1 text-[15px] font-semibold leading-snug text-white group-hover:text-primary transition-colors">
+              <span className="flex-1 text-[15px] font-semibold leading-snug text-ink group-hover:text-primary transition-colors">
                 {faq.question}
               </span>
 
@@ -64,7 +64,7 @@ export default function FaqAccordion({ faqs }: FaqAccordionProps) {
               >
                 {isOpen
                   ? <Minus className="w-4 h-4 text-primary" />
-                  : <Plus className="w-4 h-4 text-white/40 group-hover:text-primary transition-colors" />
+                  : <Plus className="w-4 h-4 text-ink/60 group-hover:text-primary transition-colors" />
                 }
               </motion.span>
             </button>
@@ -80,7 +80,7 @@ export default function FaqAccordion({ faqs }: FaqAccordionProps) {
                   style={{ overflow: 'hidden' }}
                 >
                   <div className="px-6 pb-5 pt-1">
-                    <div className="pl-11 text-sm text-white/60 leading-relaxed border-l border-primary/20">
+                    <div className="pl-11 text-sm text-ink/70 leading-relaxed border-l border-primary/20">
                       {faq.answer}
                     </div>
                   </div>

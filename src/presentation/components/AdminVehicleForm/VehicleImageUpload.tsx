@@ -73,12 +73,12 @@ export default function VehicleImageUpload({
   return (
     <>
       {/* ── Main Image ────────────────────────────────────── */}
-      <div className="md:col-span-2 border-b border-white/5 pb-2 mt-4">
+      <div className="md:col-span-2 border-b border-ink/[0.08] pb-2 mt-4">
         <h3 className="text-xs font-bold uppercase tracking-widest text-primary">Media</h3>
       </div>
 
       <div className="md:col-span-2 space-y-2">
-        <label className="text-[11px] font-bold uppercase tracking-wider text-white/50 flex items-center gap-2">
+        <label className="text-[11px] font-bold uppercase tracking-wider text-ink/65 flex items-center gap-2">
           <Camera className="w-3 h-3 text-primary" />
           Main Vehicle Photo
         </label>
@@ -93,7 +93,7 @@ export default function VehicleImageUpload({
         />
 
         {mainPreview ? (
-          <div className="relative w-full h-48 bg-white/5 rounded-xl overflow-hidden border border-primary/30">
+          <div className="relative w-full h-48 bg-ink/5 rounded-xl overflow-hidden border border-primary/30">
             <img src={mainPreview} alt="Preview" className="w-full h-full object-contain" />
             <button
               type="button"
@@ -112,18 +112,18 @@ export default function VehicleImageUpload({
         ) : (
           <label
             htmlFor="mainImageInput"
-            className="flex flex-col items-center justify-center w-full h-48 bg-white/5 border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:border-primary/50 transition-all"
+            className="flex flex-col items-center justify-center w-full h-48 bg-ink/5 border-2 border-dashed border-ink/10 rounded-xl cursor-pointer hover:border-primary/50 transition-all"
           >
-            <Upload className="w-8 h-8 text-white/20 mb-3" />
-            <p className="text-sm text-white/40">Click to upload main photo</p>
-            <p className="text-xs text-white/20 mt-1">PNG, JPG or WEBP · Max 5 MB</p>
+            <Upload className="w-8 h-8 text-ink/40 mb-3" />
+            <p className="text-sm text-ink/60">Click to upload main photo</p>
+            <p className="text-xs text-ink/40 mt-1">PNG, JPG or WEBP · Max 5 MB</p>
           </label>
         )}
       </div>
 
       {/* ── Side Images ───────────────────────────────────── */}
       <div className="md:col-span-2 space-y-4">
-        <label className="text-[11px] font-bold uppercase tracking-wider text-white/50 flex items-center gap-2">
+        <label className="text-[11px] font-bold uppercase tracking-wider text-ink/65 flex items-center gap-2">
           <Camera className="w-3 h-3 text-accent" />
           Gallery Photos
         </label>
@@ -133,7 +133,7 @@ export default function VehicleImageUpload({
           {existingSides.map((path, index) => (
             <div
               key={`existing-${index}`}
-              className="relative aspect-square bg-white/5 rounded-lg overflow-hidden border border-accent/20"
+              className="relative aspect-square bg-ink/5 rounded-lg overflow-hidden border border-accent/20"
             >
               <img src={path} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
               <button
@@ -150,7 +150,7 @@ export default function VehicleImageUpload({
           {newSideFiles.map((file, index) => (
             <div
               key={`new-${index}`}
-              className="relative aspect-square bg-white/5 rounded-lg overflow-hidden border border-primary/20"
+              className="relative aspect-square bg-ink/5 rounded-lg overflow-hidden border border-primary/20"
             >
               <img
                 src={URL.createObjectURL(file)}
@@ -169,8 +169,8 @@ export default function VehicleImageUpload({
 
           {/* Add more button — only visible when under 4 total */}
           {totalSides < 4 && (
-            <label className="aspect-square bg-white/5 border-2 border-dashed border-white/10 rounded-lg cursor-pointer hover:border-accent/50 transition-all flex flex-col items-center justify-center">
-              <Plus className="w-6 h-6 text-white/20" />
+            <label className="aspect-square bg-ink/5 border-2 border-dashed border-ink/10 rounded-lg cursor-pointer hover:border-accent/50 transition-all flex flex-col items-center justify-center">
+              <Plus className="w-6 h-6 text-ink/40" />
               {/* No name= here so this input is NOT submitted; we manage files in state */}
               <input
                 type="file"
@@ -182,7 +182,7 @@ export default function VehicleImageUpload({
             </label>
           )}
         </div>
-        <p className="text-[10px] text-white/20 italic">
+        <p className="text-[10px] text-ink/40 italic">
           Up to 4 gallery photos. Select multiple at once or add one by one.
         </p>
       </div>

@@ -92,12 +92,12 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">FAQ Management</h1>
-            <p className="text-white/40 text-sm">Add and manage frequently asked questions for your website.</p>
+            <p className="text-ink/60 text-sm">Add and manage frequently asked questions for your website.</p>
           </div>
         </div>
         <button 
           onClick={() => setShowForm(!showForm)} 
-          className="bg-primary px-4 py-2 rounded-lg text-sm font-medium text-background hover:bg-primary/90 transition-all flex items-center gap-2"
+          className="bg-primary px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-primary/90 transition-all flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           {showForm ? 'Hide Form' : 'Add FAQ'}
@@ -114,7 +114,7 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
                 </h3>
                 <button
                   onClick={() => { setEditingFaq(null); setShowForm(false); }}
-                  className="text-white/40 hover:text-white"
+                  className="text-ink/60 hover:text-ink"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -138,18 +138,18 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
               <AlertTriangle className="w-8 h-8 text-red-500" />
               <div>
                 <p className="text-red-500 font-bold">Database Connection Error</p>
-                <p className="text-white/40 text-sm">Please update your DATABASE_URL in the .env file.</p>
+                <p className="text-ink/60 text-sm">Please update your DATABASE_URL in the .env file.</p>
               </div>
             </div>
           )}
 
           <div className="space-y-4">
             {faqs.map((faq) => (
-              <div key={faq.id} className="glass-card p-6 border-white/5 group hover:border-primary/20 transition-all">
+              <div key={faq.id} className="glass-card p-6 border-ink/[0.08] group hover:border-primary/20 transition-all">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2 flex-1 mr-4">
                     <div className="flex items-center gap-2">
-                      <span className="bg-white/10 px-2 py-1 rounded text-xs font-bold text-white/60">
+                      <span className="bg-ink/10 px-2 py-1 rounded text-xs font-bold text-ink/70">
                         Order: {faq.order}
                       </span>
                       {!faq.isActive && (
@@ -159,12 +159,12 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
                       )}
                     </div>
                     <h3 className="text-lg font-bold">{faq.question}</h3>
-                    <p className="text-sm text-white/50 line-clamp-2">{faq.answer}</p>
+                    <p className="text-sm text-ink/65 line-clamp-2">{faq.answer}</p>
                   </div>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setEditingFaq(faq)}
-                      className="p-2 text-white/50 hover:text-white hover:text-primary hover:bg-white/5 rounded transition-all"
+                      className="p-2 text-ink/65 hover:text-ink hover:text-primary hover:bg-ink/5 rounded transition-all"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
@@ -180,8 +180,8 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
               </div>
             ))}
             {!dbError && faqs.length === 0 && (
-              <div className="py-20 text-center glass-card border-dashed border-white/10">
-                <p className="text-white/20">No FAQs added yet.</p>
+              <div className="py-20 text-center glass-card border-dashed border-ink/10">
+                <p className="text-ink/40">No FAQs added yet.</p>
               </div>
             )}
           </div>
@@ -209,36 +209,36 @@ function FaqForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="text-xs font-bold uppercase tracking-wider text-white/40 mb-2 block">Question</label>
+        <label className="text-xs font-bold uppercase tracking-wider text-ink/60 mb-2 block">Question</label>
         <input 
           type="text" 
           name="question" 
           required 
           defaultValue={initialData?.question}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-primary"
+          className="w-full bg-ink/5 border border-ink/10 rounded-lg px-4 py-3 text-ink placeholder-ink/40 focus:outline-none focus:border-primary"
           placeholder="e.g., What is the range of the vehicle?"
         />
       </div>
       <div>
-        <label className="text-xs font-bold uppercase tracking-wider text-white/40 mb-2 block">Answer</label>
+        <label className="text-xs font-bold uppercase tracking-wider text-ink/60 mb-2 block">Answer</label>
         <textarea 
           name="answer" 
           required 
           rows={4}
           defaultValue={initialData?.answer}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-primary"
+          className="w-full bg-ink/5 border border-ink/10 rounded-lg px-4 py-3 text-ink placeholder-ink/40 focus:outline-none focus:border-primary"
           placeholder="Enter detailed answer here..."
         />
       </div>
       <div>
-        <label className="text-xs font-bold uppercase tracking-wider text-white/40 mb-2 block">Order</label>
+        <label className="text-xs font-bold uppercase tracking-wider text-ink/60 mb-2 block">Order</label>
         <input 
           type="number" 
           name="order" 
           min={1}
           step={1}
           defaultValue={initialData?.order || 0}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-primary"
+          className="w-full bg-ink/5 border border-ink/10 rounded-lg px-4 py-3 text-ink placeholder-ink/40 focus:outline-none focus:border-primary"
         />
       </div>
       {initialData && (
@@ -250,13 +250,13 @@ function FaqForm({
             defaultChecked={initialData?.isActive}
             className="w-4 h-4"
           />
-          <label htmlFor="isActive" className="text-white/60 text-sm">Active</label>
+          <label htmlFor="isActive" className="text-ink/70 text-sm">Active</label>
         </div>
       )}
       <button 
         type="submit" 
         disabled={isSubmitting}
-        className="w-full bg-primary text-background font-bold py-3 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50"
+        className="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50"
       >
         {isSubmitting ? 'Saving...' : initialData ? 'Update FAQ' : 'Create FAQ'}
       </button>

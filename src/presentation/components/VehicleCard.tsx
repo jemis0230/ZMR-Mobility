@@ -88,10 +88,10 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
           />
         ) : (
           <div className="w-full h-full ev-shimmer-base flex items-center justify-center">
-            <Zap className="w-12 h-12 text-[#00FF85]/10" />
+            <Zap className="w-12 h-12 text-[#1A73E8]/10" />
           </div>
         )}
-        <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm border border-white/10 text-[10px] font-bold tracking-widest uppercase">
+        <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm border border-ink/10 text-[10px] font-bold tracking-widest uppercase">
           {CATEGORY_DISPLAY[vehicle.category]}
         </div>
       </Link>
@@ -101,16 +101,26 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
           <Link href={detailHref}>
             <h3 className="text-xl font-bold tracking-tight hover:text-primary transition-colors">{vehicle.make} {vehicle.model}</h3>
           </Link>
-          <p className="text-white/40 text-sm italic">
+          <p className="text-ink/60 text-sm italic">
             {mode === 'buying' ? 'Buy from ' : mode === 'rent' ? 'Rent from ' : 'Starting from '}{price}
           </p>
+          {(vehicle.manufactureYear || vehicle.kmDriven != null) && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {vehicle.manufactureYear && (
+                <span className="px-2.5 py-1 rounded-full bg-primary-50 text-primary text-[11px] font-bold">{vehicle.manufactureYear}</span>
+              )}
+              {vehicle.kmDriven != null && (
+                <span className="px-2.5 py-1 rounded-full bg-primary-50 text-primary text-[11px] font-bold">{vehicle.kmDriven.toLocaleString('en-IN')} km</span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-2">
           {cardSpecs.map((spec, idx) => (
-            <div key={idx} className="bg-white/5 rounded-lg p-2 text-center">
+            <div key={idx} className="bg-ink/5 rounded-lg p-2 text-center">
               <spec.icon className={`w-4 h-4 mx-auto mb-1 ${spec.color}`} />
-              <p className="text-[10px] text-white/40 uppercase tracking-tighter">{spec.label}</p>
+              <p className="text-[10px] text-ink/60 uppercase tracking-tighter">{spec.label}</p>
               <p className="text-xs font-bold truncate">{spec.value}</p>
             </div>
           ))}
@@ -118,7 +128,7 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
 
         <Link
           href={detailHref}
-          className="w-full py-3 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center justify-center gap-2 hover:bg-primary hover:text-background transition-all group/btn"
+          className="w-full py-3 rounded-xl bg-ink/5 border border-ink/10 font-bold flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group/btn"
         >
           {ctaLabel}
           <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />

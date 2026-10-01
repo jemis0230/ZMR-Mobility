@@ -3,11 +3,12 @@ import ImageGallery from "@/presentation/components/ImageGallery";
 import SpecificationSection from "@/presentation/components/SpecificationSection";
 import BuyEnquireButton from "@/presentation/components/BuyEnquireButton";
 import VehicleSectionLinks from "@/presentation/components/VehicleSectionLinks";
-import { Battery, Zap, Gauge, Shield, Clock, MapPin, IndianRupee } from "lucide-react";
+import { Battery, Zap, Gauge, Shield, Clock, MapPin, IndianRupee, CalendarDays } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { slugifyVehicle, extractIdFromSlug } from "@/lib/vehicleSlug";
-import { CATEGORY_TO_SLUG } from "@/lib/constants";
+import { CATEGORY_TO_SLUG, TRANSMISSION_DISPLAY } from "@/lib/constants";
+import { estimateEmi } from "@/lib/explore";
 import type { Metadata } from "next";
 
 const vehicleRepo = new PrismaVehicleRepository();
@@ -47,28 +48,28 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="pt-24 pb-20 px-6 max-w-7xl mx-auto">
-        <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/30 mb-8">
+      <div className="pt-24 lg:pt-36 pb-20 px-6 max-w-7xl mx-auto">
+        <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ink/50 mb-8">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <span>/</span>
           <Link href={`/buying/vehicles/${CATEGORY_TO_SLUG[vehicle.category] ?? '2-wheeler'}`} className="hover:text-primary transition-colors">Buy</Link>
           <span>/</span>
-          <span className="text-white/60">{vehicle.make} {vehicle.model}</span>
+          <span className="text-ink/70">{vehicle.make} {vehicle.model}</span>
         </nav>
 
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start">
           <div className="lg:sticky top-24">
             <ImageGallery images={allImages} />
             <div className="mt-6 md:mt-10 grid grid-cols-2 gap-3 md:gap-6">
-              <div className="glass-card p-6 border-white/5">
+              <div className="glass-card p-6 border-ink/[0.08]">
                 <Shield className="w-6 h-6 text-primary mb-3" />
                 <h4 className="font-bold mb-1">Standard Warranty</h4>
-                <p className="text-xs text-white/40">{vehicle.warranty || 'Contact us for details'}</p>
+                <p className="text-xs text-ink/60">{vehicle.warranty || 'Contact us for details'}</p>
               </div>
-              <div className="glass-card p-6 border-white/5">
+              <div className="glass-card p-6 border-ink/[0.08]">
                 <Clock className="w-6 h-6 text-accent mb-3" />
                 <h4 className="font-bold mb-1">Fast Delivery</h4>
-                <p className="text-xs text-white/40">Vehicles delivered within 48 hours</p>
+                <p className="text-xs text-ink/60">Vehicles delivered within 48 hours</p>
               </div>
             </div>
           </div>
@@ -81,10 +82,28 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
               <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight mb-2">
                 {vehicle.make} <span className="text-primary">{vehicle.model}</span>
               </h1>
-              <p className="text-white/40 leading-relaxed max-w-xl">
+              <p className="text-ink/60 leading-relaxed max-w-xl">
                 The {vehicle.make} {vehicle.model} is an electric {vehicleType} available for purchase through ZMR Mobility, India&apos;s trusted EV partner.
               </p>
             </div>
+
+            {(vehicle.manufactureYear || vehicle.kmDriven != null) && (
+              <div className="flex flex-wrap gap-2 -mt-4">
+                {vehicle.manufactureYear && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/10 px-3 py-1.5 text-sm font-semibold text-ink/80">
+                    <CalendarDays className="w-4 h-4 text-primary" /> {vehicle.manufactureYear} model
+                  </span>
+                )}
+                {vehicle.kmDriven != null && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/10 px-3 py-1.5 text-sm font-semibold text-ink/80">
+                    <Gauge className="w-4 h-4 text-primary" /> {vehicle.kmDriven.toLocaleString('en-IN')} km driven
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/10 px-3 py-1.5 text-sm font-semibold text-ink/80">
+                  {TRANSMISSION_DISPLAY[vehicle.transmission]}
+                </span>
+              </div>
+            )}
 
             {/* Price Card */}
             <div className="glass-card p-5 md:p-8 border-primary/20 bg-primary/5 electric-glow">
@@ -92,41 +111,45 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
                 <>
                   <div className="flex items-end gap-2 mb-2">
                     <span className="text-2xl md:text-4xl font-black text-primary italic">₹{vehicle.buyingPrice.toLocaleString('en-IN')}</span>
-                    <span className="text-white/40 font-bold mb-1 uppercase tracking-widest text-xs">Purchase Price</span>
+                    <span className="text-ink/60 font-bold mb-1 uppercase tracking-widest text-xs">Purchase Price</span>
                   </div>
-                  <p className="text-white/60 text-sm mb-1 flex items-center gap-2">
+                  <p className="text-ink/70 text-sm mb-1 flex items-center gap-2">
                     <IndianRupee className="w-4 h-4" />
                     Inclusive of standard warranty & delivery
                   </p>
-                  <p className="text-white/30 text-xs">* Prices are exclusive of GST. GST will be applicable on the final amount.</p>
+                  <p className="text-ink/50 text-xs">* Prices are exclusive of GST. GST will be applicable on the final amount.</p>
+                  <p className="mt-3 pt-3 border-t border-primary/15 text-sm text-ink/70">
+                    EMI from <span className="font-bold text-primary">₹{estimateEmi(vehicle.buyingPrice).toLocaleString('en-IN')}/month</span>
+                    <span className="text-ink/45 text-xs"> · indicative, 36 months, 20% down</span>
+                  </p>
                 </>
               ) : (
-                <p className="text-white/40 text-sm text-center py-2">Contact us for pricing details.</p>
+                <p className="text-ink/60 text-sm text-center py-2">Contact us for pricing details.</p>
               )}
             </div>
 
             {/* Specs Grid */}
             <div className="grid grid-cols-3 gap-2 md:gap-4">
-              <div className="glass-card p-3 md:p-4 border-white/5 text-center">
+              <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Gauge className="w-4 h-4 md:w-5 md:h-5 text-primary mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-white/30 uppercase font-bold tracking-widest">Range</p>
+                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Range</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.certifiedRangeKm} km</p>
               </div>
-              <div className="glass-card p-3 md:p-4 border-white/5 text-center">
+              <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Battery className="w-4 h-4 md:w-5 md:h-5 text-accent mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-white/30 uppercase font-bold tracking-widest">Battery</p>
+                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Battery</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.batteryCapKwh} kWh</p>
               </div>
-              <div className="glass-card p-3 md:p-4 border-white/5 text-center">
+              <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Zap className="w-4 h-4 md:w-5 md:h-5 text-blue-400 mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-white/30 uppercase font-bold tracking-widest">Top Speed</p>
+                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Top Speed</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.topSpeedKmh} km/h</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-white/40">
+            <div className="flex items-center gap-3 text-ink/60">
               <MapPin className="w-5 h-5 text-primary" />
-              <p className="text-sm">Available in <span className="text-white/80 font-bold">12+ Cities</span> including Delhi, Mumbai, and Bangalore.</p>
+              <p className="text-sm">Available in <span className="text-ink/85 font-bold">12+ Cities</span> including Delhi, Mumbai, and Bangalore.</p>
             </div>
 
             <div className="pt-4">
@@ -140,31 +163,31 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
         <div className="mt-12 md:mt-24">
           <div className="text-center mb-8 md:mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">About the <span className="text-primary">{vehicle.make} {vehicle.model}</span></h2>
-            <p className="text-white/40 mt-2 text-sm md:text-base">Everything you need to know about buying this electric vehicle</p>
+            <p className="text-ink/60 mt-2 text-sm md:text-base">Everything you need to know about buying this electric vehicle</p>
           </div>
           <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
             {vehicle.overview && (
               <div className="space-y-3">
                 <h3 className="text-xl md:text-2xl font-bold tracking-tight">Overview</h3>
-                <p className="text-white/60 leading-relaxed text-base md:text-lg">{vehicle.overview}</p>
+                <p className="text-ink/70 leading-relaxed text-base md:text-lg">{vehicle.overview}</p>
               </div>
             )}
             {vehicle.techSpecs && (
               <div className="space-y-3">
                 <h3 className="text-xl md:text-2xl font-bold tracking-tight">Technical Specifications</h3>
-                <p className="text-white/60 leading-relaxed text-base md:text-lg">{vehicle.techSpecs}</p>
+                <p className="text-ink/70 leading-relaxed text-base md:text-lg">{vehicle.techSpecs}</p>
               </div>
             )}
             {vehicle.performance && (
               <div className="space-y-3">
                 <h3 className="text-xl md:text-2xl font-bold tracking-tight">Performance & Efficiency</h3>
-                <p className="text-white/60 leading-relaxed text-base md:text-lg">{vehicle.performance}</p>
+                <p className="text-ink/70 leading-relaxed text-base md:text-lg">{vehicle.performance}</p>
               </div>
             )}
             {vehicle.buyingInfo && (
               <div className="space-y-3">
                 <h3 className="text-xl md:text-2xl font-bold tracking-tight">Buying Information</h3>
-                <p className="text-white/60 leading-relaxed text-base md:text-lg">{vehicle.buyingInfo}</p>
+                <p className="text-ink/70 leading-relaxed text-base md:text-lg">{vehicle.buyingInfo}</p>
               </div>
             )}
           </div>
@@ -174,7 +197,7 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
         <div className="mt-12 md:mt-24">
           <div className="text-center mb-8 md:mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">Detailed <span className="text-primary">Specifications</span></h2>
-            <p className="text-white/40 mt-2">Everything you need to know about the {vehicle.make} {vehicle.model}</p>
+            <p className="text-ink/60 mt-2">Everything you need to know about the {vehicle.make} {vehicle.model}</p>
           </div>
           <SpecificationSection vehicle={vehicle} />
         </div>

@@ -1,5 +1,5 @@
 import { Vehicle, LeasePlan, RentPlan } from "../../domain/entities/Vehicle";
-import { VehicleCategory, ChargerType } from "@/lib/constants";
+import { VehicleCategory, ChargerType, TransmissionType } from "@/lib/constants";
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -36,6 +36,26 @@ export interface FilterOptions {
   maxVolume: number;
 }
 
+export interface ExploreFilterParams {
+  q?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  makes?: string[];
+  model?: string;
+  minYear?: number;
+  maxKm?: number;
+  categories?: VehicleCategory[];
+  transmission?: TransmissionType;
+  minRange?: number;
+  sortBy?: 'newest' | 'price_asc' | 'price_desc' | 'year_desc' | 'km_asc';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface ExploreMenuData {
+  makes: { make: string; models: string[]; count: number }[];
+}
+
 export interface IVehicleRepository {
   findAll(): Promise<Vehicle[]>;
   findByCategory(category: VehicleCategory): Promise<Vehicle[]>;
@@ -51,6 +71,10 @@ export interface IVehicleRepository {
   // Rent
   findByCategoryForRent(category: VehicleCategory, filters: VehicleFilterParams): Promise<PaginatedResult<Vehicle>>;
   getFilterOptionsForRent(category: VehicleCategory): Promise<FilterOptions>;
+
+  // Explore (cross-category buying catalogue)
+  findForExplore(filters: ExploreFilterParams): Promise<PaginatedResult<Vehicle>>;
+  getExploreMenuData(): Promise<ExploreMenuData>;
 
   findById(id: string): Promise<Vehicle | null>;
 
@@ -84,6 +108,8 @@ export interface VehicleCreateInput {
   showInRent: boolean;
 
   buyingPrice?: number | null;
+  manufactureYear?: number | null;
+  kmDriven?: number | null;
 
   certifiedRangeKm: number;
   realWorldRangeKm?: number | null;

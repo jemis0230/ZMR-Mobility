@@ -63,12 +63,12 @@ const Toolbar = ({ editor }: { editor: any }) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-1 p-2 bg-white/5 border-b border-white/10 sticky top-0 z-10 backdrop-blur-md">
-      <div className="flex gap-1 bg-white/5 p-1 rounded-lg mr-2">
+    <div className="flex flex-wrap gap-1 p-2 bg-ink/5 border-b border-ink/10 sticky top-0 z-10 backdrop-blur-md">
+      <div className="flex gap-1 bg-ink/5 p-1 rounded-lg mr-2">
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()} 
-          className={`p-1.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('bold') ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+          className={`p-1.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('bold') ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
           title="Bold"
         >
           <Bold size={16} />
@@ -76,7 +76,7 @@ const Toolbar = ({ editor }: { editor: any }) => {
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()} 
-          className={`p-1.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('italic') ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+          className={`p-1.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('italic') ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
           title="Italic"
         >
           <Italic size={16} />
@@ -84,20 +84,20 @@ const Toolbar = ({ editor }: { editor: any }) => {
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()} 
-          className={`p-1.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('underline') ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+          className={`p-1.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('underline') ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
           title="Underline"
         >
           <UnderlineIcon size={16} />
         </button>
       </div>
       
-      <div className="flex gap-1 bg-white/5 p-1 rounded-lg mr-2">
+      <div className="flex gap-1 bg-ink/5 p-1 rounded-lg mr-2">
         {[1, 2, 3, 4, 5, 6].map((level) => (
           <button 
             key={level}
             type="button"
             onClick={() => editor.chain().focus().toggleHeading({ level: level as any }).run()} 
-            className={`p-1.5 px-2.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('heading', { level }) ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+            className={`p-1.5 px-2.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('heading', { level }) ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
             title={`Heading ${level}`}
           >
             <span className="text-xs font-black">H{level}</span>
@@ -105,11 +105,11 @@ const Toolbar = ({ editor }: { editor: any }) => {
         ))}
       </div>
 
-      <div className="flex gap-1 bg-white/5 p-1 rounded-lg mr-2">
+      <div className="flex gap-1 bg-ink/5 p-1 rounded-lg mr-2">
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()} 
-          className={`p-1.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('bulletList') ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+          className={`p-1.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('bulletList') ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
           title="Bullet List"
         >
           <List size={16} />
@@ -117,18 +117,18 @@ const Toolbar = ({ editor }: { editor: any }) => {
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleOrderedList().run()} 
-          className={`p-1.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('orderedList') ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+          className={`p-1.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('orderedList') ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
           title="Ordered List"
         >
           <ListOrdered size={16} />
         </button>
       </div>
 
-      <div className="flex gap-1 bg-white/5 p-1 rounded-lg mr-2">
+      <div className="flex gap-1 bg-ink/5 p-1 rounded-lg mr-2">
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleBlockquote().run()} 
-          className={`p-1.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('blockquote') ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+          className={`p-1.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('blockquote') ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
           title="Quote"
         >
           <Quote size={16} />
@@ -136,15 +136,15 @@ const Toolbar = ({ editor }: { editor: any }) => {
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()} 
-          className={`p-1.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('codeBlock') ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+          className={`p-1.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('codeBlock') ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
           title="Code Block"
         >
           <Code size={16} />
         </button>
       </div>
 
-      <div className="flex gap-1 bg-white/5 p-1 rounded-lg mr-2">
-        <button type="button" onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:bg-white/10 text-white/40 transition-colors" title="Upload Image">
+      <div className="flex gap-1 bg-ink/5 p-1 rounded-lg mr-2">
+        <button type="button" onClick={() => fileInputRef.current?.click()} className="p-1.5 rounded hover:bg-ink/10 text-ink/60 transition-colors" title="Upload Image">
           <Upload size={16} />
         </button>
         <input 
@@ -154,16 +154,16 @@ const Toolbar = ({ editor }: { editor: any }) => {
           accept="image/*" 
           className="hidden" 
         />
-        <button type="button" onClick={addImageUrl} className="p-1.5 rounded hover:bg-white/10 text-white/40 transition-colors" title="Image URL">
+        <button type="button" onClick={addImageUrl} className="p-1.5 rounded hover:bg-ink/10 text-ink/60 transition-colors" title="Image URL">
           <ImageIcon size={16} />
         </button>
-        <button type="button" onClick={addYoutubeVideo} className="p-1.5 rounded hover:bg-white/10 text-white/40 transition-colors" title="YouTube Video">
+        <button type="button" onClick={addYoutubeVideo} className="p-1.5 rounded hover:bg-ink/10 text-ink/60 transition-colors" title="YouTube Video">
           <YoutubeIcon size={16} />
         </button>
         <button 
           type="button"
           onClick={setLink} 
-          className={`p-1.5 rounded hover:bg-white/10 transition-colors ${editor.isActive('link') ? 'text-primary bg-primary/10' : 'text-white/40'}`}
+          className={`p-1.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('link') ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
           title="Link"
         >
           <LinkIcon size={16} />
@@ -172,9 +172,9 @@ const Toolbar = ({ editor }: { editor: any }) => {
 
       <div className="flex-1" />
 
-      <div className="flex gap-1 bg-white/5 p-1 rounded-lg">
-        <button type="button" onClick={() => editor.chain().focus().undo().run()} className="p-1.5 rounded hover:bg-white/10 text-white/40 transition-colors"><Undo size={16} /></button>
-        <button type="button" onClick={() => editor.chain().focus().redo().run()} className="p-1.5 rounded hover:bg-white/10 text-white/40 transition-colors"><Redo size={16} /></button>
+      <div className="flex gap-1 bg-ink/5 p-1 rounded-lg">
+        <button type="button" onClick={() => editor.chain().focus().undo().run()} className="p-1.5 rounded hover:bg-ink/10 text-ink/60 transition-colors"><Undo size={16} /></button>
+        <button type="button" onClick={() => editor.chain().focus().redo().run()} className="p-1.5 rounded hover:bg-ink/10 text-ink/60 transition-colors"><Redo size={16} /></button>
       </div>
     </div>
   );
@@ -198,7 +198,7 @@ export default function BlogEditor({ content, onChange }: { content: string, onC
       Image.configure({
         allowBase64: true,
         HTMLAttributes: {
-          class: 'rounded-2xl border border-white/10 max-w-full h-auto my-12 mx-auto shadow-2xl block',
+          class: 'rounded-2xl border border-ink/10 max-w-full h-auto my-12 mx-auto shadow-2xl block',
         },
       }),
       Youtube.configure({
@@ -222,13 +222,13 @@ export default function BlogEditor({ content, onChange }: { content: string, onC
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert prose-primary max-w-none min-h-[600px] p-8 md:p-12 focus:outline-none prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h1:font-black prose-h2:font-black prose-h3:font-bold prose-img:mx-auto',
+        class: 'prose prose-slate prose-primary max-w-none min-h-[600px] p-8 md:p-12 focus:outline-none prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h1:font-black prose-h2:font-black prose-h3:font-bold prose-img:mx-auto',
       },
     },
   });
 
   return (
-    <div className="glass-card border-white/10 overflow-hidden min-h-[700px] bg-white/[0.01] flex flex-col relative group/editor shadow-2xl">
+    <div className="glass-card border-ink/10 overflow-hidden min-h-[700px] bg-ink/[0.01] flex flex-col relative group/editor shadow-2xl">
       <Toolbar editor={editor} />
       
       <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -239,7 +239,7 @@ export default function BlogEditor({ content, onChange }: { content: string, onC
         .ProseMirror p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
           float: left;
-          color: rgba(255, 255, 255, 0.1);
+          color: rgba(15,23,42,0.35);
           pointer-events: none;
           height: 0;
         }
@@ -250,11 +250,11 @@ export default function BlogEditor({ content, onChange }: { content: string, onC
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(15,23,42,0.12);
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(15,23,42,0.2);
         }
         /* Ensure headings and lists look correct in editor */
         .ProseMirror h1 { font-size: 2.25rem; font-weight: 900; margin: 1.5rem 0; }

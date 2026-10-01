@@ -61,10 +61,10 @@ const PHASE_CLASSES = {
     badge: 'bg-accent/10 text-accent',
   },
   white: {
-    card:  'border-white/20',
-    bar:   'bg-white/30',
-    year:  'text-white/60',
-    badge: 'bg-white/5 text-white/40',
+    card:  'border-ink/15',
+    bar:   'bg-ink/30',
+    year:  'text-ink/70',
+    badge: 'bg-ink/5 text-ink/60',
   },
 } as const;
 
@@ -93,9 +93,9 @@ const team = [
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-background text-white overflow-x-hidden">
+    <main className="min-h-screen bg-background text-ink overflow-x-hidden">
       {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-center pt-24 pb-20 px-6 overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center pt-24 lg:pt-40 pb-20 px-6 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image src="/about-hero.png" alt="ZMR Mobility EV Fleet" fill className="object-cover opacity-25" priority />
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
@@ -112,14 +112,14 @@ export default function AboutPage() {
             Accelerating India Towards<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-400">Sustainable Mobility</span>
           </h1>
-          <p className="text-xl text-white/60 max-w-3xl leading-relaxed mb-10">
-            ZMR Mobility Private Limited is a technology-first EV asset management company leading the green movement in India's clean and sustainable mobility sector. We operate within the <span className="text-white font-semibold">Circular Economy</span> — offering 360° solutions for IoT in electric vehicles, including Sale, Lease, IoT, and Refinance.
+          <p className="text-xl text-ink/70 max-w-3xl leading-relaxed mb-10">
+            ZMR Mobility Private Limited is a technology-first EV asset management company leading the green movement in India's clean and sustainable mobility sector. We operate within the <span className="text-ink font-semibold">Circular Economy</span> — offering 360° solutions for IoT in electric vehicles, including Sale, Lease, IoT, and Refinance.
           </p>
           <div className="flex flex-wrap gap-4">
-            <a href="#solutions" className="flex items-center gap-2 bg-primary text-background font-bold px-8 py-3.5 rounded-full hover:scale-105 transition-transform electric-glow">
+            <a href="#solutions" className="flex items-center gap-2 bg-primary text-white font-bold px-8 py-3.5 rounded-full hover:scale-105 transition-transform electric-glow">
               Our Solutions <ArrowRight className="w-4 h-4" />
             </a>
-            <a href="#team" className="flex items-center gap-2 border border-white/20 text-white px-8 py-3.5 rounded-full hover:border-primary/50 hover:text-primary transition-colors">
+            <a href="#team" className="flex items-center gap-2 border border-ink/15 text-ink px-8 py-3.5 rounded-full hover:border-primary/50 hover:text-primary transition-colors">
               Meet the Team
             </a>
           </div>
@@ -129,10 +129,10 @@ export default function AboutPage() {
       {/* Mission Banner */}
       <section className="py-16 px-6 bg-primary/5 border-y border-primary/10">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-2xl md:text-3xl font-bold leading-relaxed text-white/90 italic">
+          <p className="text-2xl md:text-3xl font-bold leading-relaxed text-ink/90 italic">
             "Spinny for EVs — Making electric mobility <span className="text-primary not-italic">affordable for Bharat</span>"
           </p>
-          <p className="mt-4 text-white/50">Our mission: help build a carbon-free India by empowering individuals, businesses, and communities to adopt clean, efficient, and future-ready mobility.</p>
+          <p className="mt-4 text-ink/65">Our mission: help build a carbon-free India by empowering individuals, businesses, and communities to adopt clean, efficient, and future-ready mobility.</p>
         </div>
       </section>
 
@@ -142,14 +142,14 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <span className="text-primary text-xs font-bold uppercase tracking-widest">Traction</span>
             <h2 className="text-4xl font-black mt-2">Real Impact, Real Numbers</h2>
-            <p className="text-white/50 mt-3">Transforming mobility for 40+ million people in India.</p>
+            <p className="text-ink/65 mt-3">Transforming mobility for 40+ million people in India.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((s) => (
-              <div key={s.value} className="glass-card p-6 text-center border-white/5 hover:border-primary/30 transition-colors group">
+              <div key={s.value} className="glass-card p-6 text-center border-ink/[0.08] hover:border-primary/30 transition-colors group">
                 <div className="text-3xl md:text-4xl font-black text-primary mb-1 group-hover:scale-105 transition-transform">{s.value}</div>
-                <div className="text-sm font-bold text-white">{s.label}</div>
-                <div className="text-xs text-white/40 mt-1">{s.sub}</div>
+                <div className="text-sm font-bold text-ink">{s.label}</div>
+                <div className="text-xs text-ink/60 mt-1">{s.sub}</div>
               </div>
             ))}
           </div>
@@ -162,7 +162,7 @@ export default function AboutPage() {
           <div>
             <span className="text-red-400 text-xs font-bold uppercase tracking-widest">The Problem</span>
             <h2 className="text-4xl font-black mt-2 mb-6">What's Broken in India's EV Ecosystem</h2>
-            <p className="text-white/50 leading-relaxed">India's EV revolution is real — but millions of people are being left behind due to systemic access problems that ZMR Mobility is built to solve.</p>
+            <p className="text-ink/65 leading-relaxed">India's EV revolution is real — but millions of people are being left behind due to systemic access problems that ZMR Mobility is built to solve.</p>
           </div>
           <div className="space-y-4">
             {problems.map((p, i) => (
@@ -170,7 +170,7 @@ export default function AboutPage() {
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 rounded-full bg-red-400" />
                 </div>
-                <p className="text-sm text-white/70 leading-relaxed">{p}</p>
+                <p className="text-sm text-ink/75 leading-relaxed">{p}</p>
               </div>
             ))}
           </div>
@@ -183,16 +183,16 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <span className="text-primary text-xs font-bold uppercase tracking-widest">Our Solutions</span>
             <h2 className="text-4xl font-black mt-2">Redefining the Pre-Owned EV Experience</h2>
-            <p className="text-white/50 mt-3 max-w-2xl mx-auto">Simplifying EV ownership and driving inclusive growth — creating jobs for women, the gig economy, and underserved communities across India.</p>
+            <p className="text-ink/65 mt-3 max-w-2xl mx-auto">Simplifying EV ownership and driving inclusive growth — creating jobs for women, the gig economy, and underserved communities across India.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {solutions.map((sol) => (
-              <div key={sol.title} className="glass-card p-6 border-white/5 hover:border-primary/30 transition-all group hover:-translate-y-1">
+              <div key={sol.title} className="glass-card p-6 border-ink/[0.08] hover:border-primary/30 transition-all group hover:-translate-y-1">
                 <div className="bg-primary/10 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <sol.icon className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-bold text-white mb-2">{sol.title}</h3>
-                <p className="text-sm text-white/50 leading-relaxed">{sol.desc}</p>
+                <h3 className="font-bold text-ink mb-2">{sol.title}</h3>
+                <p className="text-sm text-ink/65 leading-relaxed">{sol.desc}</p>
               </div>
             ))}
           </div>
@@ -200,7 +200,7 @@ export default function AboutPage() {
       </section>
 
       {/* Market Opportunity */}
-      <section className="py-24 px-6 bg-gradient-to-br from-primary/5 via-background to-accent/5 border-y border-white/5">
+      <section className="py-24 px-6 bg-gradient-to-br from-primary/5 via-background to-accent/5 border-y border-ink/[0.08]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-primary text-xs font-bold uppercase tracking-widest">Market Overview</span>
@@ -210,22 +210,22 @@ export default function AboutPage() {
             <div className="glass-card p-8 border-primary/20 text-center">
               <div className="text-5xl font-black text-primary mb-2">$206B</div>
               <div className="font-bold mb-2">Indian EV Market by 2030</div>
-              <div className="text-white/40 text-sm">From $4.27B in 2022 — a staggering 62.34% CAGR growth trajectory.</div>
+              <div className="text-ink/60 text-sm">From $4.27B in 2022 — a staggering 62.34% CAGR growth trajectory.</div>
             </div>
             <div className="glass-card p-8 border-accent/20 text-center">
               <div className="text-5xl font-black text-accent mb-2">17M</div>
               <div className="font-bold mb-2">Annual EV Sales by 2030</div>
-              <div className="text-white/40 text-sm">India's EV adoption is accelerating rapidly across all vehicle segments.</div>
+              <div className="text-ink/60 text-sm">India's EV adoption is accelerating rapidly across all vehicle segments.</div>
             </div>
-            <div className="glass-card p-8 border-white/10 text-center">
-              <div className="text-5xl font-black text-white mb-2">$14B</div>
+            <div className="glass-card p-8 border-ink/10 text-center">
+              <div className="text-5xl font-black text-ink mb-2">$14B</div>
               <div className="font-bold mb-2">Used EV Market by 2030</div>
-              <div className="text-white/40 text-sm">From ~$1B in 2024, the used EV market is the biggest untapped opportunity in India.</div>
+              <div className="text-ink/60 text-sm">From ~$1B in 2024, the used EV market is the biggest untapped opportunity in India.</div>
             </div>
           </div>
 
-          <div className="mt-12 glass-card p-8 border-white/5">
-            <h3 className="font-bold text-lg mb-6 text-white/80">ZMR Mobility's Customer Segments</h3>
+          <div className="mt-12 glass-card p-8 border-ink/[0.08]">
+            <h3 className="font-bold text-lg mb-6 text-ink/85">ZMR Mobility's Customer Segments</h3>
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 { label: "Individuals", pct: "26%", desc: "Personal use, office & college goers" },
@@ -235,7 +235,7 @@ export default function AboutPage() {
                 <div key={c.label} className="text-center">
                   <div className="text-3xl font-black text-primary">{c.pct}</div>
                   <div className="font-bold mt-1">{c.label}</div>
-                  <div className="text-xs text-white/40 mt-1">{c.desc}</div>
+                  <div className="text-xs text-ink/60 mt-1">{c.desc}</div>
                 </div>
               ))}
             </div>
@@ -249,29 +249,29 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <span className="text-primary text-xs font-bold uppercase tracking-widest">Technology & Innovation</span>
             <h2 className="text-4xl font-black mt-2">Powered by AI, IoT & Data Science</h2>
-            <p className="text-white/50 mt-3 max-w-2xl mx-auto">We leverage cutting-edge technology to assess, refurbish, and manage pre-owned EVs at scale — making them reliable and affordable.</p>
+            <p className="text-ink/65 mt-3 max-w-2xl mx-auto">We leverage cutting-edge technology to assess, refurbish, and manage pre-owned EVs at scale — making them reliable and affordable.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             {techHighlights.map((t) => (
-              <div key={t.title} className="glass-card p-8 border-white/5 hover:border-primary/30 transition-all group flex gap-6 items-start">
+              <div key={t.title} className="glass-card p-8 border-ink/[0.08] hover:border-primary/30 transition-all group flex gap-6 items-start">
                 <div className="bg-primary/10 w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <t.icon className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white mb-2">{t.title}</h3>
-                  <p className="text-sm text-white/50 leading-relaxed">{t.desc}</p>
+                  <h3 className="font-bold text-ink mb-2">{t.title}</h3>
+                  <p className="text-sm text-ink/65 leading-relaxed">{t.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="mt-10 glass-card p-8 border-primary/10">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">Revenue Streams</h3>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-6">Revenue Streams</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {revenueStreams.map((r) => (
                 <div key={r} className="flex items-center gap-3">
                   <ChevronRight className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span className="text-sm text-white/70">{r}</span>
+                  <span className="text-sm text-ink/75">{r}</span>
                 </div>
               ))}
             </div>
@@ -297,10 +297,10 @@ export default function AboutPage() {
                   <span className={`text-xs px-3 py-1 rounded-full font-bold ${cls.badge}`}>{phase.status}</span>
                 </div>
                 <div className="mb-4">
-                  <div className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Cities</div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-ink/60 mb-2">Cities</div>
                   <div className="flex flex-wrap gap-2">
                     {phase.cities.map(c => (
-                      <span key={c} className="flex items-center gap-1 text-xs bg-white/5 px-2 py-1 rounded-full">
+                      <span key={c} className="flex items-center gap-1 text-xs bg-ink/5 px-2 py-1 rounded-full">
                         <MapPin className="w-2.5 h-2.5" /> {c}
                       </span>
                     ))}
@@ -319,12 +319,12 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <span className="text-primary text-xs font-bold uppercase tracking-widest">The Team</span>
             <h2 className="text-4xl font-black mt-2">Built by Believers</h2>
-            <p className="text-white/50 mt-3">Experienced automotive and EV industry veterans driving India's clean mobility revolution.</p>
+            <p className="text-ink/65 mt-3">Experienced automotive and EV industry veterans driving India's clean mobility revolution.</p>
           </div>
           <div className="flex flex-wrap justify-center gap-8">
             {team.map((member) => (
-              <div key={member.name} className="glass-card p-8 border-white/5 hover:border-primary/30 transition-all text-center w-72 group">
-                <div className="w-40 h-40 rounded-2xl overflow-hidden mx-auto mb-4 ring-2 ring-white/10 group-hover:ring-primary/40 transition-all">
+              <div key={member.name} className="glass-card p-8 border-ink/[0.08] hover:border-primary/30 transition-all text-center w-72 group">
+                <div className="w-40 h-40 rounded-2xl overflow-hidden mx-auto mb-4 ring-2 ring-ink/10 group-hover:ring-primary/40 transition-all">
                   <Image
                     src={member.photo}
                     alt={member.name}
@@ -339,7 +339,7 @@ export default function AboutPage() {
                   href={member.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 text-xs font-bold text-white/40 hover:text-primary transition-colors border border-white/10 hover:border-primary/40 px-4 py-2 rounded-full"
+                  className="mt-5 inline-flex items-center gap-2 text-xs font-bold text-ink/60 hover:text-primary transition-colors border border-ink/10 hover:border-primary/40 px-4 py-2 rounded-full"
                 >
                   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                   View on LinkedIn
@@ -351,15 +351,15 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-6 bg-gradient-to-br from-primary/10 via-background to-background border-t border-white/5">
+      <section className="py-24 px-6 bg-gradient-to-br from-primary/10 via-background to-background border-t border-ink/[0.08]">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl font-black mb-4">Ready to Go Electric?</h2>
-          <p className="text-white/50 mb-10">Join hundreds of businesses and individuals already driving India's clean mobility future with ZMR Mobility.</p>
+          <p className="text-ink/65 mb-10">Join hundreds of businesses and individuals already driving India's clean mobility future with ZMR Mobility.</p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <a href="/leasing/vehicles/2-wheeler" className="bg-primary text-background font-bold px-8 py-3.5 rounded-full hover:scale-105 transition-transform electric-glow flex items-center gap-2">
+            <a href="/leasing/vehicles/2-wheeler" className="bg-primary text-white font-bold px-8 py-3.5 rounded-full hover:scale-105 transition-transform electric-glow flex items-center gap-2">
               Explore EV Leasing <ArrowRight className="w-4 h-4" />
             </a>
-            <a href="/#procurement" className="border border-white/20 text-white px-8 py-3.5 rounded-full hover:border-primary/50 hover:text-primary transition-colors">
+            <a href="/#procurement" className="border border-ink/15 text-ink px-8 py-3.5 rounded-full hover:border-primary/50 hover:text-primary transition-colors">
               Sell Your EV
             </a>
           </div>

@@ -32,7 +32,7 @@ const CHIP_STYLES: Record<CategoryColor, string> = {
 // ─────────────────────────────────────────────────────────────
 
 function inputCls(hasError = false) {
-  return `w-full bg-white/5 border rounded-xl px-3 py-2.5 text-sm text-white outline-none transition-all focus:border-primary placeholder:text-white/20 ${hasError ? 'border-red-500/60' : 'border-white/10'}`;
+  return `w-full bg-ink/5 border rounded-xl px-3 py-2.5 text-sm text-ink outline-none transition-all focus:border-primary placeholder:text-ink/40 ${hasError ? 'border-red-500/60' : 'border-ink/10'}`;
 }
 
 function FormError({ msg }: { msg: string }) {
@@ -52,7 +52,7 @@ function CategoryChip({ cat }: { cat: string }) {
 function BrandCategoryCheckboxes({ defaultValues = [] }: { defaultValues?: string[] }) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Categories (multi-select)</label>
+      <label className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Categories (multi-select)</label>
       <div className="mt-1.5 flex flex-wrap gap-2">
         {VEHICLE_CATEGORIES.map(({ value, short, color }) => (
           <label key={value} className="flex items-center gap-1.5 cursor-pointer">
@@ -84,19 +84,19 @@ function DeleteConfirm({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
       <div className="relative w-full max-w-sm rounded-2xl p-6 space-y-4"
-        style={{ background: 'linear-gradient(145deg,#1a0f0f,#110a0a)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.8)' }}>
+        style={{ background: 'linear-gradient(145deg,#ffffff,#fff5f5)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 25px 60px rgba(15,23,42,0.18)' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
             <AlertTriangle className="w-5 h-5 text-red-400" />
           </div>
           <div>
-            <h3 className="font-bold text-white">Delete {label}</h3>
+            <h3 className="font-bold text-ink">Delete {label}</h3>
             {warning && <p className="text-xs text-red-300/70 mt-0.5">{warning}</p>}
           </div>
         </div>
-        <p className="text-sm text-white/50">This action cannot be undone.</p>
+        <p className="text-sm text-ink/65">This action cannot be undone.</p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-white/10 text-white/50 hover:text-white hover:border-white/30 transition-all">Cancel</button>
+          <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-ink/10 text-ink/65 hover:text-ink hover:border-ink/25 transition-all">Cancel</button>
           <button onClick={onConfirm} disabled={isPending}
             className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-all disabled:opacity-50">
             {isPending ? 'Deleting…' : 'Delete'}
@@ -143,10 +143,10 @@ function ModelForm({
     : [];
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 mb-3">
+    <form onSubmit={onSubmit} className="space-y-3 p-4 rounded-xl bg-ink/5 border border-ink/10 mb-3">
       {/* Name */}
       <div>
-        <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Model Name</label>
+        <label className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Model Name</label>
         <input
           name="name"
           defaultValue={isEdit ? editingModel?.name : ''}
@@ -158,13 +158,13 @@ function ModelForm({
 
       {/* Category — controlled so brand list reacts immediately */}
       <div>
-        <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Vehicle Category</label>
+        <label className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Vehicle Category</label>
         <select
           name="category"
           value={chosenCategory}
           onChange={(e) => setChosenCategory(e.target.value)}
           required
-          className="w-full mt-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-primary [&>option]:bg-[#0d1117]"
+          className="w-full mt-1 bg-ink/5 border border-ink/10 rounded-xl px-3 py-2.5 text-sm text-ink outline-none focus:border-primary [&>option]:bg-white"
         >
           <option value="">Select category…</option>
           {availableCategories.map(({ value, label, short }) => (
@@ -176,13 +176,13 @@ function ModelForm({
       {/* Brand selector — only when no brand pre-selected; filtered by chosen category */}
       {!isEdit && !selectedBrandId && (
         <div>
-          <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Brand</label>
+          <label className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Brand</label>
           {brandsForCategory.length === 0 ? (
             <p className="mt-1 text-xs text-amber-400/70 py-2">
               {chosenCategory ? `No brands configured for ${chosenCategory}. Add categories to brands first.` : 'Select a category first to see relevant brands.'}
             </p>
           ) : (
-            <select name="brandId" required className="w-full mt-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-primary [&>option]:bg-[#0d1117]">
+            <select name="brandId" required className="w-full mt-1 bg-ink/5 border border-ink/10 rounded-xl px-3 py-2.5 text-sm text-ink outline-none focus:border-primary [&>option]:bg-white">
               <option value="">Select brand…</option>
               {brandsForCategory.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
@@ -192,16 +192,16 @@ function ModelForm({
 
       {/* Photo */}
       <div>
-        <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Photo (optional)</label>
+        <label className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Photo (optional)</label>
         <div className="mt-1 flex items-center gap-3">
           {(photoPreview || (isEdit && editingModel?.photo)) && (
             <img
               src={photoPreview ?? editingModel?.photo ?? ''}
               alt="preview"
-              className="w-14 h-14 rounded-lg object-contain bg-white/5 border border-white/10"
+              className="w-14 h-14 rounded-lg object-contain bg-ink/5 border border-ink/10"
             />
           )}
-          <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-white/40 hover:border-white/30 hover:text-white transition-all cursor-pointer text-xs">
+          <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-ink/10 text-ink/60 hover:border-ink/25 hover:text-ink transition-all cursor-pointer text-xs">
             <ImageIcon className="w-3.5 h-3.5" />
             {photoPreview || (isEdit && editingModel?.photo) ? 'Change photo' : 'Upload photo'}
             <input
@@ -220,7 +220,7 @@ function ModelForm({
 
       {/* Active toggle — edit only */}
       {isEdit && (
-        <label className="flex items-center gap-2 text-xs text-white/50 cursor-pointer">
+        <label className="flex items-center gap-2 text-xs text-ink/65 cursor-pointer">
           <input type="checkbox" name="isActive" defaultChecked={editingModel?.isActive} className="accent-primary" />
           Active
         </label>
@@ -236,7 +236,7 @@ function ModelForm({
         >
           {isPending ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Model'}
         </button>
-        <button type="button" onClick={onCancel} className="p-2 rounded-lg border border-white/10 text-white/40 hover:text-white transition-all">
+        <button type="button" onClick={onCancel} className="p-2 rounded-lg border border-ink/10 text-ink/60 hover:text-ink transition-all">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -308,10 +308,10 @@ function BrandPanel({
   };
 
   return (
-    <div className="glass-card p-5 border-white/5 flex flex-col gap-4">
+    <div className="glass-card p-5 border-ink/[0.08] flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-white">Brands <span className="text-white/30 text-sm font-normal">({brands.length})</span></h2>
+        <h2 className="font-bold text-ink">Brands <span className="text-ink/50 text-sm font-normal">({brands.length})</span></h2>
         <button
           onClick={() => { setShowForm(true); setEditingBrand(null); setError(''); }}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-all"
@@ -331,8 +331,8 @@ function BrandPanel({
               onClick={() => setCategoryFilter(active && val !== 'ALL' ? 'ALL' : val)}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all ${
                 active
-                  ? meta ? `${CHIP_STYLES[meta.color]}` : 'bg-white/10 border-white/30 text-white'
-                  : 'border-white/5 text-white/30 hover:text-white/60 hover:border-white/20'
+                  ? meta ? `${CHIP_STYLES[meta.color]}` : 'bg-ink/10 border-ink/25 text-ink'
+                  : 'border-ink/[0.08] text-ink/50 hover:text-ink/70 hover:border-ink/15'
               }`}
             >
               {val === 'ALL' ? 'ALL' : meta!.short}
@@ -343,7 +343,7 @@ function BrandPanel({
 
       {/* Create form */}
       {showForm && (
-        <form onSubmit={handleCreate} className="space-y-3 p-3 rounded-xl bg-white/5 border border-white/10">
+        <form onSubmit={handleCreate} className="space-y-3 p-3 rounded-xl bg-ink/5 border border-ink/10">
           <input ref={nameRef} name="name" placeholder="Brand name…" autoFocus className={inputCls()} required />
           <BrandCategoryCheckboxes />
           {error && <FormError msg={error} />}
@@ -352,7 +352,7 @@ function BrandPanel({
               className="flex-1 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-bold hover:bg-primary/20 transition-all disabled:opacity-50">
               {isPending ? 'Saving…' : 'Create Brand'}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="p-2 rounded-lg border border-white/10 text-white/40 hover:text-white transition-all">
+            <button type="button" onClick={() => setShowForm(false)} className="p-2 rounded-lg border border-ink/10 text-ink/60 hover:text-ink transition-all">
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -362,16 +362,16 @@ function BrandPanel({
       {/* Brand list */}
       <div className="space-y-1.5 flex-1 overflow-y-auto max-h-[420px]">
         {displayed.length === 0 ? (
-          <p className="text-white/20 text-sm text-center py-8">
+          <p className="text-ink/40 text-sm text-center py-8">
             {categoryFilter === 'ALL' ? 'No brands yet.' : `No brands in this category.`}
           </p>
         ) : displayed.map((brand) => (
           <div key={brand.id}>
             {editingBrand?.id === brand.id ? (
-              <form onSubmit={handleUpdate} className="space-y-3 p-3 rounded-xl bg-white/5 border border-primary/20">
+              <form onSubmit={handleUpdate} className="space-y-3 p-3 rounded-xl bg-ink/5 border border-primary/20">
                 <input name="name" defaultValue={brand.name} className={inputCls()} required />
                 <BrandCategoryCheckboxes defaultValues={brand.categories} />
-                <label className="flex items-center gap-2 text-xs text-white/50 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs text-ink/65 cursor-pointer">
                   <input type="checkbox" name="isActive" defaultChecked={brand.isActive} className="accent-primary" />
                   Active
                 </label>
@@ -381,7 +381,7 @@ function BrandPanel({
                     className="flex-1 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-bold disabled:opacity-50">
                     {isPending ? '…' : 'Save'}
                   </button>
-                  <button type="button" onClick={() => setEditingBrand(null)} className="p-1.5 rounded-lg border border-white/10 text-white/40 hover:text-white transition-all">
+                  <button type="button" onClick={() => setEditingBrand(null)} className="p-1.5 rounded-lg border border-ink/10 text-ink/60 hover:text-ink transition-all">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
@@ -389,25 +389,25 @@ function BrandPanel({
             ) : (
               <div
                 onClick={() => onSelectBrand(selectedBrandId === brand.id ? null : brand.id)}
-                className={`flex items-start gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all group ${selectedBrandId === brand.id ? 'bg-primary/10 border border-primary/20' : 'hover:bg-white/5 border border-transparent'}`}
+                className={`flex items-start gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all group ${selectedBrandId === brand.id ? 'bg-primary/10 border border-primary/20' : 'hover:bg-ink/5 border border-transparent'}`}
               >
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${brand.isActive ? 'bg-primary' : 'bg-white/20'}`} />
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${brand.isActive ? 'bg-primary' : 'bg-ink/20'}`} />
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm font-semibold text-white truncate block">{brand.name}</span>
+                  <span className="text-sm font-semibold text-ink truncate block">{brand.name}</span>
                   {brand.categories.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1">
                       {brand.categories.map((cat) => <CategoryChip key={cat} cat={cat} />)}
                     </div>
                   )}
                 </div>
-                <span className="text-[10px] text-white/30 flex-shrink-0 mt-0.5">{brand.modelCount}</span>
+                <span className="text-[10px] text-ink/50 flex-shrink-0 mt-0.5">{brand.modelCount}</span>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                   <button onClick={(e) => { e.stopPropagation(); setEditingBrand(brand); setShowForm(false); setError(''); }}
-                    className="p-1 rounded text-white/40 hover:text-primary transition-colors">
+                    className="p-1 rounded text-ink/60 hover:text-primary transition-colors">
                     <Edit className="w-3.5 h-3.5" />
                   </button>
                   <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(brand); }}
-                    className="p-1 rounded text-white/40 hover:text-red-400 transition-colors">
+                    className="p-1 rounded text-ink/60 hover:text-red-400 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -492,13 +492,13 @@ function ModelPanel({
   };
 
   return (
-    <div className="glass-card p-5 border-white/5 flex flex-col gap-4">
+    <div className="glass-card p-5 border-ink/[0.08] flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-white">
+        <h2 className="font-bold text-ink">
           Models
           {selectedBrandName && <span className="text-primary ml-2 text-sm font-normal">· {selectedBrandName}</span>}
-          <span className="text-white/30 text-sm font-normal ml-1">({filtered.length})</span>
+          <span className="text-ink/50 text-sm font-normal ml-1">({filtered.length})</span>
         </h2>
         <button
           onClick={() => { setShowForm(true); setEditingModel(null); setFormError(''); }}
@@ -510,23 +510,23 @@ function ModelPanel({
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink/45 pointer-events-none" />
         <input
           type="text"
           placeholder="Search models…"
           value={modelSearch}
           onChange={(e) => setModelSearch(e.target.value)}
-          className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-8 py-2 text-xs text-white outline-none focus:border-primary/40 placeholder:text-white/20 transition-all"
+          className="w-full bg-ink/5 border border-ink/10 rounded-xl pl-8 pr-8 py-2 text-xs text-ink outline-none focus:border-primary/40 placeholder:text-ink/40 transition-all"
         />
         {modelSearch && (
-          <button onClick={() => setModelSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors">
+          <button onClick={() => setModelSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink/45 hover:text-ink/70 transition-colors">
             <X className="w-3 h-3" />
           </button>
         )}
       </div>
 
       {!selectedBrandId && (
-        <p className="text-xs text-white/25 text-center py-1">← Select a brand to filter models</p>
+        <p className="text-xs text-ink/45 text-center py-1">← Select a brand to filter models</p>
       )}
 
       {/* Create form — uses stable top-level ModelForm component */}
@@ -546,7 +546,7 @@ function ModelPanel({
       {/* Model list */}
       <div className="space-y-2 flex-1 overflow-y-auto max-h-[380px]">
         {filtered.length === 0 ? (
-          <p className="text-white/20 text-sm text-center py-8">
+          <p className="text-ink/40 text-sm text-center py-8">
             {modelSearch ? `No models matching "${modelSearch}".` : selectedBrandId ? 'No models for this brand yet.' : 'No models yet.'}
           </p>
         ) : filtered.map((model) => (
@@ -563,37 +563,37 @@ function ModelPanel({
                 onCancel={resetForm}
               />
             ) : (
-              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-all group">
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-ink/[0.03] border border-ink/[0.08] hover:border-ink/10 transition-all group">
                 {model.photo ? (
                   <EVImage
                     src={model.photo}
                     alt={model.name}
-                    className="w-10 h-10 rounded-lg border border-white/10 flex-shrink-0"
+                    className="w-10 h-10 rounded-lg border border-ink/10 flex-shrink-0"
                     imgClassName="w-full h-full object-contain"
                     iconSize="sm"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-lg ev-shimmer-base border border-white/5 flex items-center justify-center flex-shrink-0">
-                    <Car className="w-4 h-4 text-[#00FF85]/20" />
+                  <div className="w-10 h-10 rounded-lg ev-shimmer-base border border-ink/[0.08] flex items-center justify-center flex-shrink-0">
+                    <Car className="w-4 h-4 text-[#1A73E8]/20" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">{model.name}</p>
+                  <p className="text-sm font-semibold text-ink truncate">{model.name}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <p className="text-[10px] text-white/30">{model.brandName}</p>
+                    <p className="text-[10px] text-ink/50">{model.brandName}</p>
                     {model.category && <CategoryChip cat={model.category} />}
                   </div>
                 </div>
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${model.isActive ? 'bg-primary' : 'bg-white/20'}`} />
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${model.isActive ? 'bg-primary' : 'bg-ink/20'}`} />
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => { setEditingModel(model); setShowForm(false); setFormError(''); }}
-                    className="p-1 rounded text-white/40 hover:text-primary transition-colors"
+                    className="p-1 rounded text-ink/60 hover:text-primary transition-colors"
                   >
                     <Edit className="w-3.5 h-3.5" />
                   </button>
                   <button onClick={() => setDeleteTarget(model)}
-                    className="p-1 rounded text-white/40 hover:text-red-400 transition-colors">
+                    className="p-1 rounded text-ink/60 hover:text-red-400 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>

@@ -124,21 +124,21 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
     minPayload > 0 || maxPayload < options.maxPayload ||
     minVolume > 0 || maxVolume < options.maxVolume;
 
-  const selectCls = "w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer";
+  const selectCls = "w-full bg-ink/5 border border-ink/10 rounded-xl py-2.5 px-3 text-sm text-ink focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer";
 
   const filterContent = (
     <div className="space-y-8 lg:sticky lg:top-32 pb-32 lg:pb-4">
 
       {hasActiveFilters && (
-        <div className="flex justify-between items-center pb-4 border-b border-white/10">
-          <span className="text-sm text-white/50">Filters Applied</span>
+        <div className="flex justify-between items-center pb-4 border-b border-ink/10">
+          <span className="text-sm text-ink/65">Filters Applied</span>
           <button onClick={clearFilters} className="text-xs font-bold text-primary hover:underline">Clear All</button>
         </div>
       )}
 
       {/* Sort */}
       <div>
-        <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-3 flex items-center gap-2">
           <ArrowUpDown className="w-3.5 h-3.5" /> Sort By
         </h3>
         <div className="relative">
@@ -153,11 +153,11 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
       {/* Brands */}
       {options.makes.length > 0 && (
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-4">Brands</h3>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-4">Brands</h3>
           <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
             {options.makes.map((make) => (
               <label key={make} className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative flex items-center justify-center w-5 h-5 rounded border border-white/20 bg-white/5 group-hover:border-primary transition-colors shrink-0">
+                <div className="relative flex items-center justify-center w-5 h-5 rounded border border-ink/15 bg-ink/5 group-hover:border-primary transition-colors shrink-0">
                   <input
                     type="checkbox"
                     className="opacity-0 absolute inset-0 cursor-pointer"
@@ -166,7 +166,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
                   />
                   {makes.includes(make) && <div className="w-2.5 h-2.5 rounded-sm bg-primary" />}
                 </div>
-                <span className={`text-sm transition-colors ${makes.includes(make) ? "text-white font-medium" : "text-white/60 group-hover:text-white/90"}`}>
+                <span className={`text-sm transition-colors ${makes.includes(make) ? "text-ink font-medium" : "text-ink/70 group-hover:text-ink/90"}`}>
                   {make}
                 </span>
               </label>
@@ -177,7 +177,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
 
       {/* Charging Type */}
       <div>
-        <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-3">Charging Type</h3>
+        <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-3">Charging Type</h3>
         <div className="relative">
           <select value={chargerType} onChange={(e) => setChargerType(e.target.value)} className={selectCls}>
             <option value="">All Types</option>
@@ -190,7 +190,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
 
       {/* Certified Range */}
       <div className="pb-4">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-2">Certified Range (km)</h3>
+        <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-2">Certified Range (km)</h3>
         <DualRangeSlider
           min={0} max={options.maxRange} step={1}
           initialMin={minRange} initialMax={maxRange}
@@ -201,7 +201,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
 
       {/* Real World Range */}
       <div className="pb-4">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-2">Real World Range (km)</h3>
+        <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-2">Real World Range (km)</h3>
         <DualRangeSlider
           min={0} max={options.maxRealWorldRange} step={1}
           initialMin={minRWR} initialMax={maxRWR}
@@ -212,7 +212,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
 
       {/* Top Speed */}
       <div className="pb-4">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-2">Top Speed (km/h)</h3>
+        <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-2">Top Speed (km/h)</h3>
         <DualRangeSlider
           min={0} max={options.maxSpeed} step={1}
           initialMin={minSpeed} initialMax={maxSpeed}
@@ -224,7 +224,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
       {/* Payload — cargo only */}
       {isCargo && (
         <div className="pb-4">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-2">Payload Capacity (kg)</h3>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-2">Payload Capacity (kg)</h3>
           <DualRangeSlider
             min={0} max={options.maxPayload} step={1}
             initialMin={minPayload} initialMax={maxPayload}
@@ -237,7 +237,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
       {/* Cargo Volume — cargo only */}
       {isCargo && (
         <div className="pb-4">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-2">Cargo Volume (L)</h3>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60 mb-2">Cargo Volume (L)</h3>
           <DualRangeSlider
             min={0} max={options.maxVolume} step={1}
             initialMin={minVolume} initialMax={maxVolume}
@@ -250,7 +250,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
       <div className="mt-8">
         <button
           onClick={applyFilters}
-          className="w-full flex items-center justify-center gap-2 bg-primary text-background font-extrabold py-3.5 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(var(--primary),0.3)]"
+          className="w-full flex items-center justify-center gap-2 bg-primary text-white font-extrabold py-3.5 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(var(--primary),0.3)]"
         >
           <Check className="w-5 h-5" />
           Apply Filters
@@ -264,7 +264,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
       {/* Mobile toggle */}
       <button
         onClick={() => setIsOpen(true)}
-        className="lg:hidden w-full mb-6 flex items-center justify-center gap-2 glass-card py-3 px-4 border-white/10 hover:border-primary/50 transition-colors"
+        className="lg:hidden w-full mb-6 flex items-center justify-center gap-2 glass-card py-3 px-4 border-ink/10 hover:border-primary/50 transition-colors"
       >
         <Filter className="w-5 h-5 text-primary" />
         <span className="font-bold text-sm">Filters</span>
@@ -281,7 +281,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
           <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md p-6 overflow-y-auto lg:hidden">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Filters</h2>
-              <button onClick={() => setIsOpen(false)} className="p-2 bg-white/5 rounded-full">
+              <button onClick={() => setIsOpen(false)} className="p-2 bg-ink/5 rounded-full">
                 <X className="w-5 h-5" />
               </button>
             </div>

@@ -34,7 +34,7 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
     <div className="space-y-4">
       {/* Main Image View */}
       <div 
-        className="relative aspect-video glass-card overflow-hidden cursor-zoom-in bg-white/5"
+        className="relative aspect-video glass-card overflow-hidden cursor-zoom-in bg-ink/5"
         onMouseEnter={() => setIsZoomed(true)}
         onMouseLeave={() => setIsZoomed(false)}
         onMouseMove={handleMouseMove}
@@ -63,8 +63,8 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
         />
         
         {!isZoomed && (
-          <div className="absolute bottom-4 right-4 bg-background/60 backdrop-blur-md p-2 rounded-full border border-white/10 pointer-events-none">
-            <Maximize2 className="w-4 h-4 text-white/60" />
+          <div className="absolute bottom-4 right-4 bg-background/60 backdrop-blur-md p-2 rounded-full border border-ink/10 pointer-events-none">
+            <Maximize2 className="w-4 h-4 text-ink/70" />
           </div>
         )}
       </div>
@@ -76,7 +76,7 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
             key={idx}
             onClick={() => setActiveIdx(idx)}
             className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-              activeIdx === idx ? 'border-primary shadow-[0_0_15px_rgba(0,209,255,0.3)]' : 'border-white/5 hover:border-white/20'
+              activeIdx === idx ? 'border-primary shadow-[0_0_15px_rgba(26,115,232,0.3)]' : 'border-ink/[0.08] hover:border-ink/15'
             }`}
           >
             <EVImage

@@ -34,7 +34,7 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-white/50">
+        <label className="text-xs font-bold uppercase tracking-widest text-ink/65">
           Email
         </label>
         <input
@@ -43,12 +43,12 @@ export default function LoginForm() {
           required
           autoComplete="email"
           placeholder="admin@example.com"
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:border-primary focus:outline-none transition-all"
+          className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink placeholder-ink/40 focus:border-primary focus:outline-none transition-all"
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-white/50">
+        <label className="text-xs font-bold uppercase tracking-widest text-ink/65">
           Password
         </label>
         <input
@@ -57,7 +57,7 @@ export default function LoginForm() {
           required
           autoComplete="current-password"
           placeholder="••••••••"
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:border-primary focus:outline-none transition-all"
+          className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink placeholder-ink/40 focus:border-primary focus:outline-none transition-all"
         />
       </div>
 
@@ -71,7 +71,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-primary text-background font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? (
           <div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin" />

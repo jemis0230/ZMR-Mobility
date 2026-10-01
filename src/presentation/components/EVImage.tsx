@@ -35,14 +35,14 @@ export default function EVImage({
         <div className="absolute inset-0 ev-shimmer-base">
           <div className="ev-shimmer-sweep" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <Zap className={`${ICON_CLS[iconSize]} text-[#00FF85]/20 animate-pulse`} />
+            <Zap className={`${ICON_CLS[iconSize]} text-[#1A73E8]/20 animate-pulse`} />
           </div>
         </div>
       )}
 
       {error && (
         <div className="absolute inset-0 ev-shimmer-base flex items-center justify-center">
-          <Zap className={`${ICON_CLS[iconSize]} text-[#00FF85]/10`} />
+          <Zap className={`${ICON_CLS[iconSize]} text-[#1A73E8]/10`} />
         </div>
       )}
 

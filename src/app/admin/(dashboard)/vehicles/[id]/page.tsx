@@ -19,12 +19,12 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/vehicles" className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm">
+        <Link href="/admin/vehicles" className="flex items-center gap-2 text-ink/60 hover:text-ink transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" />
           Back to Vehicles
         </Link>
-        <span className="text-white/20">·</span>
-        <span className="text-white/40 text-sm">{vehicle.make} {vehicle.model}</span>
+        <span className="text-ink/40">·</span>
+        <span className="text-ink/60 text-sm">{vehicle.make} {vehicle.model}</span>
       </div>
       <AdminVehicleForm initialData={vehicle} batteryTypes={batteryTypes} motorTypes={motorTypes} />
     </div>

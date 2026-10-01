@@ -21,7 +21,7 @@ export default async function SellApplicationsPage({ searchParams }: PageProps) 
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Sell Applications</h1>
-        <p className="text-white/40 text-sm mt-1">
+        <p className="text-ink/60 text-sm mt-1">
           {result.success
             ? `${total} application${total !== 1 ? 's' : ''}${newCount > 0 ? ` · ${newCount} new` : ''}`
             : 'Manage used EV sell requests from your website.'}

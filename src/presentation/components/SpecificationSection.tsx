@@ -69,13 +69,13 @@ export default function SpecificationSection({ vehicle }: SpecsProps) {
 
   return (
     <div className="mt-16 space-y-8">
-      <div className="flex flex-wrap gap-2 border-b border-white/5 pb-1">
+      <div className="flex flex-wrap gap-2 border-b border-ink/[0.08] pb-1">
         {sections.map((section, idx) => (
           <button
             key={section.title}
             onClick={() => setActiveTab(idx)}
             className={`flex items-center gap-2 px-6 py-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
-              activeTab === idx ? 'text-primary' : 'text-white/40 hover:text-white/60'
+              activeTab === idx ? 'text-primary' : 'text-ink/60 hover:text-ink/70'
             }`}
           >
             <section.icon className="w-4 h-4" />
@@ -83,7 +83,7 @@ export default function SpecificationSection({ vehicle }: SpecsProps) {
             {activeTab === idx && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-1 bg-primary shadow-[0_0_15px_rgba(0,209,255,0.5)]"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-primary shadow-[0_0_15px_rgba(26,115,232,0.5)]"
               />
             )}
           </button>
@@ -98,13 +98,13 @@ export default function SpecificationSection({ vehicle }: SpecsProps) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
             transition={{ duration: 0.2 }}
-            className="glass-card p-8 md:p-12 border-white/5"
+            className="glass-card p-8 md:p-12 border-ink/[0.08]"
           >
             <div className="grid md:grid-cols-2 gap-x-20 gap-y-6">
               {sections[activeTab].items.map((item) => (
-                <div key={item.label} className="flex justify-between items-center py-4 border-b border-white/5 group hover:border-white/10 transition-colors">
-                  <span className="text-white/40 font-medium group-hover:text-white/60 transition-colors">{item.label}</span>
-                  <span className="text-white/80 font-bold tracking-tight">{item.value}</span>
+                <div key={item.label} className="flex justify-between items-center py-4 border-b border-ink/[0.08] group hover:border-ink/10 transition-colors">
+                  <span className="text-ink/60 font-medium group-hover:text-ink/70 transition-colors">{item.label}</span>
+                  <span className="text-ink/85 font-bold tracking-tight">{item.value}</span>
                 </div>
               ))}
             </div>

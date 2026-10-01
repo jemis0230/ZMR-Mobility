@@ -18,7 +18,7 @@ export default function CompanyRail() {
   const duplicatedCompanies = [...companies, ...companies, ...companies];
 
   return (
-    <section className="py-16 bg-background relative overflow-hidden border-b border-white/5">
+    <section className="py-16 bg-background relative overflow-hidden border-b border-ink/[0.08]">
       {/* Dynamic Background Beams */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-0 left-1/4 w-[1px] h-full bg-gradient-to-b from-transparent via-primary/50 to-transparent" />
@@ -33,14 +33,14 @@ export default function CompanyRail() {
           viewport={{ once: true }}
           className="flex flex-col items-center justify-center text-center space-y-4"
         >
-          <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
+          <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-ink/5 border border-ink/10 text-[10px] font-bold uppercase tracking-[0.2em] text-ink/60">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
             Trusted OEM Partners
           </div>
-          <h2 className="text-xl md:text-2xl font-black text-white/80">
+          <h2 className="text-xl md:text-2xl font-black text-ink/85">
             Powering Bharat's EV Revolution with <span className="text-primary">Industry Leaders</span>
           </h2>
         </motion.div>
@@ -71,13 +71,13 @@ export default function CompanyRail() {
                 className="relative flex items-center justify-center min-w-[120px] md:min-w-[160px] h-20 group/logo"
               >
                 {/* Logo with interactive state */}
-                <div className="relative z-10 grayscale opacity-30 group-hover/logo:grayscale-0 group-hover/logo:opacity-100 group-hover/logo:scale-110 transition-all duration-700 ease-out cursor-pointer">
+                <div className="relative z-10 grayscale opacity-70 group-hover/logo:grayscale-0 group-hover/logo:opacity-100 group-hover/logo:scale-110 transition-all duration-700 ease-out cursor-pointer">
                   <Image
                     src={company.logo}
                     alt={company.name}
                     width={180}
                     height={80}
-                    className="max-w-[120px] md:max-w-[160px] max-h-[50px] object-contain drop-shadow-2xl"
+                    className="max-w-[120px] md:max-w-[160px] max-h-[50px] object-contain mix-blend-multiply"
                   />
                 </div>
                 

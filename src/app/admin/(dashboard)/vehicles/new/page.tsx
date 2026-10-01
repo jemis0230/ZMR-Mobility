@@ -12,7 +12,7 @@ export default async function NewVehiclePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/vehicles" className="flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm">
+        <Link href="/admin/vehicles" className="flex items-center gap-2 text-ink/60 hover:text-ink transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" />
           Back to Vehicles
         </Link>

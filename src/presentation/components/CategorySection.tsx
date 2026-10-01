@@ -67,7 +67,7 @@ export default function CategorySection() {
   const [catMode, setCatMode] = useState<'leasing' | 'buying' | 'rent'>('leasing');
 
   return (
-    <section className="py-20 px-6 border-y border-white/5 bg-white/[0.02]">
+    <section className="py-20 px-6 border-y border-ink/[0.08] bg-ink/[0.02]">
       <div className="max-w-7xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
           {/* Lease / Buy / Rent mode selector */}
@@ -76,12 +76,12 @@ export default function CategorySection() {
               onClick={() => setCatMode('leasing')}
               className={`group flex items-center gap-3 px-6 py-3.5 rounded-2xl border transition-all duration-300 ${
                 catMode === 'leasing'
-                  ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_24px_rgba(0,229,255,0.15)]'
-                  : 'bg-white/3 border-white/10 text-white/40 hover:border-white/20 hover:text-white/60'
+                  ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_24px_rgba(56,152,236,0.15)]'
+                  : 'bg-ink/3 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/70'
               }`}
             >
-              <div className={`p-1.5 rounded-lg transition-colors ${catMode === 'leasing' ? 'bg-primary/20' : 'bg-white/5'}`}>
-                <CalendarDays className={`w-4 h-4 ${catMode === 'leasing' ? 'text-primary' : 'text-white/30'}`} />
+              <div className={`p-1.5 rounded-lg transition-colors ${catMode === 'leasing' ? 'bg-primary/20' : 'bg-ink/5'}`}>
+                <CalendarDays className={`w-4 h-4 ${catMode === 'leasing' ? 'text-primary' : 'text-ink/50'}`} />
               </div>
               <div className="text-left">
                 <div className="text-sm font-black">Lease an EV</div>
@@ -94,12 +94,12 @@ export default function CategorySection() {
               onClick={() => setCatMode('buying')}
               className={`group flex items-center gap-3 px-6 py-3.5 rounded-2xl border transition-all duration-300 ${
                 catMode === 'buying'
-                  ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_24px_rgba(0,229,255,0.15)]'
-                  : 'bg-white/3 border-white/10 text-white/40 hover:border-white/20 hover:text-white/60'
+                  ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_24px_rgba(56,152,236,0.15)]'
+                  : 'bg-ink/3 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/70'
               }`}
             >
-              <div className={`p-1.5 rounded-lg transition-colors ${catMode === 'buying' ? 'bg-primary/20' : 'bg-white/5'}`}>
-                <ShoppingBag className={`w-4 h-4 ${catMode === 'buying' ? 'text-primary' : 'text-white/30'}`} />
+              <div className={`p-1.5 rounded-lg transition-colors ${catMode === 'buying' ? 'bg-primary/20' : 'bg-ink/5'}`}>
+                <ShoppingBag className={`w-4 h-4 ${catMode === 'buying' ? 'text-primary' : 'text-ink/50'}`} />
               </div>
               <div className="text-left">
                 <div className="text-sm font-black">Buy an EV</div>
@@ -112,12 +112,12 @@ export default function CategorySection() {
               onClick={() => setCatMode('rent')}
               className={`group flex items-center gap-3 px-6 py-3.5 rounded-2xl border transition-all duration-300 ${
                 catMode === 'rent'
-                  ? 'bg-primary/10 border-primary/60 text-white shadow-[0_0_24px_rgba(0,229,255,0.15)]'
-                  : 'bg-white/3 border-white/10 text-white/40 hover:border-white/20 hover:text-white/60'
+                  ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_24px_rgba(56,152,236,0.15)]'
+                  : 'bg-ink/3 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/70'
               }`}
             >
-              <div className={`p-1.5 rounded-lg transition-colors ${catMode === 'rent' ? 'bg-primary/20' : 'bg-white/5'}`}>
-                <KeyRound className={`w-4 h-4 ${catMode === 'rent' ? 'text-primary' : 'text-white/30'}`} />
+              <div className={`p-1.5 rounded-lg transition-colors ${catMode === 'rent' ? 'bg-primary/20' : 'bg-ink/5'}`}>
+                <KeyRound className={`w-4 h-4 ${catMode === 'rent' ? 'text-primary' : 'text-ink/50'}`} />
               </div>
               <div className="text-left">
                 <div className="text-sm font-black">Rent an EV</div>
@@ -130,7 +130,7 @@ export default function CategorySection() {
             {catMode === 'leasing' ? 'EV Leasing' : catMode === 'buying' ? 'EV Buying' : 'EV Rental'}
           </span>
           <h2 className="text-3xl md:text-4xl font-black mt-2">Select Your <span className="text-primary">Vehicle Category</span></h2>
-          <p className="text-white/40 mt-3 text-sm">Choose the type of EV that best suits your needs.</p>
+          <p className="text-ink/60 mt-3 text-sm">Choose the type of EV that best suits your needs.</p>
         </motion.div>
 
         <div className="flex flex-col lg:grid lg:grid-cols-5 gap-3 md:gap-5 w-full">
@@ -145,7 +145,7 @@ export default function CategorySection() {
               <Link
                 href={`/${catMode}/vehicles/${cat.slug}`}
                 prefetch={false}
-                className="group relative flex flex-row lg:flex-col h-[90px] lg:h-[340px] rounded-2xl lg:rounded-[2rem] glass-card overflow-hidden border border-white/5 hover:border-primary/40 transition-all duration-500 lg:hover:-translate-y-2 lg:hover:shadow-[0_15px_40px_-10px_rgba(0,229,255,0.25)] bg-white/5 hover:bg-white/10 w-full"
+                className="group relative flex flex-row lg:flex-col h-[90px] lg:h-[340px] rounded-2xl lg:rounded-[2rem] glass-card overflow-hidden border border-ink/[0.08] hover:border-primary/40 transition-all duration-500 lg:hover:-translate-y-2 lg:hover:shadow-[0_15px_40px_-10px_rgba(56,152,236,0.25)] bg-ink/5 hover:bg-ink/10 w-full"
               >
                 {/* Shimmer sweep on hover */}
                 <div className="absolute inset-0 z-30 opacity-0 group-hover:opacity-100 overflow-hidden rounded-[inherit] pointer-events-none transition-opacity duration-300">
@@ -163,18 +163,18 @@ export default function CategorySection() {
 
                 <div className="absolute inset-0 z-20 flex flex-col justify-center lg:justify-end p-5 lg:p-6 w-[75%] lg:w-full">
                   <div className="flex items-center gap-2 mb-1 lg:mb-3 opacity-80 lg:opacity-100">
-                    <div className="p-1.5 lg:p-2 rounded-lg bg-primary/20 lg:bg-white/5 backdrop-blur-sm border border-primary/20 lg:border-white/10 lg:group-hover:border-primary/30 lg:group-hover:bg-primary/20 transition-colors">
-                      <cat.icon className="w-3.5 h-3.5 lg:w-5 lg:h-5 text-primary lg:text-white lg:group-hover:text-primary transition-colors" />
+                    <div className="p-1.5 lg:p-2 rounded-lg bg-primary/20 lg:bg-ink/5 backdrop-blur-sm border border-primary/20 lg:border-ink/10 lg:group-hover:border-primary/30 lg:group-hover:bg-primary/20 transition-colors">
+                      <cat.icon className="w-3.5 h-3.5 lg:w-5 lg:h-5 text-primary lg:text-ink lg:group-hover:text-primary transition-colors" />
                     </div>
                   </div>
-                  <h3 className="text-[15px] md:text-lg lg:text-xl font-bold text-white leading-tight drop-shadow-md">{cat.name}</h3>
-                  <p className="hidden lg:block text-xs text-white/50 mt-3 line-clamp-2 leading-relaxed">{cat.description}</p>
+                  <h3 className="text-[15px] md:text-lg lg:text-xl font-bold text-ink leading-tight drop-shadow-md">{cat.name}</h3>
+                  <p className="hidden lg:block text-xs text-ink/65 mt-3 line-clamp-2 leading-relaxed">{cat.description}</p>
                   <div className="hidden lg:flex mt-5 items-center gap-2 text-primary text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0 duration-500 ease-out">
                     {catMode === 'leasing' ? 'Lease & Drive' : catMode === 'buying' ? 'Browse & Buy' : 'Rent & Drive'} <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
 
-                <div className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/5 group-hover:bg-primary text-white/50 group-hover:text-background transition-colors">
+                <div className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-ink/5 group-hover:bg-primary text-ink/65 group-hover:text-white transition-colors">
                   <ChevronRight className="w-4 h-4" />
                 </div>
               </Link>

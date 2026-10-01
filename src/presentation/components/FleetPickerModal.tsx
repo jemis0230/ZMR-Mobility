@@ -15,7 +15,7 @@ const INTENTS = [
     icon: CalendarDays,
     desc: "Monthly EMIs, flexible terms",
     selectedCls: "border-primary/60 bg-primary/10 ring-2 ring-primary/20",
-    idleCls: "border-white/10 bg-white/5 hover:border-primary/30 hover:bg-primary/5",
+    idleCls: "border-ink/10 bg-ink/5 hover:border-primary/30 hover:bg-primary/5",
     textCls: "text-primary",
   },
   {
@@ -24,7 +24,7 @@ const INTENTS = [
     icon: ShoppingBag,
     desc: "Own it outright, one-time purchase",
     selectedCls: "border-emerald-400/60 bg-emerald-400/10 ring-2 ring-emerald-400/20",
-    idleCls: "border-white/10 bg-white/5 hover:border-emerald-400/30 hover:bg-emerald-400/5",
+    idleCls: "border-ink/10 bg-ink/5 hover:border-emerald-400/30 hover:bg-emerald-400/5",
     textCls: "text-emerald-400",
   },
   {
@@ -33,7 +33,7 @@ const INTENTS = [
     icon: Clock,
     desc: "Daily or weekly, no commitment",
     selectedCls: "border-orange-400/60 bg-orange-400/10 ring-2 ring-orange-400/20",
-    idleCls: "border-white/10 bg-white/5 hover:border-orange-400/30 hover:bg-orange-400/5",
+    idleCls: "border-ink/10 bg-ink/5 hover:border-orange-400/30 hover:bg-orange-400/5",
     textCls: "text-orange-400",
   },
 ];
@@ -115,20 +115,20 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full sm:max-w-2xl bg-[#0d1117] border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
+            className="relative w-full sm:max-w-2xl bg-white border border-ink/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh]"
           >
             {/* Drag handle — mobile only */}
-            <div className="sm:hidden w-10 h-1 bg-white/20 rounded-full mx-auto mt-3 mb-1 shrink-0" />
+            <div className="sm:hidden w-10 h-1 bg-ink/20 rounded-full mx-auto mt-3 mb-1 shrink-0" />
 
             {/* Header */}
             <div className="flex items-center justify-between px-5 sm:px-7 pt-4 sm:pt-6 pb-3 shrink-0">
               <div>
-                <h2 className="text-lg sm:text-2xl font-black text-white">Find Your EV</h2>
-                <p className="text-white/40 text-xs sm:text-sm mt-0.5">Pick what you want, then choose a vehicle type.</p>
+                <h2 className="text-lg sm:text-2xl font-black text-ink">Find Your EV</h2>
+                <p className="text-ink/60 text-xs sm:text-sm mt-0.5">Pick what you want, then choose a vehicle type.</p>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all shrink-0"
+                className="p-2 rounded-full bg-ink/5 hover:bg-ink/10 text-ink/60 hover:text-ink transition-all shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -139,7 +139,7 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
 
               {/* ── Step 1: Intent ── */}
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-ink/50 mb-3">
                   What are you looking for?
                 </p>
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -151,11 +151,11 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
                         onClick={() => setIntent(value)}
                         className={`relative flex flex-col items-center text-center gap-1.5 sm:gap-2 p-3 sm:p-4 rounded-2xl border transition-all duration-200 ${active ? selectedCls : idleCls}`}
                       >
-                        <div className={`p-2 sm:p-2.5 rounded-xl ${active ? "bg-white/10" : "bg-white/5"} transition-colors`}>
-                          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${active ? textCls : "text-white/40"}`} />
+                        <div className={`p-2 sm:p-2.5 rounded-xl ${active ? "bg-ink/10" : "bg-ink/5"} transition-colors`}>
+                          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${active ? textCls : "text-ink/60"}`} />
                         </div>
-                        <span className={`text-sm sm:text-base font-extrabold ${active ? textCls : "text-white/60"}`}>{label}</span>
-                        <span className="hidden sm:block text-[10px] text-white/30 leading-tight">{desc}</span>
+                        <span className={`text-sm sm:text-base font-extrabold ${active ? textCls : "text-ink/70"}`}>{label}</span>
+                        <span className="hidden sm:block text-[10px] text-ink/50 leading-tight">{desc}</span>
                         {active && (
                           <motion.div
                             layoutId="intent-indicator"
@@ -170,11 +170,11 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
 
               {/* ── Divider ── */}
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-white/10" />
-                <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${intent ? "text-white/30" : "text-white/15"}`}>
+                <div className="flex-1 h-px bg-ink/10" />
+                <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${intent ? "text-ink/50" : "text-ink/35"}`}>
                   Now pick a vehicle type
                 </p>
-                <div className="flex-1 h-px bg-white/10" />
+                <div className="flex-1 h-px bg-ink/10" />
               </div>
 
               {/* ── Step 2: Category ── */}
@@ -186,7 +186,7 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
                       key={slug}
                       href={href}
                       onClick={onClose}
-                      className="group flex sm:flex-col items-center sm:items-start gap-3 sm:gap-0 p-3 sm:p-4 rounded-2xl border border-white/8 bg-white/3 hover:border-primary/40 hover:bg-white/8 transition-all duration-200 sm:hover:-translate-y-1"
+                      className="group flex sm:flex-col items-center sm:items-start gap-3 sm:gap-0 p-3 sm:p-4 rounded-2xl border border-ink/10 bg-ink/3 hover:border-primary/40 hover:bg-ink/8 transition-all duration-200 sm:hover:-translate-y-1"
                     >
                       {/* Image */}
                       <div className="relative w-14 h-14 sm:w-full sm:h-20 shrink-0 sm:mb-3">
@@ -195,12 +195,12 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
 
                       {/* Text */}
                       <div className="flex-1 sm:flex-none">
-                        <p className="text-sm font-bold text-white group-hover:text-primary transition-colors leading-tight">{name}</p>
-                        <p className="text-[10px] text-white/35 mt-0.5">{desc}</p>
+                        <p className="text-sm font-bold text-ink group-hover:text-primary transition-colors leading-tight">{name}</p>
+                        <p className="text-[10px] text-ink/55 mt-0.5">{desc}</p>
                       </div>
 
                       {/* Mobile arrow */}
-                      <ArrowRight className="sm:hidden w-4 h-4 text-white/20 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
+                      <ArrowRight className="sm:hidden w-4 h-4 text-ink/40 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
 
                       {/* Desktop icon */}
                       <div className="hidden sm:flex mt-2 items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary opacity-0 group-hover:opacity-100 transition-opacity">
@@ -213,7 +213,7 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
 
               {/* Hint when no intent selected */}
               {!intent && (
-                <p className="text-center text-xs text-white/25">
+                <p className="text-center text-xs text-ink/45">
                   ↑ Select Lease, Buy, or Rent above to browse vehicles
                 </p>
               )}
