@@ -2,7 +2,7 @@
 
 Official website of **ZMR Mobility**, India's technology-first EV asset management company: buy, lease and rent certified electric 2W / 3W / 4W vehicles.
 
-**Live:** https://zmrmobility.in · **Going live / Google setup:** [docs/GO-LIVE.md](docs/GO-LIVE.md)
+**Production domain:** https://zmrmobility.in. It shows the new design only after this code is deployed to the company server; see [docs/GO-LIVE.md](docs/GO-LIVE.md) (Part B to deploy, Part F for a free demo link).
 
 ## Features
 
