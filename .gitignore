@@ -39,3 +39,9 @@ Thumbs.db
 /public/companies/
 /public/category-images/
 /public/vechileCategory/
+
+# Secrets — never commit (production uses .env.production on the server)
+.env
+.env.local
+.env.production
+.env*.local

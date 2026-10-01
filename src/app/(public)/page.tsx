@@ -13,6 +13,7 @@ export const revalidate = 3600;
 
 export const metadata = {
   title: "ZMR Mobility | India's Technology-First EV Asset Management Company",
+  alternates: { canonical: "/" },
   description: "ZMR Mobility offers affordable, reliable electric vehicle leasing, IoT monitoring, and comprehensive aftersales support for individuals, gig workers, and B2B fleets across India.",
 };
 

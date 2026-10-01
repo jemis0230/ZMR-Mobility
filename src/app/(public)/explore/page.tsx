@@ -16,10 +16,29 @@ import { SortSelect, FilterPanel } from "./ExploreControls";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Buy Pre-owned Electric Vehicles | ZMR Mobility",
-  description: "Explore ZMR Certified pre-owned EVs by price range, make & model, year, KM driven and body type — scooters, e-rickshaws, cargo loaders and electric cars.",
-};
+const BASE_DESCRIPTION = "Explore ZMR Certified pre-owned EVs by price range, make & model, year, KM driven and body type — scooters, e-rickshaws, cargo loaders and electric cars.";
+
+// Body-type pages (/explore?type=…) are listed in the sitemap, so they get their own
+// canonical URL and title; every other filter combination canonicalises to /explore.
+export async function generateMetadata(props: { searchParams: Promise<SP> }): Promise<Metadata> {
+  const sp = await props.searchParams;
+  const keys = Object.keys(sp).filter((k) => sp[k]);
+  const type = typeof sp.type === "string" ? sp.type : undefined;
+  const bodyType = type ? BODY_TYPES.find((b) => CATEGORY_TO_SLUG[b.category] === type) : undefined;
+
+  if (bodyType && keys.length === 1) {
+    return {
+      title: `Buy Used Electric ${bodyType.label} (${bodyType.hint}) | ZMR Mobility`,
+      description: `Certified pre-owned electric ${bodyType.label.toLowerCase()} for sale with warranty, IoT tracking and easy EMI. ${BASE_DESCRIPTION}`,
+      alternates: { canonical: `/explore?type=${type}` },
+    };
+  }
+  return {
+    title: "Buy Pre-owned Electric Vehicles | ZMR Mobility",
+    description: BASE_DESCRIPTION,
+    alternates: { canonical: "/explore" },
+  };
+}
 
 const repo = new PrismaVehicleRepository();
 
