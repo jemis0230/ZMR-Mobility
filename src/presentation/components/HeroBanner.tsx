@@ -77,7 +77,7 @@ export default function HeroBanner() {
 
   return (
     <section
-      className="relative pt-16 lg:pt-[120px]"
+      className="relative pt-[72px] lg:pt-[132px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"

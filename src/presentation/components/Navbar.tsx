@@ -295,14 +295,14 @@ export default function Navbar({ makes = [] }: { makes?: MakeWithModels[] }) {
       <header className="fixed top-0 inset-x-0 z-50">
         {/* ── Top bar ── */}
         <div className="bg-white/95 backdrop-blur border-b border-ink/[0.08]">
-          <div className="max-w-7xl mx-auto flex items-center gap-3 lg:gap-5 px-4 md:px-6 h-16 lg:h-[72px]">
+          <div className="max-w-7xl mx-auto flex items-center gap-3 lg:gap-5 px-4 md:px-6 h-[72px] lg:h-[84px]">
             <Link href="/" className="shrink-0 flex items-center" aria-label="ZMR Mobility home">
               <Image
-                src="/zmr-logo.png"
+                src="/zmr-logo-full.png"
                 alt="ZMR Mobility"
-                width={977}
-                height={200}
-                className="h-8 lg:h-9 w-auto"
+                width={579}
+                height={361}
+                className="h-16 lg:h-[76px] w-auto"
                 priority
               />
             </Link>
@@ -415,7 +415,7 @@ export default function Navbar({ makes = [] }: { makes?: MakeWithModels[] }) {
             <motion.aside
               initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.25 }}
-              className="fixed top-16 right-0 bottom-0 z-50 w-[88vw] max-w-sm bg-white shadow-2xl overflow-y-auto lg:hidden"
+              className="fixed top-[72px] right-0 bottom-0 z-50 w-[88vw] max-w-sm bg-white shadow-2xl overflow-y-auto lg:hidden"
             >
               <div className="p-4 space-y-4">
                 <SearchBar onSubmitted={() => setIsMobileMenuOpen(false)} />

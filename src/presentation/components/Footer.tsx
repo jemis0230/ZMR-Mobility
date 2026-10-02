@@ -46,11 +46,11 @@ export default function Footer() {
           <div className="lg:col-span-2 space-y-8">
             <Link href="/" className="inline-block">
               <Image
-                src="/zmr-logo.png"
+                src="/zmr-logo-full.png"
                 alt="ZMR Mobility"
-                width={977}
-                height={200}
-                className="h-11 w-auto"
+                width={579}
+                height={361}
+                className="h-24 w-auto"
               />
             </Link>
             <p className="text-ink/65 text-sm leading-relaxed max-w-sm">
