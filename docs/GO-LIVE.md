@@ -19,6 +19,8 @@ This guide takes the redesigned website from GitHub to the live domain **https:/
 
 ## Part B — Deploy the new version to the server (you or the server admin)
 
+> **Detailed click-by-click version:** [DEPLOY-PRODUCTION.md](DEPLOY-PRODUCTION.md) (connecting from VS Code, full backups, rollback, troubleshooting).
+
 The project already includes everything needed: Docker runs the app, PostgreSQL stores the data, and Caddy provides automatic HTTPS.
 
 1. **Connect to the server**
