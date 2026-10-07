@@ -1,7 +1,8 @@
 // Vercel build entry point (see vercel.json).
 //
-// Production builds keep the original behaviour: apply migrations, make sure the
-// admin user and demo catalogue exist, then build.
+// Production builds apply pending migrations (additive, data is preserved) and make
+// sure the initial admin user exists, then build. The demo catalogue seed is never
+// run automatically; use `npm run seed:demo` deliberately on a local database.
 //
 // Preview builds never write to the database by default, because the Preview
 // environment may share the production DATABASE_URL. They only apply migrations
@@ -21,7 +22,6 @@ run("npx prisma generate");
 if (env === "production") {
   run("npx prisma migrate deploy");
   run("node prisma/seed-admin.js");
-  run("node prisma/seed-demo.js");
 } else if (process.env.PREVIEW_DB_ISOLATED === "1") {
   console.log(`[vercel-build] ${env}: isolated database declared, applying migrations (no seeding).`);
   run("npx prisma migrate deploy");
