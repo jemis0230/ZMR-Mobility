@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useLayoutEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import EVImage from '@/presentation/components/EVImage';
 
@@ -40,26 +39,24 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
         onMouseMove={handleMouseMove}
       >
         {!isMainLoaded && (
-          <div className="absolute inset-0 ev-shimmer-base z-10">
+          <div className="absolute inset-0 ev-shimmer-base">
             <div className="ev-shimmer-sweep" />
           </div>
         )}
-        <motion.img
+        <img
           key={activeIdx}
-          initial={{ opacity: 0 }}
-          animate={{
-            opacity: isMainLoaded ? 1 : 0,
-            scale: isZoomed ? 2 : 1,
-            x: isZoomed ? `${50 - mousePos.x}%` : 0,
-            y: isZoomed ? `${50 - mousePos.y}%` : 0,
-          }}
-          transition={{ duration: isZoomed ? 0 : 0.3 }}
           ref={imgRef}
           src={images[activeIdx]}
           alt="Vehicle"
+          decoding="async"
+          fetchPriority={activeIdx === 0 ? 'high' : 'auto'}
           onLoad={() => setIsMainLoaded(true)}
           onError={() => setIsMainLoaded(true)}
-          className="w-full h-full object-contain pointer-events-none"
+          className="relative w-full h-full object-contain pointer-events-none"
+          style={{
+            transform: isZoomed ? `scale(2) translate(${(50 - mousePos.x) / 2}%, ${(50 - mousePos.y) / 2}%)` : 'none',
+            transition: isZoomed ? 'none' : 'transform 0.3s',
+          }}
         />
         
         {!isZoomed && (
@@ -76,7 +73,7 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
             key={idx}
             onClick={() => setActiveIdx(idx)}
             className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-              activeIdx === idx ? 'border-primary shadow-[0_0_15px_rgba(26,115,232,0.3)]' : 'border-ink/[0.08] hover:border-ink/15'
+              activeIdx === idx ? 'border-primary shadow-[0_0_15px_rgba(87,116,64,0.3)]' : 'border-ink/[0.08] hover:border-ink/15'
             }`}
           >
             <EVImage

@@ -48,7 +48,7 @@ function StyledSelect({
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         className={`w-full appearance-none bg-ink/5 border rounded-xl px-4 py-3 pr-10 outline-none transition-all duration-200 text-sm
-          ${error ? 'border-red-500/70 bg-red-500/5 text-ink' : 'border-ink/10 focus:border-[#1A73E8]/60 text-ink/85 focus:text-ink'}
+          ${error ? 'border-red-500/70 bg-red-500/5 text-ink' : 'border-ink/10 focus:border-[#577440]/60 text-ink/85 focus:text-ink'}
           ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-ink/15'}
           [&>option]:bg-white [&>option]:text-ink`}
       >
@@ -83,11 +83,11 @@ function SubmitButton({ pending }: { pending: boolean }) {
       className="w-full relative overflow-hidden rounded-xl py-3.5 text-sm font-extrabold tracking-wide transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
       style={{
         background: pending
-          ? 'rgba(26,115,232,0.15)'
-          : 'linear-gradient(135deg, #1A73E8 0%, #1557B0 100%)',
-        color: pending ? '#1A73E8' : '#ffffff',
-        border: pending ? '1px solid rgba(26,115,232,0.3)' : '1px solid transparent',
-        boxShadow: pending ? 'none' : '0 0 30px rgba(26,115,232,0.35), 0 4px 20px rgba(0,0,0,0.3)',
+          ? 'rgba(87,116,64,0.15)'
+          : 'linear-gradient(135deg, #577440 0%, #456344 100%)',
+        color: pending ? '#577440' : '#ffffff',
+        border: pending ? '1px solid rgba(87,116,64,0.3)' : '1px solid transparent',
+        boxShadow: pending ? 'none' : '0 0 30px rgba(87,116,64,0.35), 0 4px 20px rgba(0,0,0,0.3)',
       }}
     >
       <span className="flex items-center justify-center gap-2">
@@ -206,8 +206,8 @@ export default function EVConsultationModal({
               className="pointer-events-auto w-full max-w-md max-h-[95vh] overflow-y-auto rounded-2xl"
               style={{
                 background: 'linear-gradient(145deg, #ffffff 0%, #f5f9ff 100%)',
-                border: '1px solid rgba(26,115,232,0.18)',
-                boxShadow: '0 0 0 1px rgba(26,115,232,0.05), 0 25px 60px rgba(15,23,42,0.18), 0 0 80px rgba(26,115,232,0.06)',
+                border: '1px solid rgba(87,116,64,0.18)',
+                boxShadow: '0 0 0 1px rgba(87,116,64,0.05), 0 25px 60px rgba(45,71,62,0.18), 0 0 80px rgba(87,116,64,0.06)',
               }}
             >
               {success ? (
@@ -224,22 +224,22 @@ export default function EVConsultationModal({
                     transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.1 }}
                     className="relative"
                   >
-                    <div className="w-20 h-20 rounded-full bg-[#1A73E8]/10 border border-[#1A73E8]/30 flex items-center justify-center"
-                      style={{ boxShadow: '0 0 40px rgba(26,115,232,0.25)' }}>
-                      <CheckCircle className="w-10 h-10 text-[#1A73E8]" />
+                    <div className="w-20 h-20 rounded-full bg-[#577440]/10 border border-[#577440]/30 flex items-center justify-center"
+                      style={{ boxShadow: '0 0 40px rgba(87,116,64,0.25)' }}>
+                      <CheckCircle className="w-10 h-10 text-[#577440]" />
                     </div>
                     {/* Pulse rings */}
                     <motion.div
                       animate={{ scale: [1, 1.6], opacity: [0.4, 0] }}
                       transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
-                      className="absolute inset-0 rounded-full border border-[#1A73E8]/40"
+                      className="absolute inset-0 rounded-full border border-[#577440]/40"
                     />
                   </motion.div>
 
                   <div>
                     <h3 className="text-2xl font-extrabold text-ink mb-2">You're all set! 🎉</h3>
                     <p className="text-ink/65 text-sm leading-relaxed">
-                      Our EV expert will call you within <span className="text-[#1A73E8] font-bold">24 hours</span> to discuss your requirements.
+                      Our EV expert will call you within <span className="text-[#577440] font-bold">24 hours</span> to discuss your requirements.
                     </p>
                   </div>
 
@@ -260,9 +260,9 @@ export default function EVConsultationModal({
                   {/* Header */}
                   <div className="flex items-start justify-between p-6 pb-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#1A73E8]/10 border border-[#1A73E8]/25 flex items-center justify-center flex-shrink-0"
-                        style={{ boxShadow: '0 0 20px rgba(26,115,232,0.15)' }}>
-                        <Zap className="w-5 h-5 text-[#1A73E8]" />
+                      <div className="w-9 h-9 rounded-xl bg-[#577440]/10 border border-[#577440]/25 flex items-center justify-center flex-shrink-0"
+                        style={{ boxShadow: '0 0 20px rgba(87,116,64,0.15)' }}>
+                        <Zap className="w-5 h-5 text-[#577440]" />
                       </div>
                       <div>
                         <h2 className="text-lg font-extrabold text-ink leading-tight">
@@ -299,7 +299,7 @@ export default function EVConsultationModal({
                           placeholder="Rahul Sharma"
                           autoComplete="name"
                           className={`w-full bg-ink/5 border rounded-xl px-4 py-3 outline-none transition-all duration-200 text-sm text-ink placeholder:text-ink/45
-                            ${errors.name ? 'border-red-500/70 bg-red-500/5' : 'border-ink/10 focus:border-[#1A73E8]/60 hover:border-ink/15'}`}
+                            ${errors.name ? 'border-red-500/70 bg-red-500/5' : 'border-ink/10 focus:border-[#577440]/60 hover:border-ink/15'}`}
                         />
                         {errors.name && (
                           <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
@@ -315,8 +315,8 @@ export default function EVConsultationModal({
                           Phone Number
                         </label>
                         <div className={`flex items-center bg-ink/5 border rounded-xl overflow-hidden transition-all duration-200
-                          ${errors.phone ? 'border-red-500/70 bg-red-500/5' : 'border-ink/10 focus-within:border-[#1A73E8]/60 hover:border-ink/15'}`}>
-                          <span className="px-3 text-sm font-bold text-[#1A73E8]/80 border-r border-ink/10 py-3 bg-[#1A73E8]/5 flex-shrink-0">+91</span>
+                          ${errors.phone ? 'border-red-500/70 bg-red-500/5' : 'border-ink/10 focus-within:border-[#577440]/60 hover:border-ink/15'}`}>
+                          <span className="px-3 text-sm font-bold text-[#577440]/80 border-r border-ink/10 py-3 bg-[#577440]/5 flex-shrink-0">+91</span>
                           <input
                             id="modal-phone"
                             name="phone"
@@ -376,7 +376,7 @@ export default function EVConsultationModal({
                           id="modal-category"
                           value={selectedCategory}
                           onChange={(e) => setSelectedCategory(e.target.value)}
-                          className="w-full appearance-none bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 pr-10 outline-none transition-all duration-200 text-sm text-ink/85 focus:border-[#1A73E8]/60 focus:text-ink hover:border-ink/15 cursor-pointer [&>option]:bg-white [&>option]:text-ink"
+                          className="w-full appearance-none bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 pr-10 outline-none transition-all duration-200 text-sm text-ink/85 focus:border-[#577440]/60 focus:text-ink hover:border-ink/15 cursor-pointer [&>option]:bg-white [&>option]:text-ink"
                         >
                           <option value="">Please select the category that best represents your requirement</option>
                           {INQUIRY_CATEGORIES.map((cat) => (

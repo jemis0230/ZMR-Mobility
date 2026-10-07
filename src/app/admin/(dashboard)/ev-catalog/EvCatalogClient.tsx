@@ -24,7 +24,7 @@ type CategoryColor = 'teal' | 'amber' | 'blue';
 const CHIP_STYLES: Record<CategoryColor, string> = {
   teal: 'bg-teal-400/10 text-teal-400 border-teal-400/20',
   amber: 'bg-amber-400/10 text-amber-400 border-amber-400/20',
-  blue: 'bg-blue-400/10 text-blue-400 border-blue-400/20',
+  blue: 'bg-tint text-leaf border-sage/40',
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ function DeleteConfirm({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
       <div className="relative w-full max-w-sm rounded-2xl p-6 space-y-4"
-        style={{ background: 'linear-gradient(145deg,#ffffff,#fff5f5)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 25px 60px rgba(15,23,42,0.18)' }}>
+        style={{ background: 'linear-gradient(145deg,#ffffff,#fff5f5)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 25px 60px rgba(45,71,62,0.18)' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
             <AlertTriangle className="w-5 h-5 text-red-400" />
@@ -574,7 +574,7 @@ function ModelPanel({
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-lg ev-shimmer-base border border-ink/[0.08] flex items-center justify-center flex-shrink-0">
-                    <Car className="w-4 h-4 text-[#1A73E8]/20" />
+                    <Car className="w-4 h-4 text-[#577440]/20" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">

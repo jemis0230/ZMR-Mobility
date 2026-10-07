@@ -10,6 +10,8 @@ interface DualRangeSliderProps {
   initialMax?: number;
   onChangeComplete?: (min: number, max: number) => void;
   formatLabel?: (val: number) => string;
+  /** Accessible names for the two thumbs */
+  labels?: [string, string];
 }
 
 export default function DualRangeSlider({
@@ -20,6 +22,7 @@ export default function DualRangeSlider({
   initialMax,
   onChangeComplete,
   formatLabel = (v) => v.toString(),
+  labels = ["Minimum", "Maximum"],
 }: DualRangeSliderProps) {
   const [minVal, setMinVal] = useState(initialMin ?? min);
   const [maxVal, setMaxVal] = useState(initialMax ?? max);
@@ -55,8 +58,8 @@ export default function DualRangeSlider({
   return (
     <div className="w-full">
       <div className="flex justify-between items-end mb-4">
-        <span className="text-xs font-bold text-primary">{formatLabel(minVal)}</span>
-        <span className="text-xs font-bold text-primary">{formatLabel(maxVal)}</span>
+        <span className="text-xs font-bold text-forest">{formatLabel(minVal)}</span>
+        <span className="text-xs font-bold text-forest">{formatLabel(maxVal)}</span>
       </div>
 
       <div className="relative w-full h-6 flex items-center group">
@@ -82,21 +85,24 @@ export default function DualRangeSlider({
           onChange={handleMinChange}
           onMouseUp={handleMouseUp}
           onTouchEnd={handleMouseUp}
+          onKeyUp={handleMouseUp}
+          aria-label={labels[0]}
+          aria-valuetext={formatLabel(minVal)}
           className="absolute w-full h-1.5 appearance-none bg-transparent pointer-events-none z-20 
           [&::-webkit-slider-thumb]:pointer-events-auto 
           [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 
-          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-white 
+          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary 
           [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md
           [&::-webkit-slider-thumb]:hover:scale-125 [&::-webkit-slider-thumb]:transition-transform
           [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing
           
           [&::-moz-range-thumb]:pointer-events-auto 
           [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 
-          [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:bg-white 
+          [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary 
           [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-md
           [&::-moz-range-thumb]:hover:scale-125 [&::-moz-range-thumb]:transition-transform
           [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:active:cursor-grabbing
-          [&::-moz-range-thumb]:border-0"
+          "
           style={{ zIndex: minVal > max - 100 ? 30 : 20 }}
         />
 
@@ -110,25 +116,28 @@ export default function DualRangeSlider({
           onChange={handleMaxChange}
           onMouseUp={handleMouseUp}
           onTouchEnd={handleMouseUp}
+          onKeyUp={handleMouseUp}
+          aria-label={labels[1]}
+          aria-valuetext={formatLabel(maxVal)}
           className="absolute w-full h-1.5 appearance-none bg-transparent pointer-events-none z-20 
           [&::-webkit-slider-thumb]:pointer-events-auto 
           [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 
-          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-white 
+          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary 
           [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md
           [&::-webkit-slider-thumb]:hover:scale-125 [&::-webkit-slider-thumb]:transition-transform
           [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing
           
           [&::-moz-range-thumb]:pointer-events-auto 
           [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 
-          [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:bg-white 
+          [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary 
           [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-md
           [&::-moz-range-thumb]:hover:scale-125 [&::-moz-range-thumb]:transition-transform
           [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:active:cursor-grabbing
-          [&::-moz-range-thumb]:border-0"
+          "
         />
       </div>
 
-      <div className="flex justify-between mt-1 text-[10px] text-ink/50 font-medium">
+      <div className="flex justify-between mt-1 text-[10px] text-ink/70 font-medium">
         <span>{formatLabel(min)}</span>
         <span>{formatLabel(max)}</span>
       </div>

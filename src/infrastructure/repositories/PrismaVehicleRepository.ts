@@ -3,6 +3,7 @@ import { Vehicle, LeasePlan, RentPlan, VehicleImage } from "@/domain/entities/Ve
 import { VehicleCategory, ChargerType, TransmissionType } from "@/lib/constants";
 import { Prisma, TransmissionType as PrismaTransmissionType, ChargerType as PrismaChargerType } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { PRICE_CAP } from "@/lib/explore";
 
 type VehicleWithRelations = Prisma.VehicleGetPayload<{
   include: { images: true; leasePlans: true; rentPlans: true; batteryType: true; motorType: true };
@@ -55,7 +56,7 @@ export class PrismaVehicleRepository implements IVehicleRepository {
 
   async findForExplore(filters: ExploreFilterParams): Promise<PaginatedResult<Vehicle>> {
     const {
-      q, minPrice, maxPrice, makes, model, minYear, maxKm, categories, transmission, minRange,
+      q, minPrice, maxPrice, makes, model, minYear, maxKm, categories, minRange,
       sortBy = 'newest', page = 1, pageSize = 12,
     } = filters;
 
@@ -80,7 +81,6 @@ export class PrismaVehicleRepository implements IVehicleRepository {
     if (minYear !== undefined) and.push({ manufactureYear: { gte: minYear } });
     if (maxKm !== undefined) and.push({ kmDriven: { lte: maxKm } });
     if (categories && categories.length > 0) and.push({ category: { in: categories } });
-    if (transmission) and.push({ transmission: transmission as PrismaTransmissionType });
     if (minRange !== undefined) and.push({ certifiedRangeKm: { gte: minRange } });
 
     const where: Prisma.VehicleWhereInput = { AND: and };
@@ -108,11 +108,19 @@ export class PrismaVehicleRepository implements IVehicleRepository {
   }
 
   async getExploreMenuData(): Promise<ExploreMenuData> {
-    const groups = await prisma.vehicle.groupBy({
-      by: ['make', 'model'],
-      where: { showInBuying: true },
-      _count: { _all: true },
-    });
+    const [groups, priced, unpricedCount, overCapCount] = await Promise.all([
+      prisma.vehicle.groupBy({
+        by: ['make', 'model'],
+        where: { showInBuying: true },
+        _count: { _all: true },
+      }),
+      prisma.vehicle.findMany({
+        where: { showInBuying: true, buyingPrice: { gt: 0, lte: PRICE_CAP } },
+        select: { buyingPrice: true },
+      }),
+      prisma.vehicle.count({ where: { showInBuying: true, OR: [{ buyingPrice: null }, { buyingPrice: { lte: 0 } }] } }),
+      prisma.vehicle.count({ where: { showInBuying: true, buyingPrice: { gt: PRICE_CAP } } }),
+    ]);
 
     const byMake = new Map<string, { make: string; models: string[]; count: number }>();
     for (const g of groups) {
@@ -126,7 +134,17 @@ export class PrismaVehicleRepository implements IVehicleRepository {
       makes: Array.from(byMake.values())
         .map((m) => ({ ...m, models: m.models.sort((a, b) => a.localeCompare(b)) }))
         .sort((a, b) => b.count - a.count || a.make.localeCompare(b.make)),
+      prices: priced.map((v) => v.buyingPrice as number),
+      unpricedCount,
+      overCapCount,
     };
+  }
+
+  async findByIds(ids: string[]): Promise<Vehicle[]> {
+    if (ids.length === 0) return [];
+    const vehicles = await prisma.vehicle.findMany({ where: { id: { in: ids } }, include: vehicleInclude });
+    const byId = new Map(vehicles.map((v) => [v.id, this.mapToEntity(v)]));
+    return ids.map((id) => byId.get(id)).filter((v): v is Vehicle => Boolean(v));
   }
 
   // ── Shared helpers ───────────────────────────────────────────

@@ -10,12 +10,14 @@ interface EVImageProps {
   imgClassName?: string;
   iconSize?: 'sm' | 'md' | 'lg';
   sizes?: string;
+  /** Above-the-fold images load eagerly with high priority; everything else is lazy. */
+  eager?: boolean;
 }
 
 const ICON_CLS = { sm: 'w-4 h-4', md: 'w-6 h-6', lg: 'w-8 h-8' };
 
 export default function EVImage({
-  src, alt, className = '', imgClassName = '', iconSize = 'md',
+  src, alt, className = '', imgClassName = '', iconSize = 'md', eager = false,
 }: EVImageProps) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -35,14 +37,14 @@ export default function EVImage({
         <div className="absolute inset-0 ev-shimmer-base">
           <div className="ev-shimmer-sweep" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <Zap className={`${ICON_CLS[iconSize]} text-[#1A73E8]/20 animate-pulse`} />
+            <Zap className={`${ICON_CLS[iconSize]} text-sage/60 animate-pulse`} />
           </div>
         </div>
       )}
 
       {error && (
         <div className="absolute inset-0 ev-shimmer-base flex items-center justify-center">
-          <Zap className={`${ICON_CLS[iconSize]} text-[#1A73E8]/10`} />
+          <Zap className={`${ICON_CLS[iconSize]} text-sage/40`} />
         </div>
       )}
 
@@ -55,9 +57,12 @@ export default function EVImage({
         ref={imgRef}
         src={src}
         alt={alt}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchPriority={eager ? 'high' : 'auto'}
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
-        className={`w-full h-full transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'} ${imgClassName}`}
+        className={`relative w-full h-full ${error ? 'invisible' : ''} ${imgClassName}`}
       />
     </div>
   );

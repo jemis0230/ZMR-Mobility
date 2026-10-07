@@ -129,7 +129,7 @@ function OptionCard({
       onClick={onClick}
       className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 ${
         selected
-          ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(26,115,232,0.15)]'
+          ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(87,116,64,0.15)]'
           : 'border-ink/10 bg-ink/[0.03] hover:border-ink/25 hover:bg-ink/[0.06]'
       }`}
     >
@@ -165,9 +165,9 @@ function NavButtons({
         disabled={nextDisabled || loading}
         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         style={{
-          background: nextDisabled || loading ? 'rgba(26,115,232,0.1)' : 'linear-gradient(135deg,#1A73E8,#1557B0)',
-          color: nextDisabled || loading ? '#1A73E8' : '#ffffff',
-          boxShadow: nextDisabled || loading ? 'none' : '0 0 24px rgba(26,115,232,0.3)',
+          background: nextDisabled || loading ? 'rgba(87,116,64,0.1)' : 'linear-gradient(135deg,#577440,#456344)',
+          color: nextDisabled || loading ? '#577440' : '#ffffff',
+          boxShadow: nextDisabled || loading ? 'none' : '0 0 24px rgba(87,116,64,0.3)',
         }}
       >
         {loading ? (
@@ -435,7 +435,7 @@ export default function SellWizard() {
                         onClick={() => { set('modelId', id); set('modelName', name); }}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all duration-150 ${
                           selected
-                            ? 'border-primary bg-primary/10 shadow-[0_0_16px_rgba(26,115,232,0.1)]'
+                            ? 'border-primary bg-primary/10 shadow-[0_0_16px_rgba(87,116,64,0.1)]'
                             : 'border-ink/10 bg-ink/[0.03] hover:border-ink/15 hover:bg-ink/[0.06]'
                         }`}
                       >
@@ -449,7 +449,7 @@ export default function SellWizard() {
                           />
                         ) : (
                           <div className="w-9 h-9 rounded-lg ev-shimmer-base flex items-center justify-center flex-shrink-0">
-                            <Car className="w-4 h-4 text-[#1A73E8]/20" />
+                            <Car className="w-4 h-4 text-[#577440]/20" />
                           </div>
                         )}
                         <span className={`flex-1 text-sm font-semibold truncate ${selected ? 'text-ink' : 'text-ink/85'}`}>{name}</span>
@@ -814,7 +814,7 @@ export default function SellWizard() {
         return (
           <div className="text-center py-4 space-y-6">
             <div className="relative inline-block">
-              <div className="w-24 h-24 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto" style={{ boxShadow: '0 0 50px rgba(26,115,232,0.2)' }}>
+              <div className="w-24 h-24 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto" style={{ boxShadow: '0 0 50px rgba(87,116,64,0.2)' }}>
                 <CheckCircle className="w-12 h-12 text-primary" />
               </div>
               <motion.div
@@ -883,7 +883,7 @@ export default function SellWizard() {
   return (
     <div
       className="glass-card p-8 md:p-10"
-      style={{ border: '1px solid rgba(26,115,232,0.1)', boxShadow: '0 0 60px rgba(26,115,232,0.04)' }}
+      style={{ border: '1px solid rgba(87,116,64,0.1)', boxShadow: '0 0 60px rgba(87,116,64,0.04)' }}
     >
       {step <= TOTAL_STEPS && <ProgressBar step={step} />}
 

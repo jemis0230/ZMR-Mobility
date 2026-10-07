@@ -29,6 +29,7 @@ export const getCachedRentFilterOptions = unstable_cache(
 // Make → models list for the navbar "Make and Model" mega-menu and /explore sidebar.
 export const getCachedExploreMenuData = unstable_cache(
   async () => vehicleRepo.getExploreMenuData(),
-  ['explore-menu-data'],
+  // Bump the version when the returned shape changes so stale cache entries are never reused.
+  ['explore-menu-data-v2'],
   { tags: ['vehicle-filter-options', 'vehicle-filter-options-buying'], revalidate: 3600 }
 );

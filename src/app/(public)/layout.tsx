@@ -1,26 +1,31 @@
 import Navbar from "@/presentation/components/Navbar";
 import Footer from "@/presentation/components/Footer";
 import WhatsAppButton from "@/presentation/components/WhatsAppButton";
+import CompareTray from "@/presentation/components/compare/CompareTray";
 import { getCachedExploreMenuData } from "@/lib/cachedVehicleQueries";
-import type { MakeWithModels } from "@/lib/explore";
+import { buildPriceBuckets, DEFAULT_PRICE_BUCKETS, type ExploreNavData } from "@/lib/explore";
 
-async function loadMenuMakes(): Promise<MakeWithModels[]> {
+async function loadNavData(): Promise<ExploreNavData> {
   try {
-    const { makes } = await getCachedExploreMenuData();
-    return makes.map(({ make, models }) => ({ make, models }));
+    const { makes, prices } = await getCachedExploreMenuData();
+    return {
+      makes: makes.map(({ make, models }) => ({ make, models })),
+      priceBuckets: buildPriceBuckets(prices),
+    };
   } catch {
-    // DB unavailable (e.g. during image build) — Navbar falls back to a static brand list
-    return [];
+    // DB unavailable (e.g. during image build) — fall back to static menus
+    return { makes: [], priceBuckets: DEFAULT_PRICE_BUCKETS };
   }
 }
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const makes = await loadMenuMakes();
+  const nav = await loadNavData();
   return (
     <>
-      <Navbar makes={makes} />
-      {children}
-      <Footer />
+      <Navbar makes={nav.makes} priceBuckets={nav.priceBuckets} />
+      <div id="main" tabIndex={-1} className="outline-none">{children}</div>
+      <Footer priceBuckets={nav.priceBuckets} />
+      <CompareTray />
       <WhatsAppButton />
     </>
   );

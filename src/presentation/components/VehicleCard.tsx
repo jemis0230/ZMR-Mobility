@@ -5,7 +5,7 @@ import { Vehicle } from "@/domain/entities/Vehicle";
 import { CATEGORY_DISPLAY, isCargo, is4Wheeler, CHARGER_TYPE_DISPLAY } from "@/lib/constants";
 import { Battery, Zap, Gauge, ArrowRight, Clock, Package } from "lucide-react";
 import EVImage from "@/presentation/components/EVImage";
-import { motion } from "framer-motion";
+import CompareButton from "@/presentation/components/compare/CompareButton";
 import { slugifyVehicle } from "@/lib/vehicleSlug";
 import { formatMinutes } from "@/lib/formatTime";
 
@@ -27,13 +27,13 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
       return [
         { label: "Range", value: `${vehicle.certifiedRangeKm} km`, icon: Gauge, color: "text-primary" },
         { label: "Charging", value: formatMinutes(vehicle.chargingTimeMinutes), icon: Zap, color: "text-accent" },
-        { label: "Battery", value: `${vehicle.batteryCapKwh} kWh`, icon: Battery, color: "text-blue-400" },
+        { label: "Battery", value: `${vehicle.batteryCapKwh} kWh`, icon: Battery, color: "text-leaf" },
       ];
     }
     return [
       { label: "Range", value: `${vehicle.certifiedRangeKm} km`, icon: Gauge, color: "text-primary" },
       { label: "Charging", value: formatMinutes(vehicle.chargingTimeMinutes), icon: Clock, color: "text-accent" },
-      { label: "Battery", value: `${vehicle.batteryCapKwh} kWh`, icon: Battery, color: "text-blue-400" },
+      { label: "Battery", value: `${vehicle.batteryCapKwh} kWh`, icon: Battery, color: "text-leaf" },
     ];
   };
 
@@ -70,10 +70,7 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
   const ctaLabel = mode === 'buying' ? 'View Details' : mode === 'rent' ? 'View Rental Info' : 'View Lease Plans';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+     <div
       className="glass-card overflow-hidden group hover:border-primary/40 transition-all flex flex-col h-full"
     >
       <Link href={detailHref} className="block relative h-56 overflow-hidden">
@@ -88,7 +85,7 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
           />
         ) : (
           <div className="w-full h-full ev-shimmer-base flex items-center justify-center">
-            <Zap className="w-12 h-12 text-[#1A73E8]/10" />
+            <Zap className="w-12 h-12 text-[#577440]/10" />
           </div>
         )}
         <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm border border-ink/10 text-[10px] font-bold tracking-widest uppercase">
@@ -96,7 +93,7 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
         </div>
       </Link>
 
-      <div className="p-6 space-y-6 flex-1 flex flex-col">
+      <div className="p-6 space-y-4 flex-1 flex flex-col">
         <div className="flex-1">
           <Link href={detailHref}>
             <h3 className="text-xl font-bold tracking-tight hover:text-primary transition-colors">{vehicle.make} {vehicle.model}</h3>
@@ -128,12 +125,13 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
 
         <Link
           href={detailHref}
-          className="w-full py-3 rounded-xl bg-ink/5 border border-ink/10 font-bold flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group/btn"
+          className="w-full py-3 rounded-xl bg-tint border border-ink/15 text-forest font-bold flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group/btn"
         >
           {ctaLabel}
-          <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+          <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" aria-hidden />
         </Link>
+        <CompareButton variant="block" item={{ id: vehicle.id, title: `${vehicle.make} ${vehicle.model}`, image: vehicle.mainImage }} />
       </div>
-    </motion.div>
+    </div>
   );
 }

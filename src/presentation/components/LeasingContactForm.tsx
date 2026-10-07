@@ -55,8 +55,8 @@ export default function LeasingContactForm() {
   const set = (key: FieldKey, value: string) => setFields(prev => ({ ...prev, [key]: value }));
 
   const fieldCls = (key: FieldKey) =>
-    `w-full bg-ink/5 border rounded-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-ink/40 text-ink text-sm ${
-      touched[key] && errors[key] ? 'border-red-500/60 focus:border-red-500' : 'border-ink/10'
+    `w-full bg-white border rounded-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-ink/50 text-ink text-sm ${
+      touched[key] && errors[key] ? 'border-red-500/60 focus:border-red-500' : 'border-ink/20'
     }`;
 
   if (success) {
@@ -108,8 +108,9 @@ export default function LeasingContactForm() {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Full Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-ink/60">Full Name</label>
+            <label htmlFor="cf-name" className="text-xs font-bold uppercase tracking-widest text-ink/75">Full Name</label>
             <input
+              id="cf-name"
               type="text"
               placeholder="Rahul Sharma"
               value={fields.name}
@@ -118,7 +119,7 @@ export default function LeasingContactForm() {
               className={fieldCls('name')}
             />
             {touched.name && errors.name && (
-              <p className="flex items-center gap-1.5 text-xs text-red-400">
+              <p className="flex items-center gap-1.5 text-xs text-red-700">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.name}
               </p>
             )}
@@ -126,25 +127,26 @@ export default function LeasingContactForm() {
 
           {/* Phone */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-ink/60">Phone Number</label>
+            <label htmlFor="cf-phone" className="text-xs font-bold uppercase tracking-widest text-ink/75">Phone Number</label>
             <div className="flex">
-              <span className="flex items-center px-3 bg-ink/5 border border-r-0 border-ink/10 rounded-l-xl text-ink/60 text-sm font-semibold shrink-0">
+              <span className="flex items-center px-3 bg-white border border-r-0 border-ink/20 rounded-l-xl text-ink/60 text-sm font-semibold shrink-0">
                 +91
               </span>
               <input
+              id="cf-phone"
                 type="tel"
                 placeholder="9876543210"
                 maxLength={10}
                 value={fields.phone}
                 onChange={(e) => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
                 onBlur={() => touch('phone')}
-                className={`flex-1 bg-ink/5 border rounded-r-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-ink/40 text-ink text-sm ${
-                  touched.phone && errors.phone ? 'border-red-500/60 focus:border-red-500' : 'border-ink/10'
+                className={`flex-1 bg-white border rounded-r-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-ink/50 text-ink text-sm ${
+                  touched.phone && errors.phone ? 'border-red-500/60 focus:border-red-500' : 'border-ink/20'
                 }`}
               />
             </div>
             {touched.phone && errors.phone && (
-              <p className="flex items-center gap-1.5 text-xs text-red-400">
+              <p className="flex items-center gap-1.5 text-xs text-red-700">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.phone}
               </p>
             )}
@@ -153,8 +155,9 @@ export default function LeasingContactForm() {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-ink/60">Email Address</label>
+          <label htmlFor="cf-email" className="text-xs font-bold uppercase tracking-widest text-ink/75">Email Address</label>
           <input
+              id="cf-email"
             type="email"
             placeholder="rahul@example.com"
             value={fields.email}
@@ -163,7 +166,7 @@ export default function LeasingContactForm() {
             className={fieldCls('email')}
           />
           {touched.email && errors.email && (
-            <p className="flex items-center gap-1.5 text-xs text-red-400">
+            <p className="flex items-center gap-1.5 text-xs text-red-700">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.email}
             </p>
           )}
@@ -171,15 +174,16 @@ export default function LeasingContactForm() {
 
         {/* Interest */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-ink/60">I'm interested in</label>
+          <label htmlFor="cf-interest" className="text-xs font-bold uppercase tracking-widest text-ink/75">I'm interested in</label>
           <select
+              id="cf-interest"
             value={fields.inquiryCategory}
             onChange={(e) => { set('inquiryCategory', e.target.value); touch('inquiryCategory'); }}
             onBlur={() => touch('inquiryCategory')}
-            className={`w-full bg-ink/5 border rounded-xl px-4 py-3 focus:border-primary outline-none transition-all appearance-none cursor-pointer [&>option]:bg-white text-sm ${
+            className={`w-full bg-white border rounded-xl px-4 py-3 focus:border-primary outline-none transition-all appearance-none cursor-pointer [&>option]:bg-white text-sm ${
               touched.inquiryCategory && errors.inquiryCategory
                 ? 'border-red-500/60 focus:border-red-500 text-ink'
-                : 'border-ink/10'
+                : 'border-ink/20'
             } ${fields.inquiryCategory ? 'text-ink' : 'text-ink/50'}`}
           >
             <option value="" disabled>Select an option…</option>
@@ -188,7 +192,7 @@ export default function LeasingContactForm() {
             ))}
           </select>
           {touched.inquiryCategory && errors.inquiryCategory && (
-            <p className="flex items-center gap-1.5 text-xs text-red-400">
+            <p className="flex items-center gap-1.5 text-xs text-red-700">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {errors.inquiryCategory}
             </p>
           )}
@@ -196,20 +200,21 @@ export default function LeasingContactForm() {
 
         {/* Message */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-ink/60">
+          <label htmlFor="cf-message" className="text-xs font-bold uppercase tracking-widest text-ink/75">
             Message <span className="text-ink/40 normal-case font-normal tracking-normal">(Optional)</span>
           </label>
           <textarea
+              id="cf-message"
             rows={4}
             value={fields.notes}
             onChange={(e) => set('notes', e.target.value)}
             placeholder="Tell us about your fleet requirements..."
-            className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 focus:border-primary outline-none transition-all resize-none placeholder:text-ink/40 text-ink text-sm"
+            className="w-full bg-white border border-ink/20 rounded-xl px-4 py-3 focus:border-primary outline-none transition-all resize-none placeholder:text-ink/50 text-ink text-sm"
           />
         </div>
 
         {serverError && (
-          <p className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-sm">
+          <p className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-700 text-sm">
             <AlertCircle className="w-4 h-4 shrink-0" /> {serverError}
           </p>
         )}

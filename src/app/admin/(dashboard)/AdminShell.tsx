@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   SlidersHorizontal,
+  Newspaper,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
@@ -33,6 +34,7 @@ const NAV_ITEMS = [
   { name: 'Vehicles', icon: Car, href: '/admin/vehicles' },
   { name: 'Blogs', icon: MessageSquare, href: '/admin/blogs' },
   { name: 'FAQs', icon: HelpCircle, href: '/admin/faqs' },
+  { name: 'Press & Media', icon: Newspaper, href: '/admin/press' },
   { name: 'Leads/Contacts', icon: Users, href: '/admin/leads' },
   { name: 'EV Catalog', icon: BookOpen, href: '/admin/ev-catalog' },
   { name: 'Vehicle Config', icon: SlidersHorizontal, href: '/admin/vehicle-config' },

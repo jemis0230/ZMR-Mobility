@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { POLICY_TOPICS, isPolicyTopic, type PolicyItem } from '@/lib/policies';
 
 export type FaqItem = {
   id: string;
@@ -9,17 +10,19 @@ export type FaqItem = {
   answer: string;
   order: number;
   isActive: boolean;
+  topic: string | null;
   createdAt: string;
   updatedAt: string;
 };
 
-function toFaqItem(row: { id: string; question: string; answer: string; sortOrder: number; isActive: boolean; createdAt: Date; updatedAt: Date }): FaqItem {
+function toFaqItem(row: { id: string; question: string; answer: string; sortOrder: number; isActive: boolean; topic: string | null; createdAt: Date; updatedAt: Date }): FaqItem {
   return {
     id: row.id,
     question: row.question,
     answer: row.answer,
     order: row.sortOrder,
     isActive: row.isActive,
+    topic: row.topic,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -50,6 +53,29 @@ export async function getFaqs() {
     console.error('Get FAQs error:', error);
     return { success: false, error: 'Failed to get FAQs' };
   }
+}
+
+/**
+ * Policy items for the "Warranty & Ownership Support" section: the first active
+ * FAQ published for each policy topic, otherwise the neutral default wording.
+ */
+export async function getPolicyItems(): Promise<PolicyItem[]> {
+  let rows: { topic: string | null; question: string; answer: string }[] = [];
+  try {
+    rows = await prisma.faq.findMany({
+      where: { isActive: true, topic: { not: null } },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      select: { topic: true, question: true, answer: true },
+    });
+  } catch (error) {
+    console.error('Get policy items error:', error);
+  }
+  return POLICY_TOPICS.map((t) => {
+    const row = rows.find((r) => isPolicyTopic(r.topic) && r.topic === t.key);
+    return row
+      ? { key: t.key, title: t.title, question: row.question, answer: row.answer, confirmed: true }
+      : { key: t.key, title: t.title, question: t.question, answer: t.defaultAnswer, confirmed: false };
+  });
 }
 
 export async function getAllFaqsAdmin() {

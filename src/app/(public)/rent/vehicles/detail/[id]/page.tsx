@@ -8,6 +8,9 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { slugifyVehicle, extractIdFromSlug } from "@/lib/vehicleSlug";
 import { CATEGORY_TO_SLUG } from "@/lib/constants";
+import { getPolicyItems } from "@/app/actions/faqActions";
+import CompareButton from "@/presentation/components/compare/CompareButton";
+import { VehiclePolicySummary } from "@/presentation/components/PolicySection";
 import type { Metadata } from "next";
 
 const vehicleRepo = new PrismaVehicleRepository();
@@ -44,6 +47,7 @@ export default async function RentVehicleDetailsPage(props: { params: Promise<{ 
   if (params.id !== expectedSlug) redirect(`/rent/vehicles/detail/${expectedSlug}`);
 
   const allImages = [vehicle.mainImage, ...vehicle.images.map((img) => img.url)];
+  const policyItems = await getPolicyItems();
   const vehicleType = vehicle.category === 'TWO_WHEELER' ? 'scooter' : vehicle.category.includes('THREE') ? 'rickshaw' : 'car';
 
   const activeRentPlans = vehicle.rentPlans
@@ -67,13 +71,13 @@ export default async function RentVehicleDetailsPage(props: { params: Promise<{ 
             <div className="mt-6 md:mt-10 grid grid-cols-2 gap-3 md:gap-6">
               <div className="glass-card p-6 border-ink/[0.08]">
                 <Shield className="w-6 h-6 text-primary mb-3" />
-                <h4 className="font-bold mb-1">Fully Insured</h4>
-                <p className="text-xs text-ink/60">All rental vehicles are comprehensively insured</p>
+                <h2 className="font-bold mb-1 text-base text-forest">Insurance</h2>
+                <p className="text-xs text-ink/75">Contact us to confirm the insurance cover for this rental</p>
               </div>
               <div className="glass-card p-6 border-ink/[0.08]">
                 <Clock className="w-6 h-6 text-accent mb-3" />
-                <h4 className="font-bold mb-1">Flexible Duration</h4>
-                <p className="text-xs text-ink/60">Rent by the day, week, or month</p>
+                <h2 className="font-bold mb-1 text-base text-forest">Flexible Duration</h2>
+                <p className="text-xs text-ink/75">Rent by the day, week, or month</p>
               </div>
             </div>
           </div>
@@ -136,7 +140,7 @@ export default async function RentVehicleDetailsPage(props: { params: Promise<{ 
                 <p className="text-sm md:text-lg font-bold">{vehicle.batteryCapKwh} kWh</p>
               </div>
               <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
-                <Zap className="w-4 h-4 md:w-5 md:h-5 text-blue-400 mx-auto mb-1 md:mb-2" />
+                <Zap className="w-4 h-4 md:w-5 md:h-5 text-leaf mx-auto mb-1 md:mb-2" />
                 <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Top Speed</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.topSpeedKmh} km/h</p>
               </div>
@@ -144,11 +148,14 @@ export default async function RentVehicleDetailsPage(props: { params: Promise<{ 
 
             <div className="flex items-center gap-3 text-ink/60">
               <MapPin className="w-5 h-5 text-primary" />
-              <p className="text-sm">Available in <span className="text-ink/85 font-bold">12+ Cities</span> including Delhi, Mumbai, and Bangalore.</p>
+              <p className="text-sm">Contact us to confirm availability and delivery in your city.</p>
             </div>
 
             <div className="pt-4">
               <BuyEnquireButton vehicleId={vehicle.id} vehicleName={`${vehicle.make} ${vehicle.model}`} label="Enquire for Rent" />
+              <div className="mt-3">
+                <CompareButton variant="block" item={{ id: vehicle.id, title: `${vehicle.make} ${vehicle.model}`, image: vehicle.mainImage }} />
+              </div>
               <VehicleSectionLinks vehicle={vehicle} currentSection="rent" />
             </div>
           </div>
@@ -186,6 +193,11 @@ export default async function RentVehicleDetailsPage(props: { params: Promise<{ 
               </div>
             )}
           </div>
+        </div>
+
+        {/* Warranty & ownership */}
+        <div className="mt-12 md:mt-24 max-w-5xl mx-auto">
+          <VehiclePolicySummary items={policyItems} vehicleName={`${vehicle.make} ${vehicle.model}`} recordedWarranty={vehicle.warranty} />
         </div>
 
         {/* Specifications */}

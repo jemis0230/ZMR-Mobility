@@ -16,7 +16,7 @@ function timeAgo(date: Date): string {
 
 const LEAD_STATUS: Record<string, { label: string; color: string }> = {
   PENDING:     { label: 'Pending',   color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  CONTACTED:   { label: 'Contacted', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
+  CONTACTED:   { label: 'Contacted', color: 'text-leaf bg-tint border-sage/40' },
   QUALIFIED:   { label: 'Qualified', color: 'text-purple-400 bg-purple-400/10 border-purple-400/20' },
   CLOSED_WON:  { label: 'Won',       color: 'text-green-400 bg-green-400/10 border-green-400/20' },
   CLOSED_LOST: { label: 'Lost',      color: 'text-red-400 bg-red-400/10 border-red-400/20' },
@@ -25,7 +25,7 @@ const LEAD_STATUS: Record<string, { label: string; color: string }> = {
 const SELL_STATUS: Record<string, { label: string; color: string }> = {
   NEW:       { label: 'New',       color: 'text-primary bg-primary/10 border-primary/20' },
   REVIEWING: { label: 'Reviewing', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  VALUED:    { label: 'Valued',    color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
+  VALUED:    { label: 'Valued',    color: 'text-leaf bg-tint border-sage/40' },
   ACCEPTED:  { label: 'Accepted',  color: 'text-green-400 bg-green-400/10 border-green-400/20' },
   REJECTED:  { label: 'Rejected',  color: 'text-red-400 bg-red-400/10 border-red-400/20' },
 };
@@ -114,12 +114,12 @@ export default async function AdminDashboardPage() {
             <p className="text-xs text-ink/50">Awaiting contact</p>
           </div>
 
-          <div className="glass-card p-6 border-blue-400/10 space-y-3">
+          <div className="glass-card p-6 border-sage/40 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-xs font-black uppercase tracking-widest text-ink/60">Contacted</p>
-              <Clock className="w-4 h-4 text-blue-400/50" />
+              <Clock className="w-4 h-4 text-leaf" />
             </div>
-            <p className="text-4xl font-black text-blue-400">{contactedLeads}</p>
+            <p className="text-4xl font-black text-leaf">{contactedLeads}</p>
             <p className="text-xs text-ink/50">In progress</p>
           </div>
 

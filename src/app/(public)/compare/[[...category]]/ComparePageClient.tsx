@@ -1,171 +1,318 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import CategorySelector from "@/presentation/components/CategorySelector";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { X, Plus, AlertTriangle, ArrowLeftRight, Search } from "lucide-react";
+import type { Vehicle } from "@/domain/entities/Vehicle";
+import { CATEGORY_DISPLAY, type VehicleCategory } from "@/lib/constants";
 import { slugifyVehicle } from "@/lib/vehicleSlug";
-import { CATEGORY_SLUG_MAP, CATEGORY_DISPLAY, isCargo } from "@/lib/constants";
-import { Vehicle } from "@/domain/entities/Vehicle";
 import { formatMinutes } from "@/lib/formatTime";
+import { formatINR } from "@/lib/explore";
+import { COMPARE_MAX, COMPARE_MIN, compareHref } from "@/lib/compare";
+import { compareActions, useCompare } from "@/presentation/components/compare/compareStore";
+import EVImage from "@/presentation/components/EVImage";
+
+export interface CatalogItem {
+  id: string;
+  title: string;
+  name: string;
+  category: VehicleCategory;
+  categoryLabel: string;
+  image: string;
+}
+
+const NP = <span className="text-ink/60 italic">Not provided</span>;
+
+function detailHref(v: Vehicle): string {
+  const slug = slugifyVehicle(v.make, v.model, v.id);
+  if (v.showInBuying) return `/buying/vehicles/detail/${slug}`;
+  if (v.showInLeasing) return `/vehicles/${slug}`;
+  return `/rent/vehicles/detail/${slug}`;
+}
+
+const lowestLease = (v: Vehicle) =>
+  v.leasePlans.filter((p) => p.isActive).sort((a, b) => a.monthlyPriceRs - b.monthlyPriceRs)[0]?.monthlyPriceRs;
+
+const ROWS: { label: string; render: (v: Vehicle) => ReactNode }[] = [
+  {
+    label: "Price",
+    render: (v) =>
+      v.buyingPrice ? (
+        <span className="font-black text-forest">{formatINR(v.buyingPrice)}</span>
+      ) : v.showInBuying ? "Price on request" : NP,
+  },
+  { label: "Lease from", render: (v) => (lowestLease(v) ? `${formatINR(lowestLease(v)!)}/month` : NP) },
+  { label: "Year", render: (v) => v.manufactureYear ?? NP },
+  { label: "KM driven", render: (v) => (v.kmDriven != null ? `${v.kmDriven.toLocaleString("en-IN")} km` : NP) },
+  { label: "Body type", render: (v) => CATEGORY_DISPLAY[v.category] },
+  { label: "Battery capacity", render: (v) => (v.batteryCapKwh ? `${v.batteryCapKwh} kWh` : NP) },
+  {
+    label: "Range per charge",
+    render: (v) =>
+      v.certifiedRangeKm ? (
+        <>
+          {v.certifiedRangeKm} km <span className="text-ink/65 text-xs">(certified)</span>
+          {v.realWorldRangeKm ? <span className="block text-xs text-ink/75">{v.realWorldRangeKm} km real-world</span> : null}
+        </>
+      ) : NP,
+  },
+  { label: "Charging time", render: (v) => (v.chargingTimeMinutes > 0 ? formatMinutes(v.chargingTimeMinutes) : NP) },
+  { label: "Top speed", render: (v) => (v.topSpeedKmh ? `${v.topSpeedKmh} km/h` : NP) },
+  { label: "Vehicle condition", render: () => NP },
+  { label: "Warranty", render: (v) => (v.warranty?.trim() ? v.warranty : NP) },
+  {
+    label: "Availability",
+    render: (v) => {
+      const modes = [v.showInBuying && "Buy", v.showInLeasing && "Lease", v.showInRent && "Rent"].filter(Boolean) as string[];
+      return modes.length ? (
+        <span className="flex flex-wrap gap-1">
+          {modes.map((m) => <span key={m} className="rounded-full bg-lime/50 px-2 py-0.5 text-xs font-bold text-forest">{m}</span>)}
+        </span>
+      ) : "Not currently listed";
+    },
+  },
+];
 
 export default function ComparePageClient({
-  params,
-  initialVehicles,
+  requestedIds, vehicles, unavailableIds, catalog, categoryFilter, dbError,
 }: {
-  params: { category?: string[] };
-  initialVehicles: Vehicle[];
+  requestedIds: string[];
+  vehicles: Vehicle[];
+  unavailableIds: string[];
+  catalog: CatalogItem[];
+  categoryFilter: VehicleCategory | null;
+  dbError: boolean;
 }) {
-  const categorySlug = params.category?.[0] || "2-wheeler";
-  const category = CATEGORY_SLUG_MAP[categorySlug] ?? 'TWO_WHEELER';
-  const categoryLabel = CATEGORY_DISPLAY[category] ?? categorySlug;
-  const isCargoCategory = isCargo(category);
+  const router = useRouter();
+  const { items: stored } = useCompare();
+  const [pick, setPick] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [filter, setFilter] = useState<VehicleCategory | "">(categoryFilter ?? "");
 
-  const [selectedVehicle1Id, setSelectedVehicle1Id] = useState<string | null>(initialVehicles[0]?.id || null);
-  const [selectedVehicle2Id, setSelectedVehicle2Id] = useState<string | null>(initialVehicles[1]?.id || null);
+  const byId = useMemo(() => new Map(vehicles.map((v) => [v.id, v])), [vehicles]);
+  const catalogById = useMemo(() => new Map(catalog.map((c) => [c.id, c])), [catalog]);
 
-  const selectedVehicle1 = initialVehicles.find((v) => v.id === selectedVehicle1Id);
-  const selectedVehicle2 = initialVehicles.find((v) => v.id === selectedVehicle2Id);
-
-  const getLowestLeasePrice = (v: Vehicle) =>
-    v.leasePlans.filter((p) => p.isActive).sort((a, b) => a.monthlyPriceRs - b.monthlyPriceRs)[0]?.monthlyPriceRs ?? null;
-
-  const getComparisonAttributes = () => {
-    const specs: Array<{ label: string; getValue: (v: Vehicle) => string }> = [
-      { label: "Monthly Lease", getValue: (v) => { const p = getLowestLeasePrice(v); return p ? `₹${p.toLocaleString('en-IN')}` : "—"; } },
-      { label: "Range", getValue: (v) => `${v.certifiedRangeKm} km` },
-      { label: "Top Speed", getValue: (v) => `${v.topSpeedKmh} km/h` },
-      { label: "Battery Capacity", getValue: (v) => `${v.batteryCapKwh} kWh` },
-      { label: "Battery Type", getValue: (v) => v.batteryType?.name ?? "—" },
-      { label: "Motor Type", getValue: (v) => v.motorType?.name ?? "—" },
-      { label: "Peak Power", getValue: (v) => v.peakPowerKw != null ? `${v.peakPowerKw} kW` : "—" },
-      { label: "Peak Torque", getValue: (v) => v.peakTorqueNm != null ? `${v.peakTorqueNm} Nm` : "—" },
-      { label: "Transmission", getValue: (v) => v.transmission || "—" },
-      { label: "Charging Time", getValue: (v) => formatMinutes(v.chargingTimeMinutes) },
-      { label: "Curb Weight", getValue: (v) => v.curbWeightKg ? `${v.curbWeightKg} kg` : "—" },
-      { label: "Ground Clearance", getValue: (v) => v.groundClearanceMm ? `${v.groundClearanceMm} mm` : "—" },
-      { label: "Warranty", getValue: (v) => v.warranty || "—" },
-    ];
-
-    if (isCargoCategory) {
-      specs.push(
-        { label: "Payload", getValue: (v) => v.payloadKg ? `${v.payloadKg} kg` : "—" },
-        { label: "Cargo Volume", getValue: (v) => v.cargoVolumeL ? `${v.cargoVolumeL} L` : "—" }
-      );
+  // URL is the source of truth here; mirror it into the shared selection (tray / navbar badge).
+  useEffect(() => {
+    if (requestedIds.length > 0) {
+      compareActions.setAll(vehicles.map((v) => ({ id: v.id, title: `${v.make} ${v.model}`, image: v.mainImage })));
     }
+  }, [requestedIds, vehicles]);
 
-    return specs;
+  // Arriving via the navbar (/compare with no ids): load the saved selection.
+  useEffect(() => {
+    if (requestedIds.length === 0 && stored.length > 0) {
+      router.replace(compareHref(stored.map((s) => s.id)), { scroll: false });
+    }
+  }, [requestedIds.length, stored, router]);
+
+  const navigate = (ids: string[]) => router.replace(compareHref(ids), { scroll: false });
+
+  const remove = (id: string) => {
+    setMessage(null);
+    compareActions.remove(id);
+    navigate(requestedIds.filter((x) => x !== id));
   };
 
-  const attributes = getComparisonAttributes();
+  const add = (id: string) => {
+    if (!id) return;
+    if (requestedIds.includes(id)) {
+      setMessage("That vehicle is already in your comparison.");
+      return;
+    }
+    if (requestedIds.length >= COMPARE_MAX) {
+      setMessage(`You can compare up to ${COMPARE_MAX} vehicles. Remove or replace one first.`);
+      return;
+    }
+    setMessage(null);
+    setPick("");
+    navigate([...requestedIds, id]);
+  };
+
+  const replace = (oldId: string, newId: string) => {
+    if (!newId) return;
+    if (requestedIds.includes(newId)) {
+      setMessage("That vehicle is already in your comparison.");
+      return;
+    }
+    setMessage(null);
+    navigate(requestedIds.map((x) => (x === oldId ? newId : x)));
+  };
+
+  const options = catalog.filter((c) => !requestedIds.includes(c.id) && (!filter || c.category === filter));
+  const full = requestedIds.length >= COMPARE_MAX;
+  const categories = Array.from(new Set(catalog.map((c) => c.category)));
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="pt-24 lg:pt-40 pb-20 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-            Compare <span className="text-primary">{categoryLabel}</span>
-          </h1>
-          <p className="text-ink/60 max-w-2xl mx-auto text-lg">
-            Find the perfect electric {categoryLabel.toLowerCase()} by comparing specifications, performance, and pricing side by side.
+    <main className="min-h-screen bg-cream">
+      <div className="pt-24 lg:pt-40 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <p className="text-primary text-xs font-bold uppercase tracking-widest">Side by side</p>
+            <h1 className="text-3xl md:text-5xl font-black mt-2 text-forest">Compare EVs</h1>
+            <p className="text-ink/80 mt-2 max-w-xl">
+              Compare {COMPARE_MIN}–{COMPARE_MAX} vehicles from our current inventory. Details we don&apos;t have yet are shown as &ldquo;Not provided&rdquo;.
+            </p>
+          </div>
+          <p className="text-sm font-bold text-forest" aria-live="polite">
+            <ArrowLeftRight className="inline w-4 h-4 mr-1 text-leaf" aria-hidden />
+            {requestedIds.length} of {COMPARE_MAX} selected
           </p>
         </div>
 
-        <div className="mb-16">
-          <CategorySelector currentSlug={categorySlug} baseHref="/compare" />
+        {/* Picker */}
+        <div className="rounded-2xl bg-white border border-ink/10 shadow-card p-4 md:p-5 mb-6">
+          <div className="flex flex-col lg:flex-row gap-3 lg:items-end">
+            <label className="flex-1">
+              <span className="block text-xs font-bold uppercase tracking-wider text-ink/75 mb-1.5">Body type</span>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as VehicleCategory | "")}
+                className="w-full rounded-xl border border-ink/20 bg-white px-3 py-2.5 text-sm text-forest"
+              >
+                <option value="">All body types</option>
+                {categories.map((c) => <option key={c} value={c}>{CATEGORY_DISPLAY[c]}</option>)}
+              </select>
+            </label>
+            <label className="flex-[2]">
+              <span className="block text-xs font-bold uppercase tracking-wider text-ink/75 mb-1.5">Add a vehicle</span>
+              <select
+                value={pick}
+                onChange={(e) => setPick(e.target.value)}
+                disabled={full || options.length === 0}
+                className="w-full rounded-xl border border-ink/20 bg-white px-3 py-2.5 text-sm text-forest disabled:bg-tint disabled:text-ink/60"
+              >
+                <option value="">{full ? `Maximum of ${COMPARE_MAX} reached — remove one to add another` : options.length ? "Choose a vehicle…" : "No more vehicles available"}</option>
+                {options.map((c) => <option key={c.id} value={c.id}>{c.title} · {c.categoryLabel}</option>)}
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => add(pick)}
+              disabled={!pick || full}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold px-5 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus className="w-4 h-4" aria-hidden /> Add to compare
+            </button>
+          </div>
+          {message && <p role="alert" className="mt-3 text-sm font-semibold text-amber-900 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2">{message}</p>}
+          {dbError && <p role="alert" className="mt-3 text-sm text-red-800">We couldn&apos;t load the inventory right now. Please try again shortly.</p>}
         </div>
 
-        {initialVehicles.length < 2 ? (
-          <div className="glass-card p-16 text-center border-dashed border-ink/10">
-            <h3 className="text-2xl font-bold text-ink/60 mb-4">Not Enough Vehicles to Compare</h3>
-            <p className="text-ink/40 mb-8 max-w-md mx-auto">We need at least 2 vehicles in this category to show a comparison. Please check back soon or browse our fleet!</p>
-            <Link href={`/leasing/vehicles/${categorySlug}`} className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full font-bold transition-all electric-glow">
-              Browse Fleet
-            </Link>
+        {requestedIds.length === 0 ? (
+          <div className="rounded-3xl bg-white border border-dashed border-ink/20 py-16 px-6 text-center">
+            <Search className="w-8 h-8 text-leaf mx-auto mb-3" aria-hidden />
+            <h2 className="text-xl font-bold text-forest">Start a comparison</h2>
+            <p className="text-ink/75 text-sm mt-1 max-w-md mx-auto">
+              Pick vehicles above, or use &ldquo;Add to compare&rdquo; on any vehicle card or detail page.
+            </p>
+            <Link href="/explore" className="inline-block mt-5 rounded-xl bg-primary text-white px-5 py-2.5 text-sm font-bold hover:bg-primary-dark">Browse vehicles</Link>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-              <div className="glass-card p-4 md:p-8">
-                <label className="text-ink/60 text-sm font-bold uppercase tracking-widest mb-4 block">Vehicle 1</label>
-                <select
-                  value={selectedVehicle1Id || ""}
-                  onChange={(e) => setSelectedVehicle1Id(e.target.value)}
-                  className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink/85 focus:outline-none focus:border-primary transition-colors"
-                >
-                  {initialVehicles.map((vehicle) => (
-                    <option key={vehicle.id} value={vehicle.id}>{vehicle.make} {vehicle.model}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="glass-card p-4 md:p-8">
-                <label className="text-ink/60 text-sm font-bold uppercase tracking-widest mb-4 block">Vehicle 2</label>
-                <select
-                  value={selectedVehicle2Id || ""}
-                  onChange={(e) => setSelectedVehicle2Id(e.target.value)}
-                  className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink/85 focus:outline-none focus:border-primary transition-colors"
-                >
-                  {initialVehicles.map((vehicle) => (
-                    <option key={vehicle.id} value={vehicle.id}>{vehicle.make} {vehicle.model}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {selectedVehicle1 && selectedVehicle2 && (
-              <div className="overflow-x-auto -mx-6 px-6">
-                <div className="min-w-[540px]">
-                  <div className="grid grid-cols-3 gap-4 md:gap-8 mb-4 md:mb-8">
-                    <div className="opacity-50 flex items-end pb-4 md:pb-8">
-                      <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-ink/60">Specification</span>
-                    </div>
-                    {[selectedVehicle1, selectedVehicle2].map((vehicle) => {
-                      const leasePrice = getLowestLeasePrice(vehicle);
-                      return (
-                        <div key={vehicle.id} className="flex flex-col">
-                          <div className="glass-card p-4 md:p-8 border-primary/10 text-center">
-                            <div className="w-full aspect-video bg-ink/5 rounded-xl overflow-hidden mb-3 md:mb-6">
-                              <img src={vehicle.mainImage} alt={vehicle.model} className="w-full h-full object-contain p-2" />
-                            </div>
-                            <h3 className="text-sm md:text-xl font-bold tracking-tight mb-1 md:mb-2">
-                              {vehicle.make} <span className="text-primary">{vehicle.model}</span>
-                            </h3>
-                            {leasePrice && (
-                              <div className="text-xl md:text-3xl font-black text-primary italic mb-2 md:mb-4">
-                                ₹{leasePrice.toLocaleString('en-IN')}<span className="text-[10px] md:text-xs text-ink/60 font-normal not-italic">/mo</span>
-                              </div>
-                            )}
-                            <Link href={`/vehicles/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`} className="inline-flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary hover:text-ink/85 transition-colors">
-                              View Details
-                            </Link>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="space-y-2">
-                    {attributes.map((attr, idx) => {
-                      const v1 = attr.getValue(selectedVehicle1);
-                      const v2 = attr.getValue(selectedVehicle2);
-                      return (
-                        <div key={idx} className="grid grid-cols-3 gap-4 md:gap-8 items-center">
-                          <div className="bg-ink/5 p-3 md:p-6 rounded-xl border border-ink/[0.08]">
-                            <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-ink/60">{attr.label}</span>
-                          </div>
-                          <div className="p-3 md:p-6 text-center border border-ink/[0.08] rounded-xl">
-                            <span className="text-sm md:text-lg font-bold text-ink/85">{v1}</span>
-                          </div>
-                          <div className="p-3 md:p-6 text-center border border-ink/[0.08] rounded-xl">
-                            <span className="text-sm md:text-lg font-bold text-ink/85">{v2}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
+            {requestedIds.length < COMPARE_MIN && (
+              <p className="mb-4 text-sm text-ink/80">Add at least one more vehicle to compare side by side.</p>
             )}
+            <div className="relative rounded-2xl bg-white border border-ink/10 shadow-card overflow-x-auto">
+              <table className="w-full min-w-[640px] border-collapse text-sm">
+                <caption className="sr-only">Comparison of {requestedIds.length} selected vehicles</caption>
+                <thead>
+                  <tr>
+                    <th scope="col" className="sticky left-0 z-10 bg-tint w-36 md:w-48 p-4 text-left align-bottom text-xs font-bold uppercase tracking-wider text-ink/75">
+                      Vehicle
+                    </th>
+                    {requestedIds.map((id) => {
+                      const v = byId.get(id);
+                      if (!v) {
+                        const c = catalogById.get(id);
+                        return (
+                          <th key={id} scope="col" className="p-4 align-top text-left min-w-[200px] border-l border-ink/10">
+                            <div className="rounded-xl bg-amber-50 border border-amber-300 p-4">
+                              <p className="flex items-center gap-2 font-bold text-amber-900"><AlertTriangle className="w-4 h-4" aria-hidden /> No longer available</p>
+                              <p className="text-xs text-amber-900 mt-1">{c ? c.title : "This vehicle"} has been sold or removed from our listings.</p>
+                              <button type="button" onClick={() => remove(id)} className="mt-3 text-xs font-bold text-forest underline">Remove from comparison</button>
+                            </div>
+                          </th>
+                        );
+                      }
+                      return (
+                        <th key={id} scope="col" className="p-4 align-top text-left min-w-[200px] border-l border-ink/10 font-normal">
+                          <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-tint mb-3">
+                            {v.mainImage && <EVImage src={v.mainImage} alt="" className="w-full h-full" imgClassName="object-cover" />}
+                          </div>
+                          <p className="text-xs font-bold uppercase tracking-wider text-ink/70">{v.make}</p>
+                          <p className="text-base font-black text-forest leading-tight">{v.model}</p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => remove(id)}
+                              aria-label={`Remove ${v.make} ${v.model} from comparison`}
+                              className="inline-flex items-center gap-1 rounded-full border border-ink/20 px-2.5 py-1 text-xs font-bold text-forest hover:border-red-400 hover:text-red-800"
+                            >
+                              <X className="w-3 h-3" aria-hidden /> Remove
+                            </button>
+                            <label className="sr-only" htmlFor={`replace-${id}`}>Replace {v.make} {v.model} with</label>
+                            <select
+                              id={`replace-${id}`}
+                              value=""
+                              onChange={(e) => replace(id, e.target.value)}
+                              className="rounded-full border border-ink/20 bg-white px-2.5 py-1 text-xs font-bold text-forest max-w-[150px]"
+                            >
+                              <option value="">Replace with…</option>
+                              {catalog.filter((c) => !requestedIds.includes(c.id)).map((c) => (
+                                <option key={c.id} value={c.id}>{c.title}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {ROWS.map((row, ri) => (
+                    <tr key={row.label} className={ri % 2 === 0 ? "bg-cream/50" : "bg-white"}>
+                      <th scope="row" className={`sticky left-0 z-10 p-4 text-left text-xs font-bold uppercase tracking-wider text-ink/80 ${ri % 2 === 0 ? "bg-tint" : "bg-white"}`}>
+                        {row.label}
+                      </th>
+                      {requestedIds.map((id) => {
+                        const v = byId.get(id);
+                        return (
+                          <td key={id} className="p-4 border-l border-ink/10 text-forest align-top">
+                            {v ? row.render(v) : <span className="text-ink/50">—</span>}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                  <tr>
+                    <th scope="row" className="sticky left-0 z-10 bg-white p-4 text-left text-xs font-bold uppercase tracking-wider text-ink/80">Next steps</th>
+                    {requestedIds.map((id) => {
+                      const v = byId.get(id);
+                      return (
+                        <td key={id} className="p-4 border-l border-ink/10 align-top">
+                          {v ? (
+                            <div className="flex flex-col gap-2">
+                              <Link href={detailHref(v)} className="rounded-xl bg-primary hover:bg-primary-dark text-white text-center text-sm font-bold px-4 py-2.5">
+                                View details
+                              </Link>
+                              <Link href={`${detailHref(v)}#vehicle-policy-title`} className="rounded-xl border border-ink/20 text-forest text-center text-sm font-bold px-4 py-2.5 hover:border-primary">
+                                Enquire &amp; confirm terms
+                              </Link>
+                            </div>
+                          ) : null}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-4 text-xs text-ink/70">
+              Vehicle condition is assessed individually — ask our team for the inspection details of any vehicle.
+              Warranty shows the coverage recorded for each vehicle; see <Link href="/warranty-ownership" className="underline font-semibold">Warranty &amp; Ownership Support</Link>.
+            </p>
           </>
         )}
       </div>

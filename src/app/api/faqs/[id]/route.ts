@@ -2,6 +2,7 @@ import { ok, badRequest, notFound, serverError } from '@/app/api/_lib/response';
 import { withSession, isResponse } from '@/app/api/_lib/auth-guard';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { isPolicyTopic } from '@/lib/policies';
 
 // PUT /api/faqs/[id]
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -18,6 +19,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const answer = body.answer?.trim();
     if (!question) return badRequest('Question is required');
     if (!answer) return badRequest('Answer is required');
+    if (body.topic != null && body.topic !== '' && !isPolicyTopic(body.topic)) return badRequest('Unknown policy topic');
+    const topic = isPolicyTopic(body.topic) ? body.topic : null;
 
     const isActive = typeof body.isActive === 'boolean' ? body.isActive : existing.isActive;
     const requestedOrder =
@@ -48,18 +51,20 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       }
       return tx.faq.update({
         where: { id },
-        data: { question, answer, isActive, sortOrder: newOrder },
+        data: { question, answer, isActive, sortOrder: newOrder, topic: body.topic === undefined ? existing.topic : topic },
       });
     });
 
     revalidatePath('/');
     revalidatePath('/admin/faqs');
+    revalidatePath('/warranty-ownership');
     return ok({
       id: faq.id,
       question: faq.question,
       answer: faq.answer,
       order: faq.sortOrder,
       isActive: faq.isActive,
+      topic: faq.topic,
       createdAt: faq.createdAt.toISOString(),
       updatedAt: faq.updatedAt.toISOString(),
     });
@@ -88,6 +93,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
     revalidatePath('/');
     revalidatePath('/admin/faqs');
+    revalidatePath('/warranty-ownership');
     return ok({ deleted: true });
   } catch (error) {
     return serverError(error);
