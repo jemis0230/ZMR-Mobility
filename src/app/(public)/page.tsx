@@ -34,7 +34,7 @@ async function loadHomeData() {
   ]);
   return {
     featured,
-    makes: menu.makes.map(({ make, models }) => ({ make, models })),
+    makes: menu.makes.map(({ make, models, count }) => ({ make, models, count })),
     priceBuckets: buildPriceBuckets(menu.prices),
     policyItems,
   };

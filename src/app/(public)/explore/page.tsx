@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, X, Check, SearchX, ShieldCheck, ArrowLeftRight, Info } from "lucide-react";
+import { ChevronRight, X, Check, SearchX, ShieldCheck, ArrowLeftRight, Info, Bike } from "lucide-react";
 import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
 import type { ExploreFilterParams, ExploreMenuData } from "@/application/repositories/IVehicleRepository";
 import { getCachedExploreMenuData } from "@/lib/cachedVehicleQueries";
 import {
   YEAR_OPTIONS, KM_OPTIONS, BODY_TYPES, RANGE_OPTIONS, PRICE_CAP,
-  EXPLORE_PATH, SORT_OPTIONS, EMI_DISCLAIMER, categoryFromTypeSlug, buildPriceBuckets, priceSliderBounds,
-  clampPrice, priceRangeLabel, formatINR,
+  EXPLORE_PATH, SORT_OPTIONS, EMI_DISCLAIMER, buildPriceBuckets, priceSliderBounds,
+  clampPrice, priceRangeLabel, formatINR, parseBodyTypeSlugs,
 } from "@/lib/explore";
-import { CATEGORY_TO_SLUG, type VehicleCategory } from "@/lib/constants";
+import { ALLOWED_BRANDS, canonicalBrand } from "@/lib/brands";
 import ExploreVehicleCard from "@/presentation/components/ExploreVehicleCard";
 import Pagination from "@/presentation/components/Pagination";
 import { SortSelect, FilterPanel, PriceRangeFilter } from "./ExploreControls";
 
 export const dynamic = "force-dynamic";
 
-const BASE_DESCRIPTION = "Explore pre-owned electric vehicles from ZMR Mobility by price, make & model, year, KM driven and body type — scooters, e-rickshaws, cargo loaders and more.";
+const BASE_DESCRIPTION = "Explore pre-owned electric vehicles from ZMR Mobility by price, make & model, year, KM driven, body type and range per charge.";
 
 // Body-type pages (/explore?type=…) are listed in the sitemap, so they get their own
 // canonical URL and title; every other filter combination canonicalises to /explore.
@@ -25,12 +25,12 @@ export async function generateMetadata(props: { searchParams: Promise<SP> }): Pr
   const sp = await props.searchParams;
   const keys = Object.keys(sp).filter((k) => sp[k]);
   const type = typeof sp.type === "string" ? sp.type : undefined;
-  const bodyType = type ? BODY_TYPES.find((b) => CATEGORY_TO_SLUG[b.category] === type) : undefined;
+  const bodyType = type ? BODY_TYPES.find((b) => b.slug === type) : undefined;
 
   if (bodyType && keys.length === 1) {
     return {
-      title: `Buy Used Electric ${bodyType.label} (${bodyType.hint}) | ZMR Mobility`,
-      description: `Pre-owned electric ${bodyType.label.toLowerCase()} for sale from ZMR Mobility. ${BASE_DESCRIPTION}`,
+      title: `Buy Used Electric ${bodyType.label}s | ZMR Mobility`,
+      description: `Pre-owned electric ${bodyType.label.toLowerCase()}s for sale from ZMR Mobility. ${BASE_DESCRIPTION}`,
       alternates: { canonical: `/explore?type=${type}` },
     };
   }
@@ -42,6 +42,8 @@ export async function generateMetadata(props: { searchParams: Promise<SP> }): Pr
 }
 
 const repo = new PrismaVehicleRepository();
+
+const ALLOWED_MAKES_EMPTY = ALLOWED_BRANDS.map((make) => ({ make, models: [] as string[], count: 0 }));
 
 type SP = Record<string, string | string[] | undefined>;
 
@@ -120,12 +122,37 @@ function Option({ href, active, children, multi, count }: { href: string; active
 
 export default async function ExplorePage(props: { searchParams: Promise<SP> }) {
   const sp = await props.searchParams;
-  const p = readParams(sp);
+  const raw = readParams(sp);
   const page = Math.max(1, toInt(typeof sp.page === "string" ? sp.page : undefined) ?? 1);
 
-  const makes = p.make ? p.make.split(",").filter(Boolean) : undefined;
-  const typeSlugs = p.type ? p.type.split(",").filter(Boolean) : [];
-  const categories = typeSlugs.map(categoryFromTypeSlug).filter(Boolean) as VehicleCategory[];
+  // Links made before the filter options changed may carry values we no longer offer
+  // (other brands, 2018, 50,000 km, Car, 300+ km…). Those are dropped, never shown as active.
+  const dropped: string[] = [];
+  const p: Partial<Record<FilterKey, string>> = { ...raw };
+
+  const brandList: string[] = [];
+  for (const m of (raw.make ?? "").split(",").map((s) => s.trim()).filter(Boolean)) {
+    const brand = canonicalBrand(m);
+    if (brand) { if (!brandList.includes(brand)) brandList.push(brand); }
+    else dropped.push(m);
+  }
+  p.make = brandList.length ? brandList.join(",") : undefined;
+  if (raw.model && brandList.length !== 1) { dropped.push(raw.model); p.model = undefined; }
+
+  const keepIfOffered = (key: "minYear" | "maxKm" | "minRange", options: number[], label: (n: string) => string) => {
+    if (raw[key] && !options.map(String).includes(raw[key]!)) { dropped.push(label(raw[key]!)); p[key] = undefined; }
+  };
+  keepIfOffered("minYear", YEAR_OPTIONS, (v) => `${v} & above`);
+  keepIfOffered("maxKm", KM_OPTIONS, (v) => `${Number(v).toLocaleString("en-IN")} km or less`);
+  keepIfOffered("minRange", RANGE_OPTIONS, (v) => `${v}+ km range`);
+
+  const bodyTypes = parseBodyTypeSlugs(raw.type);
+  dropped.push(...bodyTypes.dropped);
+  const typeSlugs: string[] = bodyTypes.slugs;
+  p.type = typeSlugs.length ? typeSlugs.join(",") : undefined;
+
+  const makes = brandList.length ? brandList : undefined;
+  const bodyStyles = BODY_TYPES.filter((b) => typeSlugs.includes(b.slug)).map((b) => b.style);
   const sortBy = SORT_OPTIONS.some((o) => o.value === p.sort) ? (p.sort as ExploreFilterParams["sortBy"]) : "newest";
 
   // Selectable prices never exceed the ₹3,00,000 cap; out-of-range links are clamped.
@@ -146,7 +173,7 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
     model: p.model,
     minYear: toInt(p.minYear),
     maxKm: toInt(p.maxKm),
-    categories,
+    bodyStyles,
     minRange: toInt(p.minRange),
     sortBy,
     page,
@@ -173,17 +200,19 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
   if (p.model) chips.push({ label: p.model, href: hrefWith(pc, { model: undefined }) });
   if (p.minYear) chips.push({ label: `${p.minYear} & above`, href: hrefWith(pc, { minYear: undefined }) });
   if (p.maxKm) chips.push({ label: `Up to ${Number(p.maxKm).toLocaleString("en-IN")} km`, href: hrefWith(pc, { maxKm: undefined }) });
-  categories.forEach((c) => {
-    const bt = BODY_TYPES.find((b) => b.category === c);
-    chips.push({ label: bt?.label ?? c, href: hrefWith(pc, { type: toggleInList(p.type, CATEGORY_TO_SLUG[c]) }) });
+  BODY_TYPES.filter((b) => typeSlugs.includes(b.slug)).forEach((bt) => {
+    chips.push({ label: bt.label, href: hrefWith(pc, { type: toggleInList(p.type, bt.slug) }) });
   });
   if (p.minRange) chips.push({ label: `${p.minRange}+ km range`, href: hrefWith(pc, { minRange: undefined }) });
+
+  // Selected brands with no listings at all (shown honestly instead of a generic empty state)
+  const unlistedBrands = (makes ?? []).filter((b) => (menu.makes.find((m) => m.make === b)?.count ?? 0) === 0);
 
   const pageParams = new URLSearchParams();
   for (const k of FILTER_KEYS) if (pc[k]) pageParams.set(k, pc[k]!);
 
-  const heading = categories.length === 1
-    ? `Pre-owned ${BODY_TYPES.find((b) => b.category === categories[0])?.label ?? "EVs"}`
+  const heading = typeSlugs.length === 1
+    ? `Pre-owned Electric ${BODY_TYPES.find((b) => b.slug === typeSlugs[0])?.label ?? "Vehicle"}s`
     : makes?.length === 1
     ? `Pre-owned ${makes[0]}${p.model ? ` ${p.model}` : ""} EVs`
     : "Pre-owned Electric Vehicles";
@@ -218,19 +247,21 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
           {/* Body type quick tiles */}
           <div className="mt-6 flex gap-3 overflow-x-auto no-scrollbar pb-1" role="list" aria-label="Body type">
             {BODY_TYPES.map((bt) => {
-              const slug = CATEGORY_TO_SLUG[bt.category];
+              const slug = bt.slug;
               const active = typeSlugs.includes(slug);
               return (
                 <Link
-                  key={bt.category}
+                  key={slug}
                   role="listitem"
                   href={hrefWith(pc, { type: toggleInList(p.type, slug) })}
                   scroll={false}
                   aria-current={active ? "true" : undefined}
                   className={`shrink-0 flex items-center gap-3 rounded-2xl border pr-4 pl-1.5 py-1.5 transition-all ${active ? "border-forest bg-lime text-forest shadow-md" : "border-ink/15 bg-white text-forest hover:border-primary"}`}
                 >
-                  <span className="relative w-14 h-10 rounded-xl overflow-hidden bg-cream">
-                    <Image src={bt.image} alt="" fill sizes="56px" className="object-cover" />
+                  <span className="relative w-14 h-10 rounded-xl overflow-hidden bg-cream flex items-center justify-center">
+                    {bt.image
+                      ? <Image src={bt.image} alt="" fill sizes="56px" className="object-cover" />
+                      : <Bike className="w-6 h-6 text-leaf" aria-hidden />}
                   </span>
                   <span className="text-sm font-bold whitespace-nowrap">{bt.label}</span>
                 </Link>
@@ -279,13 +310,13 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
               </FilterGroup>
 
               <FilterGroup title="Make and Model">
-                {menu.makes.length === 0 && <p className="text-xs text-ink/70 px-2">No brands listed yet.</p>}
-                {menu.makes.map((m) => {
+                {(menu.makes.length ? menu.makes : ALLOWED_MAKES_EMPTY).map((m) => {
                   const active = makes?.includes(m.make) ?? false;
                   return (
                     <div key={m.make}>
                       <Option multi active={active} count={m.count} href={hrefWith(pc, { make: toggleInList(p.make, m.make), model: undefined })}>
                         {m.make}
+                        {m.count === 0 && <span className="text-[11px] text-ink/60"> · none listed now</span>}
                       </Option>
                       {active && makes?.length === 1 && m.models.length > 1 && (
                         <div className="ml-7 mt-1 mb-2 flex flex-wrap gap-1">
@@ -325,14 +356,11 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
               </FilterGroup>
 
               <FilterGroup title="Body Type">
-                {BODY_TYPES.map((bt) => {
-                  const slug = CATEGORY_TO_SLUG[bt.category];
-                  return (
-                    <Option key={slug} multi active={typeSlugs.includes(slug)} href={hrefWith(pc, { type: toggleInList(p.type, slug) })}>
-                      {bt.label} <span className="text-[11px] text-ink/60">· {bt.hint}</span>
-                    </Option>
-                  );
-                })}
+                {BODY_TYPES.map((bt) => (
+                  <Option key={bt.slug} multi active={typeSlugs.includes(bt.slug)} href={hrefWith(pc, { type: toggleInList(p.type, bt.slug) })}>
+                    {bt.label}
+                  </Option>
+                ))}
               </FilterGroup>
 
               <FilterGroup title="Range per Charge">
@@ -371,6 +399,15 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
             <SortSelect />
           </div>
 
+          {dropped.length > 0 && (
+            <p role="status" className="mb-5 flex gap-2 rounded-xl border border-ink/15 bg-white px-4 py-3 text-xs text-ink/80">
+              <Info className="w-4 h-4 shrink-0 text-leaf" aria-hidden />
+              <span>
+                Some filters in this link are no longer offered and were removed: {dropped.map((d) => `“${d}”`).join(", ")}.
+              </span>
+            </p>
+          )}
+
           {vehicles.length > 0 ? (
             <>
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -384,9 +421,15 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
               <div className="w-14 h-14 mx-auto rounded-2xl bg-tint flex items-center justify-center mb-4">
                 <SearchX className="w-7 h-7 text-leaf" aria-hidden />
               </div>
-              <h2 className="text-xl font-bold text-forest">No vehicles match these filters</h2>
+              <h2 className="text-xl font-bold text-forest">
+                {unlistedBrands.length > 0 && unlistedBrands.length === makes?.length
+                  ? `No ${unlistedBrands.join(" or ")} vehicles are listed right now`
+                  : "No vehicles match these filters"}
+              </h2>
               <p className="text-ink/75 text-sm mt-1 max-w-md mx-auto">
-                {priceActive
+                {unlistedBrands.length > 0 && unlistedBrands.length === makes?.length
+                  ? "Check back soon, or tell us what you’re looking for and our team will let you know when one is available."
+                  : priceActive
                   ? `No listed vehicle is priced ${priceRangeLabel(minPrice, maxPrice).toLowerCase()} with the other filters you chose. Try a wider price range or remove a filter.`
                   : "Try removing a filter — or tell us what you need and our team will help you find it."}
               </p>

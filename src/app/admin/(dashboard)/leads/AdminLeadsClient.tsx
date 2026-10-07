@@ -69,6 +69,7 @@ const INQUIRY_TYPE_COLOR: Record<string, string> = {
   FLEET_LOGISTICS:      'bg-tint text-leaf',
   DEALERSHIP_FRANCHISE: 'bg-orange-500/10 text-orange-400',
   B2B_PARTNERSHIP:      'bg-pink-500/10 text-pink-400',
+  TEST_DRIVE:           'bg-lime/50 text-forest',
   OTHER:                'bg-ink/10 text-ink/65',
 };
 
@@ -80,8 +81,13 @@ const INQUIRY_TYPE_LABEL: Record<string, string> = {
   FLEET_LOGISTICS:      'Fleet / Logistics',
   DEALERSHIP_FRANCHISE: 'Dealership / Franchise',
   B2B_PARTNERSHIP:      'B2B Partnership',
+  TEST_DRIVE:           'Test Drive Request',
   OTHER:                'Other',
 };
+
+function formatPreferredDate(isoDate: string): string {
+  return new Date(`${isoDate}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+}
 
 // Show full date + time; relative suffix for today/yesterday
 function formatDate(iso: string): { primary: string; secondary: string } {
@@ -341,6 +347,15 @@ function LeadDetailModal({
                 {INQUIRY_TYPE_LABEL[lead.inquiryType] ?? lead.inquiryType}
               </span>
             </div>
+
+            {lead.preferredDate && (
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-ink/50 font-bold mb-1">
+                  Preferred Date (not yet confirmed)
+                </p>
+                <p className="text-sm text-ink">{formatPreferredDate(lead.preferredDate)}</p>
+              </div>
+            )}
 
             {lead.vehicleName && (
               <div>
@@ -670,6 +685,9 @@ export default function AdminLeadsClient({
                             <div className="text-xs text-ink/50 flex items-center gap-1 mt-1">
                               <Car className="w-3 h-3" /> {lead.vehicleName}
                             </div>
+                          )}
+                          {lead.preferredDate && (
+                            <div className="text-xs text-ink/60 mt-1">Prefers {formatPreferredDate(lead.preferredDate)}</div>
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-ink/65">

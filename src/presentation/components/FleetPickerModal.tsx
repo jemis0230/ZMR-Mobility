@@ -39,11 +39,11 @@ const INTENTS = [
 ];
 
 const CATEGORIES = [
-  { name: "2 Wheeler",       slug: "2-wheeler",            icon: Zap,     image: "/category-images/2-wheeler.webp",           desc: "Scooters & E-Bikes"    },
-  { name: "3W Cargo",        slug: "3-wheeler-cargo",       icon: Package, image: "/category-images/3-wheeler-cargo.webp",     desc: "Cargo Loaders"         },
-  { name: "3W Passenger",    slug: "3-wheeler-passenger",   icon: Users,   image: "/category-images/3-wheeler-passenger.webp", desc: "E-Rickshaws & Autos"   },
-  { name: "4W Passenger",    slug: "4-wheeler-passenger",   icon: Car,     image: "/category-images/4-wheeler-passenger.webp", desc: "Electric Cars"         },
-  { name: "4W Cargo",        slug: "4-wheeler-cargo",       icon: Package, image: "/category-images/4-wheeler-cargo.webp",     desc: "Cargo Vans"            },
+  { name: "2 Wheeler",       slug: "2-wheeler",            icon: Zap,     image: "/category-images/2-wheeler-v2.webp",           desc: "Scooters & E-Bikes"    },
+  { name: "3W Cargo",        slug: "3-wheeler-cargo",       icon: Package, image: "/category-images/3-wheeler-cargo-v2.webp",     desc: "Cargo Loaders"         },
+  { name: "3W Passenger",    slug: "3-wheeler-passenger",   icon: Users,   image: "/category-images/3-wheeler-passenger-v2.webp", desc: "E-Rickshaws & Autos"   },
+  { name: "4W Passenger",    slug: "4-wheeler-passenger",   icon: Car,     image: "/category-images/4-wheeler-passenger-v2.webp", desc: "Electric Cars"         },
+  { name: "4W Cargo",        slug: "4-wheeler-cargo",       icon: Package, image: "/category-images/4-wheeler-cargo-v2.webp",     desc: "Cargo Vans"            },
 ];
 
 const BASE_PATH: Record<Intent, string> = {

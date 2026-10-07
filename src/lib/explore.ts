@@ -1,4 +1,5 @@
-import { CATEGORY_TO_SLUG, SLUG_TO_CATEGORY, type VehicleCategory } from '@/lib/constants';
+import type { VehicleCategory } from '@/lib/constants';
+import { ALLOWED_BRANDS } from '@/lib/brands';
 
 // ── "Explore By" definitions ─────────────────────────────────────────────────
 // Shared by the navbar mega-menu, the home page quick-filters, the footer and /explore.
@@ -83,35 +84,63 @@ export function priceRangeLabel(min?: number, max?: number): string {
 }
 
 // ── Year / KM / Range / Body type ───────────────────────────────────────────
+// One definition shared by the navbar (desktop + mobile), home page, footer and /explore.
 
 const THIS_YEAR = new Date().getFullYear();
-export const YEAR_OPTIONS: number[] = Array.from({ length: 8 }, (_, i) => THIS_YEAR - 1 - i);
+/** Oldest "& above" year offered. */
+export const MIN_YEAR_OPTION = 2020;
+export const YEAR_OPTIONS: number[] = Array.from(
+  { length: Math.max(0, THIS_YEAR - MIN_YEAR_OPTION) },
+  (_, i) => THIS_YEAR - 1 - i,
+);
 
-export const KM_OPTIONS: number[] = [5000, 10000, 20000, 30000, 50000, 75000, 100000];
+/** "… kms or less" thresholds. */
+export const KM_OPTIONS: number[] = [5000, 10000, 20000];
 
-export const RANGE_OPTIONS: number[] = [100, 150, 200, 300, 400];
+/** Minimum certified range per charge ("100+ km" returns vehicles with ≥ 100 km). */
+export const RANGE_OPTIONS: number[] = [80, 100, 150];
 
-export interface BodyType { category: VehicleCategory; label: string; hint: string; image: string }
+export type TwoWheelerStyleValue = 'SCOOTER' | 'BIKE';
 
+export interface BodyType {
+  slug: 'scooter' | 'bike';
+  label: string;
+  hint: string;
+  category: VehicleCategory;
+  style: TwoWheelerStyleValue;
+  image?: string;
+}
+
+/**
+ * Body types customers can filter by. Both are two-wheelers; the vehicle's
+ * `twoWheelerStyle` decides which one it belongs to. Two-wheelers not yet marked
+ * as Scooter or Bike in admin are treated as scooters.
+ */
 export const BODY_TYPES: BodyType[] = [
-  { category: 'TWO_WHEELER', label: 'Scooter & Bike', hint: '2 Wheeler', image: '/category-images/2-wheeler.webp' },
-  { category: 'THREE_WHEELER_PASSENGER', label: 'E-Rickshaw & Auto', hint: '3 Wheeler Passenger', image: '/category-images/3-wheeler-passenger.webp' },
-  { category: 'THREE_WHEELER_CARGO', label: 'Cargo Loader', hint: '3 Wheeler Cargo', image: '/category-images/3-wheeler-cargo.webp' },
-  { category: 'FOUR_WHEELER_PASSENGER', label: 'Car', hint: '4 Wheeler Passenger', image: '/category-images/4-wheeler-passenger.webp' },
-  { category: 'FOUR_WHEELER_CARGO', label: 'Mini Truck', hint: '4 Wheeler Cargo', image: '/category-images/4-wheeler-cargo.webp' },
+  { slug: 'scooter', label: 'Scooter', hint: 'Electric scooters', category: 'TWO_WHEELER', style: 'SCOOTER', image: '/category-images/2-wheeler-v2.webp' },
+  { slug: 'bike', label: 'Bike', hint: 'Electric motorcycles', category: 'TWO_WHEELER', style: 'BIKE' },
 ];
 
-// Shown in the Make & Model menu when the catalogue has no buying vehicles yet.
-export const FALLBACK_MAKES: MakeWithModels[] = [
-  { make: 'Tata', models: ['Nexon EV', 'Tiago EV', 'Punch EV', 'Ace EV'] },
-  { make: 'Mahindra', models: ['Treo', 'Treo Zor', 'XUV400'] },
-  { make: 'Ather', models: ['450X', 'Rizta'] },
-  { make: 'TVS', models: ['iQube'] },
-  { make: 'MG', models: ['Comet EV', 'ZS EV', 'Windsor EV'] },
-  { make: 'Bajaj', models: ['Chetak', 'RE E-TEC'] },
-];
+/** Older links used category slugs; "2-wheeler" covered both scooters and bikes. */
+const LEGACY_TYPE_SLUGS: Record<string, BodyType['slug'][]> = { '2-wheeler': ['scooter', 'bike'] };
 
-export interface MakeWithModels { make: string; models: string[] }
+/** Supported body-type slugs in a `type=` value; unsupported slugs are dropped. */
+export function parseBodyTypeSlugs(value: string | undefined): { slugs: BodyType['slug'][]; dropped: string[] } {
+  const slugs = new Set<BodyType['slug']>();
+  const dropped: string[] = [];
+  for (const raw of (value ?? '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)) {
+    const bt = BODY_TYPES.find((b) => b.slug === raw);
+    if (bt) slugs.add(bt.slug);
+    else if (LEGACY_TYPE_SLUGS[raw]) LEGACY_TYPE_SLUGS[raw].forEach((s) => slugs.add(s));
+    else dropped.push(raw);
+  }
+  return { slugs: BODY_TYPES.map((b) => b.slug).filter((s) => slugs.has(s)), dropped };
+}
+
+/** Allowed brands with the models currently in inventory (shown when the catalogue is unavailable). */
+export const FALLBACK_MAKES: MakeWithModels[] = ALLOWED_BRANDS.map((make) => ({ make, models: [] }));
+
+export interface MakeWithModels { make: string; models: string[]; count?: number }
 
 /** Data the navbar, home page and footer need for the Explore menus. */
 export interface ExploreNavData { makes: MakeWithModels[]; priceBuckets: PriceBucket[] }
@@ -164,10 +193,9 @@ export function priceHref(b: PriceBucket): string {
   return exploreHref({ minPrice: b.min, maxPrice: b.max });
 }
 
-export function bodyTypeHref(category: VehicleCategory): string {
-  return exploreHref({ type: CATEGORY_TO_SLUG[category] });
+export function bodyTypeHref(bt: BodyType): string {
+  return exploreHref({ type: bt.slug });
 }
 
-export function categoryFromTypeSlug(slug: string | undefined): VehicleCategory | undefined {
-  return slug ? SLUG_TO_CATEGORY[slug] : undefined;
-}
+/** Destination of "View all brands": every allowed brand at once. */
+export const ALL_BRANDS_HREF = exploreHref({ make: ALLOWED_BRANDS.join(',') });

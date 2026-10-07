@@ -24,7 +24,7 @@ const SLIDES: Slide[] = [
     sub: "Browse electric scooters, e-rickshaws, cargo loaders and cars — compare up to 3 side by side and get help with warranty and ownership transfer.",
     cta: { label: "View all EVs", href: "/explore" },
     secondary: { label: "Compare EVs", href: "/compare" },
-    image: "/person_holding_key.webp",
+    image: "/hero-handover.webp",
     alt: "ZMR Mobility team handing over vehicle keys",
     imagePosition: "object-[60%_30%]",
   },

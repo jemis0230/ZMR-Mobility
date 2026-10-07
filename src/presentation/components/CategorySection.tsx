@@ -6,11 +6,11 @@ import Link from "next/link";
 import { CalendarDays, ShoppingBag, KeyRound, ChevronRight } from "lucide-react";
 
 const categories = [
-  { name: "2 Wheeler", slug: "2-wheeler", image: "/category-images/2-wheeler.webp", description: "Electric scooters & e-bikes for personal and delivery use." },
-  { name: "3 Wheeler (Cargo)", slug: "3-wheeler-cargo", image: "/category-images/3-wheeler-cargo.webp", description: "Electric loaders for last-mile logistics." },
-  { name: "3 Wheeler (Passenger)", slug: "3-wheeler-passenger", image: "/category-images/3-wheeler-passenger.webp", description: "Eco-friendly auto-rickshaws for urban transport." },
-  { name: "4 Wheeler (Passenger)", slug: "4-wheeler-passenger", image: "/category-images/4-wheeler-passenger.webp", description: "Electric cars for personal and fleet use." },
-  { name: "4 Wheeler (Cargo)", slug: "4-wheeler-cargo", image: "/category-images/4-wheeler-cargo.webp", description: "Electric cargo vans for logistics." },
+  { name: "2 Wheeler", slug: "2-wheeler", image: "/category-images/2-wheeler-v2.webp", description: "Electric scooters & e-bikes for personal and delivery use." },
+  { name: "3 Wheeler (Cargo)", slug: "3-wheeler-cargo", image: "/category-images/3-wheeler-cargo-v2.webp", description: "Electric loaders for last-mile logistics." },
+  { name: "3 Wheeler (Passenger)", slug: "3-wheeler-passenger", image: "/category-images/3-wheeler-passenger-v2.webp", description: "Eco-friendly auto-rickshaws for urban transport." },
+  { name: "4 Wheeler (Passenger)", slug: "4-wheeler-passenger", image: "/category-images/4-wheeler-passenger-v2.webp", description: "Electric cars for personal and fleet use." },
+  { name: "4 Wheeler (Cargo)", slug: "4-wheeler-cargo", image: "/category-images/4-wheeler-cargo-v2.webp", description: "Electric cargo vans for logistics." },
 ];
 
 const MODES = [

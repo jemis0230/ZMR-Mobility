@@ -258,6 +258,7 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState<VehicleCategory>(initialData?.category ?? 'TWO_WHEELER');
+  const [twoWheelerStyle, setTwoWheelerStyle] = useState<string>(initialData?.twoWheelerStyle ?? '');
   const [chargerType, setChargerType] = useState<ChargerType>(initialData?.chargerType ?? 'NORMAL');
   const [transmission, setTransmission] = useState<TransmissionType>(initialData?.transmission ?? 'AUTO');
 
@@ -330,6 +331,13 @@ export default function AdminVehicleForm({ initialData, batteryTypes = [], motor
         <SelectField label="Category" name="category" value={category} onChange={(v) => setCategory(v as VehicleCategory)}>
           {VEHICLE_CATEGORIES.map((cat) => <option key={cat} value={cat}>{CATEGORY_DISPLAY[cat]}</option>)}
         </SelectField>
+        {category === 'TWO_WHEELER' && (
+          <SelectField label="Body Type (Scooter / Bike)" name="twoWheelerStyle" value={twoWheelerStyle} onChange={setTwoWheelerStyle}>
+            <option value="">Not set — listed under Scooter</option>
+            <option value="SCOOTER">Scooter</option>
+            <option value="BIKE">Bike</option>
+          </SelectField>
+        )}
         <InputField label="Warranty" name="warranty" placeholder="e.g. 3 years or 100,000 km" defaultValue={initialData?.warranty} />
         <InputField label="Manufacture Year" name="manufactureYear" type="number" step="1" placeholder="e.g. 2023 (used for Year filter)" defaultValue={initialData?.manufactureYear ?? undefined} />
         <InputField label="KM Driven" name="kmDriven" type="number" step="1" placeholder="e.g. 12000 (0 for brand new)" defaultValue={initialData?.kmDriven ?? undefined} />

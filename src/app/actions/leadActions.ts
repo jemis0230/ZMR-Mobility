@@ -42,6 +42,8 @@ export type LeadItem = {
   vehicleId: string | null;
   vehicleName: string | null;
   notes: string | null;
+  /** Test drives only: the customer's preferred date (YYYY-MM-DD), not a confirmed slot. */
+  preferredDate: string | null;
   status: string;
   createdAt: string;
 };
@@ -203,6 +205,7 @@ export async function getLeads(params: {
       data: leads.map((l) => ({
         ...l,
         inquiryType: l.inquiryType,
+        preferredDate: l.preferredDate ? l.preferredDate.toISOString().slice(0, 10) : null,
         createdAt: l.createdAt.toISOString(),
       })),
       total,

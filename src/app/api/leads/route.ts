@@ -41,7 +41,11 @@ export async function GET(req: Request) {
     ]);
 
     return ok({
-      data: leads.map((l) => ({ ...l, createdAt: l.createdAt.toISOString() })),
+      data: leads.map((l) => ({
+        ...l,
+        preferredDate: l.preferredDate ? l.preferredDate.toISOString().slice(0, 10) : null,
+        createdAt: l.createdAt.toISOString(),
+      })),
       total,
       page,
       pageCount: Math.ceil(total / PAGE_SIZE),

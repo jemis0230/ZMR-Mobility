@@ -4,6 +4,7 @@ import { VehicleCategory, ChargerType, TransmissionType } from "@/lib/constants"
 import { Prisma, TransmissionType as PrismaTransmissionType, ChargerType as PrismaChargerType } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { PRICE_CAP } from "@/lib/explore";
+import { ALLOWED_BRANDS, canonicalBrand, rawMakesForBrands, type AllowedBrand } from "@/lib/brands";
 
 type VehicleWithRelations = Prisma.VehicleGetPayload<{
   include: { images: true; leasePlans: true; rentPlans: true; batteryType: true; motorType: true };
@@ -35,11 +36,16 @@ export class PrismaVehicleRepository implements IVehicleRepository {
   // ── Buying ───────────────────────────────────────────────────
 
   async findByCategoryForBuying(category: VehicleCategory, filters: VehicleFilterParams): Promise<PaginatedResult<Vehicle>> {
-    return this._findWithFilters({ category, showInBuying: true }, filters, 'buying');
+    const base: Prisma.VehicleWhereInput = { category, showInBuying: true };
+    // Requested brands resolve to the stored spellings; an unknown brand matches nothing.
+    const makes = filters.makes?.length ? await this.storedMakesForBrands(filters.makes, base) : undefined;
+    return this._findWithFilters(base, { ...filters, makes }, 'buying');
   }
 
   async getFilterOptionsForBuying(category: VehicleCategory): Promise<FilterOptions> {
-    return this._getFilterOptions({ category, showInBuying: true });
+    const options = await this._getFilterOptions({ category, showInBuying: true });
+    const present = new Set(options.makes.map((m) => canonicalBrand(m)).filter(Boolean));
+    return { ...options, makes: ALLOWED_BRANDS.filter((b) => present.has(b)) };
   }
 
   // ── Rent ─────────────────────────────────────────────────────
@@ -56,7 +62,7 @@ export class PrismaVehicleRepository implements IVehicleRepository {
 
   async findForExplore(filters: ExploreFilterParams): Promise<PaginatedResult<Vehicle>> {
     const {
-      q, minPrice, maxPrice, makes, model, minYear, maxKm, categories, minRange,
+      q, minPrice, maxPrice, makes, model, minYear, maxKm, categories, bodyStyles, minRange,
       sortBy = 'newest', page = 1, pageSize = 12,
     } = filters;
 
@@ -76,11 +82,21 @@ export class PrismaVehicleRepository implements IVehicleRepository {
     if (minPrice !== undefined || maxPrice !== undefined) {
       and.push({ buyingPrice: { ...(minPrice !== undefined ? { gte: minPrice } : {}), ...(maxPrice !== undefined ? { lte: maxPrice } : {}) } });
     }
-    if (makes && makes.length > 0) and.push({ make: { in: makes, mode: 'insensitive' } });
+    if (makes && makes.length > 0) {
+      // Brands are matched by canonical name, so "Bgauss" or "TVS Motor" listings count too.
+      and.push({ make: { in: await this.storedMakesForBrands(makes, { showInBuying: true }) } });
+    }
     if (model) and.push({ model: { equals: model, mode: 'insensitive' } });
     if (minYear !== undefined) and.push({ manufactureYear: { gte: minYear } });
     if (maxKm !== undefined) and.push({ kmDriven: { lte: maxKm } });
     if (categories && categories.length > 0) and.push({ category: { in: categories } });
+    if (bodyStyles && bodyStyles.length > 0) {
+      and.push({ category: 'TWO_WHEELER' });
+      const scooter = bodyStyles.includes('SCOOTER');
+      const bike = bodyStyles.includes('BIKE');
+      if (scooter && !bike) and.push({ OR: [{ twoWheelerStyle: 'SCOOTER' }, { twoWheelerStyle: null }] });
+      if (bike && !scooter) and.push({ twoWheelerStyle: 'BIKE' });
+    }
     if (minRange !== undefined) and.push({ certifiedRangeKm: { gte: minRange } });
 
     const where: Prisma.VehicleWhereInput = { AND: and };
@@ -122,22 +138,28 @@ export class PrismaVehicleRepository implements IVehicleRepository {
       prisma.vehicle.count({ where: { showInBuying: true, buyingPrice: { gt: PRICE_CAP } } }),
     ]);
 
-    const byMake = new Map<string, { make: string; models: string[]; count: number }>();
+    // Only the allowed brands are offered, in a fixed order, including brands with no
+    // listings right now (count 0). Spelling variants are merged under one brand.
+    const byBrand = new Map(ALLOWED_BRANDS.map((b) => [b, { make: b as string, models: [] as string[], count: 0 }]));
     for (const g of groups) {
-      const entry = byMake.get(g.make) ?? { make: g.make, models: [], count: 0 };
-      entry.models.push(g.model);
+      const entry = byBrand.get(canonicalBrand(g.make) as AllowedBrand);
+      if (!entry) continue;
+      if (!entry.models.some((m) => m.toLowerCase() === g.model.toLowerCase())) entry.models.push(g.model);
       entry.count += g._count._all;
-      byMake.set(g.make, entry);
     }
 
     return {
-      makes: Array.from(byMake.values())
-        .map((m) => ({ ...m, models: m.models.sort((a, b) => a.localeCompare(b)) }))
-        .sort((a, b) => b.count - a.count || a.make.localeCompare(b.make)),
+      makes: Array.from(byBrand.values()).map((m) => ({ ...m, models: m.models.sort((a, b) => a.localeCompare(b)) })),
       prices: priced.map((v) => v.buyingPrice as number),
       unpricedCount,
       overCapCount,
     };
+  }
+
+  /** Stored make values (any spelling) that belong to the requested allowed brands. */
+  private async storedMakesForBrands(brands: string[], where: Prisma.VehicleWhereInput): Promise<string[]> {
+    const stored = await prisma.vehicle.groupBy({ by: ['make'], where });
+    return rawMakesForBrands(brands, stored.map((g) => g.make));
   }
 
   async findByIds(ids: string[]): Promise<Vehicle[]> {
@@ -167,7 +189,7 @@ export class PrismaVehicleRepository implements IVehicleRepository {
 
     const where: Prisma.VehicleWhereInput = { ...baseWhere };
 
-    if (makes && makes.length > 0) where.make = { in: makes };
+    if (makes) where.make = { in: makes };
     if (chargerType) where.chargerType = chargerType as PrismaChargerType;
 
     if (minRange !== undefined || maxRange !== undefined) {
@@ -375,6 +397,7 @@ export class PrismaVehicleRepository implements IVehicleRepository {
       make: v.make,
       model: v.model,
       category: v.category as VehicleCategory,
+      twoWheelerStyle: v.twoWheelerStyle,
       warranty: v.warranty,
       mainImage: v.mainImage,
 

@@ -1,4 +1,4 @@
-import { Vehicle, LeasePlan, RentPlan } from "../../domain/entities/Vehicle";
+import { Vehicle, LeasePlan, RentPlan, type TwoWheelerStyle } from "../../domain/entities/Vehicle";
 import { VehicleCategory, ChargerType } from "@/lib/constants";
 
 export interface PaginatedResult<T> {
@@ -45,6 +45,8 @@ export interface ExploreFilterParams {
   minYear?: number;
   maxKm?: number;
   categories?: VehicleCategory[];
+  /** Two-wheeler body styles; unset two-wheelers count as scooters. */
+  bodyStyles?: TwoWheelerStyle[];
   minRange?: number;
   sortBy?: 'newest' | 'price_asc' | 'price_desc' | 'year_desc' | 'km_asc';
   page?: number;
@@ -105,6 +107,7 @@ export interface VehicleCreateInput {
   make: string;
   model: string;
   category: VehicleCategory;
+  twoWheelerStyle?: TwoWheelerStyle | null;
   warranty: string;
   mainImage: string;
   imageUrls: string[];

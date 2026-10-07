@@ -3,23 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, IndianRupee, Car, Tag, CalendarDays, Gauge } from "lucide-react";
+import { ChevronRight, IndianRupee, Car, Tag, CalendarDays, Gauge, Bike } from "lucide-react";
 import AnimatedCounter from "./AnimatedCounter";
+import { brandKey } from "@/lib/brands";
 import {
   BODY_TYPES, YEAR_OPTIONS, KM_OPTIONS, FALLBACK_MAKES, DEFAULT_PRICE_BUCKETS,
   exploreHref, priceHref, bodyTypeHref, type MakeWithModels, type PriceBucket,
 } from "@/lib/explore";
 
+// Manufacturer logos we have files for (allowed brands only).
 const BRAND_LOGOS: Record<string, string> = {
   bajaj: "/companies/bajaj.webp",
   bgauss: "/companies/bgauss.webp",
-  byd: "/companies/byd.webp",
-  citroen: "/companies/citroen.webp",
-  euler: "/companies/euler.webp",
-  mg: "/companies/mg.webp",
-  "montra electric": "/companies/montra_electric.webp",
-  piaggio: "/companies/piaggio.webp",
-  tata: "/companies/tataMotors-ezgif.com-png-to-webp-converter.webp",
   tvs: "/companies/tvs-ezgif.com-png-to-webp-converter.webp",
 };
 
@@ -77,7 +72,7 @@ export function TrustBar() {
 /** "Explore Certified EVs" (White section). */
 export default function HomeExplore({ makes, priceBuckets = DEFAULT_PRICE_BUCKETS }: { makes: MakeWithModels[]; priceBuckets?: PriceBucket[] }) {
   const [tab, setTab] = useState<TabKey>("budget");
-  const brands = (makes.length > 0 ? makes : FALLBACK_MAKES).slice(0, 10);
+  const brands = makes.length > 0 ? makes : FALLBACK_MAKES;
 
   return (
     <section className="py-16 md:py-20 px-4 md:px-6 bg-white">
@@ -126,15 +121,17 @@ export default function HomeExplore({ makes, priceBuckets = DEFAULT_PRICE_BUCKET
           )}
 
           {tab === "body" && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {BODY_TYPES.map((bt) => (
                 <Link
-                  key={bt.category}
-                  href={bodyTypeHref(bt.category)}
+                  key={bt.slug}
+                  href={bodyTypeHref(bt)}
                   className="group rounded-2xl border border-ink/15 bg-white overflow-hidden hover:border-primary hover:shadow-card-hover transition-all"
                 >
-                  <div className="relative aspect-[4/3] bg-tint">
-                    <Image src={bt.image} alt="" fill sizes="(max-width: 768px) 50vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="relative aspect-[4/3] bg-tint flex items-center justify-center">
+                    {bt.image
+                      ? <Image src={bt.image} alt="" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                      : <Bike className="w-14 h-14 text-leaf" aria-hidden />}
                   </div>
                   <div className="px-4 py-3">
                     <p className="font-bold text-forest group-hover:text-primary transition-colors">{bt.label}</p>
@@ -148,7 +145,7 @@ export default function HomeExplore({ makes, priceBuckets = DEFAULT_PRICE_BUCKET
           {tab === "brand" && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
               {brands.map((b) => {
-                const logo = BRAND_LOGOS[b.make.toLowerCase()];
+                const logo = BRAND_LOGOS[brandKey(b.make)];
                 return (
                   <Link
                     key={b.make}
@@ -163,7 +160,9 @@ export default function HomeExplore({ makes, priceBuckets = DEFAULT_PRICE_BUCKET
                       )}
                     </span>
                     <span className="text-sm font-bold text-forest group-hover:text-primary">{b.make}</span>
-                    <span className="text-[11px] text-ink/70 line-clamp-1 text-center">{b.models.slice(0, 3).join(" · ")}</span>
+                    <span className="text-[11px] text-ink/70 line-clamp-1 text-center">
+                      {b.models.length ? b.models.slice(0, 3).join(" · ") : b.count === 0 ? "None listed right now" : "View listings"}
+                    </span>
                   </Link>
                 );
               })}

@@ -24,6 +24,12 @@ enum ChargerType {
   BOTH
 }
 
+/// Distinguishes scooters from motorcycles within TWO_WHEELER (Body Type filter).
+enum TwoWheelerStyle {
+  SCOOTER
+  BIKE
+}
+
 enum TransmissionType {
   AUTO
   MANUAL
@@ -38,6 +44,7 @@ enum InquiryType {
   FLEET_LOGISTICS
   DEALERSHIP_FRANCHISE
   B2B_PARTNERSHIP
+  TEST_DRIVE
   OTHER
 }
 
@@ -89,6 +96,8 @@ model Vehicle {
   make      String
   model     String
   category  VehicleCategory
+  /// Scooter or bike, for two-wheelers only. Unset two-wheelers are treated as scooters.
+  twoWheelerStyle TwoWheelerStyle?
   warranty  String          @default("")
   mainImage String
 
@@ -224,6 +233,8 @@ model Lead {
   inquiryType InquiryType
   vehicleId   String?
   vehicleName String?     // snapshot — vehicle may be deleted later
+  /// Test drives: the customer's preferred date (a preference, not a confirmed slot).
+  preferredDate DateTime? @db.Date
   notes       String?
   status      LeadStatus  @default(PENDING)
   createdAt   DateTime    @default(now())
