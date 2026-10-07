@@ -2,6 +2,9 @@ import { VehicleCategory, ChargerType, TransmissionType } from '@/lib/constants'
 
 export type { VehicleCategory, ChargerType, TransmissionType };
 
+/** Scooter vs bike, for two-wheelers only (null = not set; treated as a scooter). */
+export type TwoWheelerStyle = 'SCOOTER' | 'BIKE';
+
 export interface BatteryType {
   id: string;
   name: string;
@@ -46,6 +49,7 @@ export interface Vehicle {
   make: string;
   model: string;
   category: VehicleCategory;
+  twoWheelerStyle?: TwoWheelerStyle | null;
   warranty: string;
   mainImage: string;
 

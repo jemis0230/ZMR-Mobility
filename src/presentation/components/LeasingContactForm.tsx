@@ -140,7 +140,7 @@ export default function LeasingContactForm() {
                 value={fields.phone}
                 onChange={(e) => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
                 onBlur={() => touch('phone')}
-                className={`flex-1 bg-white border rounded-r-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-ink/50 text-ink text-sm ${
+                className={`flex-1 min-w-0 bg-white border rounded-r-xl px-4 py-3 focus:border-primary outline-none transition-all placeholder:text-ink/50 text-ink text-sm ${
                   touched.phone && errors.phone ? 'border-red-500/60 focus:border-red-500' : 'border-ink/20'
                 }`}
               />

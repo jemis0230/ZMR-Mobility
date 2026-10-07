@@ -9,7 +9,7 @@ async function loadNavData(): Promise<ExploreNavData> {
   try {
     const { makes, prices } = await getCachedExploreMenuData();
     return {
-      makes: makes.map(({ make, models }) => ({ make, models })),
+      makes: makes.map(({ make, models, count }) => ({ make, models, count })),
       priceBuckets: buildPriceBuckets(prices),
     };
   } catch {

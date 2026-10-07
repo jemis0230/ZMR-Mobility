@@ -10,17 +10,23 @@ import {
 } from "lucide-react";
 import {
   YEAR_OPTIONS, KM_OPTIONS, BODY_TYPES, RANGE_OPTIONS, DEFAULT_PRICE_BUCKETS,
-  FALLBACK_MAKES, exploreHref, priceHref, bodyTypeHref, type MakeWithModels, type PriceBucket,
+  FALLBACK_MAKES, ALL_BRANDS_HREF, exploreHref, priceHref, bodyTypeHref, type MakeWithModels, type PriceBucket,
 } from "@/lib/explore";
 import { useCompare, compareHref } from "./compare/compareStore";
 
 // Category picker modal is only downloaded when first opened.
 const CategoryModal = dynamic(() => import("./CategoryModal"), { ssr: false });
+// Test-drive form is only downloaded when first opened.
+const TestDriveModal = dynamic(() => import("./TestDriveModal"), { ssr: false });
+
+// Shared look for the Test Drive and Contact Us buttons.
+const CTA_CLASS =
+  "bg-primary hover:bg-primary-dark text-white px-3 max-[359px]:px-2 sm:px-4 md:px-5 py-2.5 rounded-full text-[11px] sm:text-xs md:text-sm font-bold transition-colors electric-glow whitespace-nowrap";
 
 const CITIES = ["Lucknow", "Dehradun", "Chennai", "Bangalore"];
 const CITY_KEY = "zmr-city";
 
-const SEARCH_HINTS = ["make", "model", "body type", "budget", "e-rickshaw", "scooter"];
+const SEARCH_HINTS = ["make", "model", "body type", "budget", "scooter", "bike"];
 
 // ── Explore-by menu content ───────────────────────────────────
 
@@ -31,7 +37,7 @@ function buildExploreMenus(makes: MakeWithModels[], priceBuckets: PriceBucket[])
     { key: "price", label: "Price Range", links: priceBuckets.map((b) => ({ label: b.label, href: priceHref(b), count: b.count })) },
     { key: "year", label: "Year", links: YEAR_OPTIONS.map((y) => ({ label: `${y} & above`, href: exploreHref({ minYear: y }) })) },
     { key: "km", label: "KM Driven", links: KM_OPTIONS.map((km) => ({ label: `${km.toLocaleString("en-IN")} kms or less`, href: exploreHref({ maxKm: km }) })) },
-    { key: "body", label: "Body Type", links: BODY_TYPES.map((b) => ({ label: b.label, href: bodyTypeHref(b.category), image: b.image })) },
+    { key: "body", label: "Body Type", links: BODY_TYPES.map((b) => ({ label: b.label, href: bodyTypeHref(b), image: b.image })) },
     { key: "range", label: "Range", links: RANGE_OPTIONS.map((r) => ({ label: `${r}+ km per charge`, href: exploreHref({ minRange: r }) })) },
   ];
   return { simple, makes: makes.length > 0 ? makes : FALLBACK_MAKES };
@@ -231,7 +237,7 @@ function CompareLink({ className = "" }: { className?: string }) {
       aria-label={count ? `Compare vehicles (${count} selected)` : "Compare vehicles"}
     >
       <ArrowLeftRight className="w-5 h-5" aria-hidden />
-      <span className="text-[11px] font-semibold mt-0.5">Compare</span>
+      <span className="text-[11px] font-semibold mt-0.5 max-sm:sr-only">Compare</span>
       {count > 0 && (
         <span className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] rounded-full bg-lime text-forest text-[11px] font-black flex items-center justify-center px-1">
           {count}
@@ -246,6 +252,7 @@ function CompareLink({ className = "" }: { className?: string }) {
 export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKETS }: { makes?: MakeWithModels[]; priceBuckets?: PriceBucket[] }) {
   const [modal, setModal] = useState<null | "leasing" | "buying" | "rent">(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [testDriveOpen, setTestDriveOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileSection, setMobileSection] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -291,6 +298,11 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
   };
   const toggle = (key: string) => setOpenMenu((m) => (m === key ? null : key));
 
+  const openTestDrive = () => {
+    setIsMobileMenuOpen(false);
+    setTestDriveOpen(true);
+  };
+
   const handleContactClick = () => {
     setIsMobileMenuOpen(false);
     if (pathname === "/") {
@@ -330,7 +342,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
       <header className="fixed top-0 inset-x-0 z-50">
         {/* ── Top bar (Cream) ── */}
         <div className="bg-cream/95 backdrop-blur border-b border-ink/10">
-          <div className="max-w-7xl mx-auto flex items-center gap-3 lg:gap-5 px-4 md:px-6 h-[72px] lg:h-[84px]">
+          <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-3 lg:gap-5 px-3 sm:px-4 md:px-6 h-[72px] lg:h-[84px]">
             <Link href="/" className="shrink-0 flex items-center" aria-label="ZMR Mobility home">
               <Image
                 src="/zmr-logo-full.png"
@@ -339,7 +351,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
                 height={361}
                 sizes="(min-width: 1024px) 122px, 103px"
                 quality={80}
-                className="h-16 lg:h-[76px] w-auto"
+                className="h-11 max-[359px]:h-9 sm:h-16 lg:h-[76px] w-auto"
                 priority
               />
             </Link>
@@ -355,24 +367,19 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
               <CompareLink />
             </nav>
 
-            <a href="tel:+919045222999" className="hidden xl:flex flex-col leading-tight pl-4 border-l border-ink/15">
-              <span className="text-[11px] text-ink/70">Call us at</span>
-              <span className="text-[15px] font-extrabold text-primary tracking-wide">+91 90452 22999</span>
-            </a>
-
-            <div className="flex items-center gap-2 ml-auto lg:ml-0">
-              <CompareLink className="lg:hidden mr-1" />
-              <button
-                onClick={handleContactClick}
-                className="bg-primary hover:bg-primary-dark text-white px-4 md:px-5 py-2.5 rounded-full text-xs md:text-sm font-bold transition-colors electric-glow whitespace-nowrap"
-              >
+            <div className="flex items-center gap-1.5 max-[359px]:gap-1 sm:gap-2 ml-auto lg:ml-0">
+              <CompareLink className="lg:hidden mr-0.5 max-[359px]:hidden" />
+              <button type="button" onClick={openTestDrive} aria-haspopup="dialog" className={CTA_CLASS}>
+                Test Drive
+              </button>
+              <button type="button" onClick={handleContactClick} className={CTA_CLASS}>
                 Contact Us
               </button>
               <button
                 onClick={() => setIsMobileMenuOpen((o) => !o)}
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMobileMenuOpen}
-                className="lg:hidden p-2.5 rounded-lg border border-ink/15 text-forest hover:bg-white transition-colors"
+                className="lg:hidden p-2 sm:p-2.5 rounded-lg border border-ink/15 text-forest hover:bg-white transition-colors"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -395,9 +402,9 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             </ExploreItem>
 
             <ExploreItem id="make" label="Make and Model" open={openMenu === "make"} onOpen={() => openWithIntent("make")} onClose={closeWithDelay} onToggle={() => toggle("make")}>
-              <div className="grid grid-flow-col auto-cols-[172px] gap-2 p-2">
-                {menus.makes.slice(0, 5).map((m, i) => (
-                  <div key={m.make} className={`py-1 ${i === 4 ? "hidden xl:block" : ""}`}>
+              <div className="grid grid-cols-5 w-[min(820px,calc(100vw-22rem))] gap-1 p-2">
+                {menus.makes.map((m) => (
+                  <div key={m.make} className="py-1 min-w-0">
                     <Link
                       href={exploreHref({ make: m.make })}
                       className="group flex items-center justify-between px-3 py-2.5 rounded-xl text-base font-bold text-white hover:bg-white/10"
@@ -414,10 +421,13 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
                         {model}
                       </Link>
                     ))}
+                    {m.models.length === 0 && m.count === 0 && (
+                      <p className="px-3 py-2.5 text-sm text-cream/75">None listed right now</p>
+                    )}
                   </div>
                 ))}
               </div>
-              <Link href={exploreHref()} className="mx-2 mb-1 mt-1 flex items-center justify-center gap-1 rounded-xl bg-white/10 hover:bg-white/15 py-2.5 text-sm font-bold text-cream">
+              <Link href={ALL_BRANDS_HREF} className="mx-2 mb-1 mt-1 flex items-center justify-center gap-1 rounded-xl bg-white/10 hover:bg-white/15 py-2.5 text-sm font-bold text-cream">
                 View all brands <ChevronRight className="w-4 h-4" aria-hidden />
               </Link>
             </ExploreItem>
@@ -507,6 +517,11 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             <Link href="/about" className="px-2 py-3 hover:text-primary">About</Link>
           </nav>
 
+          <div className="grid grid-cols-2 gap-2">
+            <button type="button" onClick={openTestDrive} aria-haspopup="dialog" className={`${CTA_CLASS} py-3`}>Test Drive</button>
+            <button type="button" onClick={handleContactClick} className={`${CTA_CLASS} py-3`}>Contact Us</button>
+          </div>
+
           <a href="tel:+919045222999" className="flex items-center gap-3 rounded-2xl bg-white p-4">
             <span className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center"><Phone className="w-4 h-4" aria-hidden /></span>
             <span className="leading-tight">
@@ -516,6 +531,8 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
           </a>
         </div>
       </aside>
+
+      {testDriveOpen && <TestDriveModal open={testDriveOpen} onClose={() => setTestDriveOpen(false)} />}
 
       {modal && (
         <>

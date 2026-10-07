@@ -16,7 +16,7 @@ export const getCachedLeasingFilterOptions = unstable_cache(
 
 export const getCachedBuyingFilterOptions = unstable_cache(
   async (category: string) => vehicleRepo.getFilterOptionsForBuying(category as VehicleCategory),
-  ['buying-filter-options'],
+  ['buying-filter-options-v2'],
   { tags: ['vehicle-filter-options', 'vehicle-filter-options-buying'], revalidate: 3600 }
 );
 
@@ -30,6 +30,6 @@ export const getCachedRentFilterOptions = unstable_cache(
 export const getCachedExploreMenuData = unstable_cache(
   async () => vehicleRepo.getExploreMenuData(),
   // Bump the version when the returned shape changes so stale cache entries are never reused.
-  ['explore-menu-data-v2'],
+  ['explore-menu-data-v3'],
   { tags: ['vehicle-filter-options', 'vehicle-filter-options-buying'], revalidate: 3600 }
 );

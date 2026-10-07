@@ -153,6 +153,18 @@ export default function AdminVehiclesClient({ initialVehicles, dbError }: AdminV
         );
       })()}
 
+      {/* Two-wheelers without a Scooter/Bike body type */}
+      {(() => {
+        const unset = vehicles.filter((v) => v.showInBuying && v.category === 'TWO_WHEELER' && !v.twoWheelerStyle);
+        if (unset.length === 0) return null;
+        return (
+          <div role="status" className="rounded-xl border border-ink/15 bg-tint p-4 text-sm text-forest">
+            <p className="font-bold">{unset.length} two-wheeler{unset.length === 1 ? ' has' : 's have'} no body type set</p>
+            <p className="mt-1">The website&apos;s Body Type filter offers Scooter and Bike. Until you choose one, these vehicles are listed under Scooter: {unset.map((v) => `${v.make} ${v.model}`).join(', ')}. Edit a vehicle to set &quot;Body Type (Scooter / Bike)&quot;.</p>
+          </div>
+        );
+      })()}
+
       {/* Count */}
       <p className="text-ink/60 text-sm font-medium">
         {filteredVehicles.length} vehicle{filteredVehicles.length !== 1 ? 's' : ''} found

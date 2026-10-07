@@ -52,14 +52,14 @@ function LinkColumn({ title, links }: { title: string; links: { name: string; hr
 export default function Footer({ priceBuckets = DEFAULT_PRICE_BUCKETS }: { priceBuckets?: PriceBucket[] }) {
   const popularSearches = [
     { title: "By Budget", links: priceBuckets.map((b) => ({ name: `EVs ${b.label.replace(/^Under/, "under")}`, href: priceHref(b) })) },
-    { title: "By Body Type", links: BODY_TYPES.map((b) => ({ name: `Used ${b.label}`, href: bodyTypeHref(b.category) })) },
+    { title: "By Body Type", links: BODY_TYPES.map((b) => ({ name: `Used ${b.label}`, href: bodyTypeHref(b) })) },
     { title: "By Year", links: YEAR_OPTIONS.slice(0, 5).map((y) => ({ name: `${y} & newer EVs`, href: exploreHref({ minYear: y }) })) },
   ];
 
   return (
     <footer className="bg-green-900 text-cream pt-16 pb-10 px-6 focus-on-dark">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 mb-12 [&>*]:min-w-0">
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="inline-block rounded-2xl bg-cream px-4 py-2" aria-label="ZMR Mobility home">
@@ -101,7 +101,7 @@ export default function Footer({ priceBuckets = DEFAULT_PRICE_BUCKETS }: { price
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-lime shrink-0" aria-hidden />
-                <a href="mailto:info@zmrmobility.in" className="hover:text-white hover:underline">info@zmrmobility.in</a>
+                <a href="mailto:info@zmrmobility.in" className="min-w-0 break-all hover:text-white hover:underline">info@zmrmobility.in</a>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-lime shrink-0" aria-hidden />

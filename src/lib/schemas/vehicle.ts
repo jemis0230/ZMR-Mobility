@@ -62,6 +62,11 @@ export const VehicleFormSchema = z.object({
   make: z.string().min(1, 'Make is required'),
   model: z.string().min(1, 'Model is required'),
   category: z.enum(VEHICLE_CATEGORIES, { message: 'Invalid category' }),
+  // Scooter or bike (two-wheelers only; cleared for other categories below)
+  twoWheelerStyle: z
+    .union([z.enum(['SCOOTER', 'BIKE']), z.literal('')])
+    .optional()
+    .transform((v) => (v ? v : null)),
   warranty: emptyStr,
 
   // Visibility flags
@@ -130,7 +135,7 @@ export const VehicleFormSchema = z.object({
   leasingInfo: optStr,
   buyingInfo: optStr,
   rentalInfo: optStr,
-});
+}).transform((v) => ({ ...v, twoWheelerStyle: v.category === 'TWO_WHEELER' ? v.twoWheelerStyle : null }));
 
 export type VehicleFormData = z.infer<typeof VehicleFormSchema>;
 
