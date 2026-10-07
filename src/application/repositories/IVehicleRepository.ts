@@ -1,5 +1,5 @@
 import { Vehicle, LeasePlan, RentPlan } from "../../domain/entities/Vehicle";
-import { VehicleCategory, ChargerType, TransmissionType } from "@/lib/constants";
+import { VehicleCategory, ChargerType } from "@/lib/constants";
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -45,7 +45,6 @@ export interface ExploreFilterParams {
   minYear?: number;
   maxKm?: number;
   categories?: VehicleCategory[];
-  transmission?: TransmissionType;
   minRange?: number;
   sortBy?: 'newest' | 'price_asc' | 'price_desc' | 'year_desc' | 'km_asc';
   page?: number;
@@ -54,6 +53,12 @@ export interface ExploreFilterParams {
 
 export interface ExploreMenuData {
   makes: { make: string; models: string[]; count: number }[];
+  /** Buying prices (₹) of listed vehicles at or below the selling-price cap. */
+  prices: number[];
+  /** Listed vehicles with no buying price. */
+  unpricedCount: number;
+  /** Listed vehicles priced above the cap — flagged for review. */
+  overCapCount: number;
 }
 
 export interface IVehicleRepository {
@@ -75,6 +80,7 @@ export interface IVehicleRepository {
   // Explore (cross-category buying catalogue)
   findForExplore(filters: ExploreFilterParams): Promise<PaginatedResult<Vehicle>>;
   getExploreMenuData(): Promise<ExploreMenuData>;
+  findByIds(ids: string[]): Promise<Vehicle[]>;
 
   findById(id: string): Promise<Vehicle | null>;
 

@@ -2,6 +2,7 @@ import { ok, created, badRequest, serverError } from '@/app/api/_lib/response';
 import { withSession, isResponse } from '@/app/api/_lib/auth-guard';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { isPolicyTopic } from '@/lib/policies';
 
 // GET /api/faqs?admin=true
 export async function GET(req: Request) {
@@ -21,6 +22,7 @@ export async function GET(req: Request) {
         answer: f.answer,
         order: f.sortOrder,
         isActive: f.isActive,
+        topic: f.topic,
         createdAt: f.createdAt.toISOString(),
         updatedAt: f.updatedAt.toISOString(),
       }))
@@ -41,6 +43,8 @@ export async function POST(req: Request) {
     const answer = body.answer?.trim();
     if (!question) return badRequest('Question is required');
     if (!answer) return badRequest('Answer is required');
+    if (body.topic != null && body.topic !== '' && !isPolicyTopic(body.topic)) return badRequest('Unknown policy topic');
+    const topic = isPolicyTopic(body.topic) ? body.topic : null;
 
     const requestedOrder =
       typeof body.order === 'number' && Number.isFinite(body.order)
@@ -58,17 +62,19 @@ export async function POST(req: Request) {
         where: { sortOrder: { gte: sortOrder } },
         data: { sortOrder: { increment: 1 } },
       });
-      return tx.faq.create({ data: { question, answer, sortOrder } });
+      return tx.faq.create({ data: { question, answer, sortOrder, topic } });
     });
 
     revalidatePath('/');
     revalidatePath('/admin/faqs');
+    revalidatePath('/warranty-ownership');
     return created({
       id: faq.id,
       question: faq.question,
       answer: faq.answer,
       order: faq.sortOrder,
       isActive: faq.isActive,
+      topic: faq.topic,
       createdAt: faq.createdAt.toISOString(),
       updatedAt: faq.updatedAt.toISOString(),
     });

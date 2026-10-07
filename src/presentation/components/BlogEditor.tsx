@@ -239,7 +239,7 @@ export default function BlogEditor({ content, onChange }: { content: string, onC
         .ProseMirror p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
           float: left;
-          color: rgba(15,23,42,0.35);
+          color: rgba(45,71,62,0.35);
           pointer-events: none;
           height: 0;
         }
@@ -250,11 +250,11 @@ export default function BlogEditor({ content, onChange }: { content: string, onC
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(15,23,42,0.12);
+          background: rgba(45,71,62,0.12);
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(15,23,42,0.2);
+          background: rgba(45,71,62,0.2);
         }
         /* Ensure headings and lists look correct in editor */
         .ProseMirror h1 { font-size: 2.25rem; font-weight: 900; margin: 1.5rem 0; }

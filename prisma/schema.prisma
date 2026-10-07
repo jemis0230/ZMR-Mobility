@@ -241,8 +241,30 @@ model Faq {
   answer    String
   sortOrder Int      @default(0)
   isActive  Boolean  @default(true)
+  // Optional policy topic (warranty, ownership_transfer, noc, insurance, buyback).
+  // Topic FAQs feed the "Warranty & Ownership Support" section; null = general FAQ.
+  topic     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([topic])
+}
+
+// ── Press & Media ─────────────────────────────────────────────────────────────
+
+model PressMention {
+  id          String    @id @default(cuid())
+  publication String
+  title       String
+  url         String
+  publishedAt DateTime?
+  imageUrl    String?   // publication logo or article image (only where authorised)
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isActive, publishedAt])
 }
 
 model BlogPost {

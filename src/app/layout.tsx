@@ -1,8 +1,21 @@
-import type { Metadata } from "next";
-import "@fontsource-variable/inter";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import GoogleAnalytics from "@/presentation/components/GoogleAnalytics";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_PHONE, SITE_EMAIL, SITE_SOCIALS } from "@/lib/site";
+
+// Self-hosted, preloaded variable Inter (Latin) with metric-matched fallback to avoid layout shift.
+const inter = localFont({
+  src: "./fonts/InterVariable-latin.woff2",
+  weight: "100 900",
+  display: "swap",
+  variable: "--font-inter",
+  fallback: ["system-ui", "Segoe UI", "Arial", "sans-serif"],
+});
+
+export const viewport: Viewport = {
+  themeColor: "#F4EFE9",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -72,7 +85,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <body>
         <script
           type="application/ld+json"

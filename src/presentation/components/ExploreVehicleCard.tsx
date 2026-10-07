@@ -1,75 +1,79 @@
 import Link from "next/link";
-import { BadgeCheck, Gauge, Settings2, ArrowRight, Zap } from "lucide-react";
+import { Gauge, ArrowRight, Zap, CalendarDays } from "lucide-react";
 import type { Vehicle } from "@/domain/entities/Vehicle";
-import { CATEGORY_DISPLAY, TRANSMISSION_DISPLAY } from "@/lib/constants";
+import { CATEGORY_DISPLAY } from "@/lib/constants";
 import { slugifyVehicle } from "@/lib/vehicleSlug";
-import { estimateEmi } from "@/lib/explore";
+import { estimateEmi, formatINR } from "@/lib/explore";
 import EVImage from "./EVImage";
+import CompareButton from "./compare/CompareButton";
 
-export default function ExploreVehicleCard({ vehicle }: { vehicle: Vehicle }) {
+export default function ExploreVehicleCard({ vehicle, eager = false }: { vehicle: Vehicle; eager?: boolean }) {
   const href = `/buying/vehicles/detail/${slugifyVehicle(vehicle.make, vehicle.model, vehicle.id)}`;
-  const title = `${vehicle.manufactureYear ? `${vehicle.manufactureYear} ` : ""}${vehicle.make} ${vehicle.model}`;
+  const name = `${vehicle.make} ${vehicle.model}`;
+  const title = `${vehicle.manufactureYear ? `${vehicle.manufactureYear} ` : ""}${name}`;
 
   const specs = [
-    vehicle.kmDriven != null && { icon: Gauge, label: `${vehicle.kmDriven.toLocaleString("en-IN")} km` },
-    { icon: Settings2, label: TRANSMISSION_DISPLAY[vehicle.transmission] },
-    { icon: Zap, label: `${vehicle.certifiedRangeKm} km range` },
+    vehicle.manufactureYear ? { icon: CalendarDays, label: String(vehicle.manufactureYear) } : null,
+    vehicle.kmDriven != null ? { icon: Gauge, label: `${vehicle.kmDriven.toLocaleString("en-IN")} km` } : null,
+    vehicle.certifiedRangeKm ? { icon: Zap, label: `${vehicle.certifiedRangeKm} km range` } : null,
   ].filter(Boolean) as { icon: typeof Gauge; label: string }[];
 
   return (
-    <article className="group bg-white rounded-2xl border border-ink/[0.08] shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
-      <Link href={href} className="relative block aspect-[4/3] bg-gradient-to-b from-secondary to-white">
+    <article className="group bg-white rounded-2xl border border-ink/10 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col h-full">
+      <Link href={href} className="relative block aspect-[4/3] bg-tint" tabIndex={-1} aria-hidden>
         {vehicle.mainImage ? (
           <EVImage
             src={vehicle.mainImage}
-            alt={title}
+            alt=""
+            eager={eager}
             className="w-full h-full"
             imgClassName="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center"><Zap className="w-10 h-10 text-primary/20" /></div>
+          <div className="w-full h-full flex items-center justify-center"><Zap className="w-10 h-10 text-sage" /></div>
         )}
-        <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-accent shadow-sm">
-          <BadgeCheck className="w-3.5 h-3.5" /> ZMR Certified
-        </span>
-        <span className="absolute bottom-3 left-3 rounded-full bg-ink/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+        <span className="absolute top-3 left-3 rounded-full bg-lime px-2.5 py-1 text-[11px] font-bold text-forest shadow-sm">
           {CATEGORY_DISPLAY[vehicle.category]}
         </span>
       </Link>
 
       <div className="p-4 flex flex-col flex-1">
-        <Link href={href}>
-          <h3 className="font-bold text-ink text-[17px] leading-snug group-hover:text-primary transition-colors line-clamp-1">{title}</h3>
-        </Link>
+        <h3 className="font-bold text-forest text-[17px] leading-snug line-clamp-1">
+          <Link href={href} className="hover:text-primary transition-colors">{title}</Link>
+        </h3>
 
-        <div className="mt-2 mb-4 flex flex-wrap gap-1.5">
+        <ul className="mt-2 mb-4 flex flex-wrap gap-1.5" aria-label="Key details">
           {specs.map((s) => (
-            <span key={s.label} className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-[11px] font-semibold text-ink/70">
-              <s.icon className="w-3 h-3 text-primary" /> {s.label}
-            </span>
+            <li key={s.label} className="inline-flex items-center gap-1 rounded-md bg-tint px-2 py-1 text-[11px] font-semibold text-forest">
+              <s.icon className="w-3 h-3 text-leaf" aria-hidden /> {s.label}
+            </li>
           ))}
-        </div>
+        </ul>
 
-        <div className="mt-auto pt-4 border-t border-dashed border-ink/10 flex items-end justify-between gap-3">
+        <div className="mt-auto pt-4 border-t border-dashed border-ink/15 flex items-end justify-between gap-3">
           <div>
             {vehicle.buyingPrice ? (
               <>
-                <p className="text-xl font-black text-ink">₹{vehicle.buyingPrice.toLocaleString("en-IN")}</p>
-                <p className="text-xs text-ink/55 mt-0.5">
-                  EMI from <span className="font-bold text-primary">₹{estimateEmi(vehicle.buyingPrice).toLocaleString("en-IN")}/mo</span>
+                <p className="text-xl font-black text-forest">{formatINR(vehicle.buyingPrice)}</p>
+                <p className="text-xs text-ink/75 mt-0.5">
+                  Indicative EMI <span className="font-bold text-primary">{formatINR(estimateEmi(vehicle.buyingPrice))}/mo</span>
                 </p>
               </>
             ) : (
-              <p className="text-base font-bold text-ink">Price on request</p>
+              <p className="text-base font-bold text-forest">Price on request</p>
             )}
           </div>
           <Link
             href={href}
-            aria-label={`View ${title}`}
-            className="shrink-0 w-10 h-10 rounded-full bg-primary-50 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors"
+            aria-label={`View details: ${title}`}
+            className="shrink-0 w-10 h-10 rounded-full bg-tint text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors"
           >
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4" aria-hidden />
           </Link>
+        </div>
+
+        <div className="mt-3">
+          <CompareButton item={{ id: vehicle.id, title: name, image: vehicle.mainImage }} />
         </div>
       </div>
     </article>

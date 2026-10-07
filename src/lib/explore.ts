@@ -1,21 +1,88 @@
-import { CATEGORY_TO_SLUG, SLUG_TO_CATEGORY, TRANSMISSION_DISPLAY, type TransmissionType, type VehicleCategory } from '@/lib/constants';
+import { CATEGORY_TO_SLUG, SLUG_TO_CATEGORY, type VehicleCategory } from '@/lib/constants';
 
 // ── "Explore By" definitions ─────────────────────────────────────────────────
-// Shared by the navbar mega-menu, the home page quick-filters and /explore.
+// Shared by the navbar mega-menu, the home page quick-filters, the footer and /explore.
 
 export const EXPLORE_PATH = '/explore';
 
-export interface PriceBucket { label: string; min?: number; max?: number }
+// ── Price ────────────────────────────────────────────────────────────────────
+// ZMR sells vehicles up to ₹3,00,000, so selectable price filters never go above this.
+export const PRICE_CAP = 300000;
 
-export const PRICE_BUCKETS: PriceBucket[] = [
-  { label: 'Under 1 Lakh', max: 100000 },
-  { label: '1 - 2 Lakh', min: 100000, max: 200000 },
-  { label: '2 - 3 Lakh', min: 200000, max: 300000 },
-  { label: '3 - 5 Lakh', min: 300000, max: 500000 },
-  { label: '5 - 8 Lakh', min: 500000, max: 800000 },
-  { label: '8 - 12 Lakh', min: 800000, max: 1200000 },
-  { label: 'Above 12 Lakh', min: 1200000 },
+export interface PriceBucket { label: string; min?: number; max?: number; count?: number }
+
+/** Candidate bucket edges (₹). Only buckets that contain listed vehicles are shown. */
+const PRICE_EDGES = [0, 50000, 75000, 100000, 125000, 150000, 200000, 250000, PRICE_CAP];
+
+/** Used when no priced inventory is available (e.g. DB unreachable at build time). */
+export const DEFAULT_PRICE_BUCKETS: PriceBucket[] = [
+  { label: 'Under ₹1 Lakh', max: 99999 },
+  { label: '₹1 – 2 Lakh', min: 100000, max: 199999 },
+  { label: '₹2 – 3 Lakh', min: 200000, max: PRICE_CAP },
 ];
+
+/** Indian-style rupee formatting: 245000 → "₹2,45,000". */
+export function formatINR(rs: number): string {
+  return `₹${Math.round(rs).toLocaleString('en-IN')}`;
+}
+
+/** Compact label: 50000 → "₹50,000", 125000 → "₹1.25 Lakh". */
+export function formatINRShort(rs: number): string {
+  if (rs >= 100000) return `₹${(rs / 100000).toFixed(2).replace(/\.?0+$/, '')} Lakh`;
+  return formatINR(rs);
+}
+
+function bucketLabel(min: number, max: number): string {
+  if (min === 0) return `Under ${formatINRShort(max)}`;
+  if (min >= 100000) return `₹${(min / 100000).toFixed(2).replace(/\.?0+$/, '')} – ${formatINRShort(max)}`;
+  return `${formatINRShort(min)} – ${formatINRShort(max)}`;
+}
+
+/**
+ * Builds price buckets from real inventory prices (₹, already ≤ PRICE_CAP).
+ * Buckets are inclusive ranges that don't overlap; empty buckets are dropped.
+ */
+export function buildPriceBuckets(prices: number[] | undefined): PriceBucket[] {
+  const inRange = (prices ?? []).filter((p) => p > 0 && p <= PRICE_CAP);
+  if (inRange.length === 0) return DEFAULT_PRICE_BUCKETS;
+
+  const buckets: PriceBucket[] = [];
+  for (let i = 0; i < PRICE_EDGES.length - 1; i++) {
+    const lo = PRICE_EDGES[i];
+    const hi = PRICE_EDGES[i + 1];
+    const isLast = i === PRICE_EDGES.length - 2;
+    const max = isLast ? hi : hi - 1;
+    const count = inRange.filter((p) => p >= lo && p <= max).length;
+    if (count === 0) continue;
+    buckets.push({ label: bucketLabel(lo, hi), min: lo === 0 ? undefined : lo, max, count });
+  }
+  return buckets;
+}
+
+/** Slider bounds rounded to ₹5,000 and never above the cap. */
+export function priceSliderBounds(prices: number[] | undefined): { min: number; max: number } {
+  const inRange = (prices ?? []).filter((p) => p > 0 && p <= PRICE_CAP);
+  if (inRange.length === 0) return { min: 0, max: PRICE_CAP };
+  const step = 5000;
+  const min = Math.floor(Math.min(...inRange) / step) * step;
+  const max = Math.min(PRICE_CAP, Math.ceil(Math.max(...inRange) / step) * step);
+  return { min, max: max > min ? max : Math.min(PRICE_CAP, min + step) };
+}
+
+/** Clamps a requested price into [0, PRICE_CAP]; non-numbers become undefined. */
+export function clampPrice(v: number | undefined): number | undefined {
+  if (v === undefined || !Number.isFinite(v)) return undefined;
+  return Math.max(0, Math.min(PRICE_CAP, Math.round(v)));
+}
+
+export function priceRangeLabel(min?: number, max?: number): string {
+  if (min !== undefined && max !== undefined) return `${formatINR(min)} – ${formatINR(max)}`;
+  if (max !== undefined) return `Up to ${formatINR(max)}`;
+  if (min !== undefined) return `From ${formatINR(min)}`;
+  return 'Any price';
+}
+
+// ── Year / KM / Range / Body type ───────────────────────────────────────────
 
 const THIS_YEAR = new Date().getFullYear();
 export const YEAR_OPTIONS: number[] = Array.from({ length: 8 }, (_, i) => THIS_YEAR - 1 - i);
@@ -34,11 +101,6 @@ export const BODY_TYPES: BodyType[] = [
   { category: 'FOUR_WHEELER_CARGO', label: 'Mini Truck', hint: '4 Wheeler Cargo', image: '/category-images/4-wheeler-cargo.webp' },
 ];
 
-export const TRANSMISSION_OPTIONS = (Object.keys(TRANSMISSION_DISPLAY) as TransmissionType[]).map((t) => ({
-  value: t,
-  label: TRANSMISSION_DISPLAY[t],
-}));
-
 // Shown in the Make & Model menu when the catalogue has no buying vehicles yet.
 export const FALLBACK_MAKES: MakeWithModels[] = [
   { make: 'Tata', models: ['Nexon EV', 'Tiago EV', 'Punch EV', 'Ace EV'] },
@@ -50,6 +112,9 @@ export const FALLBACK_MAKES: MakeWithModels[] = [
 ];
 
 export interface MakeWithModels { make: string; models: string[] }
+
+/** Data the navbar, home page and footer need for the Explore menus. */
+export interface ExploreNavData { makes: MakeWithModels[]; priceBuckets: PriceBucket[] }
 
 export const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest listings' },
@@ -65,13 +130,10 @@ export function formatKm(km: number): string {
   return `${km.toLocaleString('en-IN')} km`;
 }
 
-export function formatPriceShort(rs: number): string {
-  if (rs >= 10000000) return `₹${(rs / 10000000).toFixed(2).replace(/\.?0+$/, '')} Cr`;
-  if (rs >= 100000) return `₹${(rs / 100000).toFixed(2).replace(/\.?0+$/, '')} Lakh`;
-  return `₹${rs.toLocaleString('en-IN')}`;
-}
-
-/** Indicative EMI: 10.5% p.a., 36 months, 20% down payment. */
+/**
+ * Indicative EMI only — assumes 10.5% p.a., 36 months and 20% down payment.
+ * Actual terms depend on the financing partner and must be shown with EMI_DISCLAIMER.
+ */
 export function estimateEmi(price: number): number {
   const principal = price * 0.8;
   const r = 0.105 / 12;
@@ -79,10 +141,13 @@ export function estimateEmi(price: number): number {
   return Math.round((principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1));
 }
 
+export const EMI_DISCLAIMER =
+  'Indicative EMI assumes 10.5% p.a. interest, a 36-month tenure and a 20% down payment. Actual terms depend on the financing partner.';
+
 // ── URL helpers ──────────────────────────────────────────────────────────────
 
 export type ExploreQuery = Partial<Record<
-  'q' | 'minPrice' | 'maxPrice' | 'make' | 'model' | 'minYear' | 'maxKm' | 'type' | 'transmission' | 'minRange' | 'sort',
+  'q' | 'minPrice' | 'maxPrice' | 'make' | 'model' | 'minYear' | 'maxKm' | 'type' | 'minRange' | 'sort',
   string | number
 >>;
 

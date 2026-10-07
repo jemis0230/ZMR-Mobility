@@ -6,6 +6,7 @@ import { Vehicle } from '@/domain/entities/Vehicle';
 import { VEHICLE_CATEGORIES, CATEGORY_DISPLAY } from '@/lib/constants';
 import { Car, AlertTriangle, Edit, Trash2, Filter, Tag, Plus } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { PRICE_CAP } from '@/lib/explore';
 
 interface AdminVehiclesClientProps {
   initialVehicles: Vehicle[];
@@ -46,8 +47,8 @@ export default function AdminVehiclesClient({ initialVehicles, dbError }: AdminV
   const getSectionBadges = (v: Vehicle) => {
     const badges = [];
     if (v.showInLeasing) badges.push({ label: 'Lease', color: 'bg-primary/20 text-primary border-primary/30' });
-    if (v.showInBuying) badges.push({ label: 'Buy', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' });
-    if (v.showInRent) badges.push({ label: 'Rent', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' });
+    if (v.showInBuying) badges.push({ label: 'Buy', color: 'bg-lime/40 text-forest border-lime' });
+    if (v.showInRent) badges.push({ label: 'Rent', color: 'bg-amber-100 text-amber-900 border-amber-300' });
     return badges;
   };
 
@@ -140,6 +141,18 @@ export default function AdminVehiclesClient({ initialVehicles, dbError }: AdminV
         </div>
       )}
 
+      {/* Vehicles above the selling-price cap need a price review */}
+      {(() => {
+        const overCap = vehicles.filter((v) => v.showInBuying && v.buyingPrice != null && v.buyingPrice > PRICE_CAP);
+        if (overCap.length === 0) return null;
+        return (
+          <div role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-bold flex items-center gap-2"><AlertTriangle className="w-4 h-4" aria-hidden /> {overCap.length} buying listing{overCap.length === 1 ? ' is' : 's are'} priced above ₹3,00,000</p>
+            <p className="mt-1">The website&apos;s price filters stop at ₹3,00,000. These vehicles still appear in listings, but not under any price filter. Please confirm their prices: {overCap.map((v) => `${v.make} ${v.model} (₹${v.buyingPrice!.toLocaleString('en-IN')})`).join(', ')}.</p>
+          </div>
+        );
+      })()}
+
       {/* Count */}
       <p className="text-ink/60 text-sm font-medium">
         {filteredVehicles.length} vehicle{filteredVehicles.length !== 1 ? 's' : ''} found
@@ -184,6 +197,14 @@ export default function AdminVehiclesClient({ initialVehicles, dbError }: AdminV
 
               <div className="flex items-center justify-between pt-3 border-t border-ink/[0.08]">
                 <span className="text-primary font-bold text-sm">{getPriceDisplay(v)}</span>
+                {v.buyingPrice != null && v.buyingPrice > PRICE_CAP && (
+                  <span
+                    title="Buying price is above ₹3,00,000, the upper limit of the website's price filters. Please confirm the price."
+                    className="ml-1 inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 text-[10px] font-bold"
+                  >
+                    <AlertTriangle className="w-3 h-3" aria-hidden /> Review price
+                  </span>
+                )}
                 <div className="flex gap-2">
                   <Link
                     href={`/admin/vehicles/${v.id}`}

@@ -40,8 +40,8 @@ const STATUS_CONFIG = {
   },
   QUALIFIED: {
     label: 'Qualified',
-    dot: 'bg-blue-500',
-    badge: 'bg-blue-500/10 text-blue-400',
+    dot: 'bg-sage',
+    badge: 'bg-tint text-leaf',
     next: 'CLOSED_WON' as const,
     nextLabel: 'Mark as Won',
   },
@@ -65,8 +65,8 @@ const INQUIRY_TYPE_COLOR: Record<string, string> = {
   VEHICLE_LEASING:      'bg-purple-500/10 text-purple-400',
   VEHICLE_RENTING:      'bg-teal-500/10 text-teal-400',
   VEHICLE_PURCHASE:     'bg-green-500/10 text-green-400',
-  CORPORATE_ENTERPRISE: 'bg-blue-500/10 text-blue-400',
-  FLEET_LOGISTICS:      'bg-cyan-500/10 text-cyan-400',
+  CORPORATE_ENTERPRISE: 'bg-tint text-leaf',
+  FLEET_LOGISTICS:      'bg-tint text-leaf',
   DEALERSHIP_FRANCHISE: 'bg-orange-500/10 text-orange-400',
   B2B_PARTNERSHIP:      'bg-pink-500/10 text-pink-400',
   OTHER:                'bg-ink/10 text-ink/65',
@@ -177,7 +177,7 @@ function DeleteConfirmModal({
         style={{
           background: 'linear-gradient(145deg, #ffffff 0%, #fff5f5 100%)',
           border: '1px solid rgba(239,68,68,0.25)',
-          boxShadow: '0 25px 60px rgba(15,23,42,0.18)',
+          boxShadow: '0 25px 60px rgba(45,71,62,0.18)',
         }}
       >
         <div className="flex items-center gap-3">
@@ -255,8 +255,8 @@ function LeadDetailModal({
         className="relative w-full max-w-lg rounded-2xl overflow-hidden"
         style={{
           background: 'linear-gradient(145deg, #ffffff 0%, #f5f9ff 100%)',
-          border: '1px solid rgba(15,23,42,0.08)',
-          boxShadow: '0 25px 60px rgba(15,23,42,0.18)',
+          border: '1px solid rgba(45,71,62,0.08)',
+          boxShadow: '0 25px 60px rgba(45,71,62,0.18)',
         }}
       >
         {/* Header */}

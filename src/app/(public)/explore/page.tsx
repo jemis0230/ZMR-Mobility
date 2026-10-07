@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, X, Check, SearchX, ShieldCheck, BadgeIndianRupee, Wrench, Truck } from "lucide-react";
+import { ChevronRight, X, Check, SearchX, ShieldCheck, ArrowLeftRight, Info } from "lucide-react";
 import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
-import type { ExploreFilterParams } from "@/application/repositories/IVehicleRepository";
+import type { ExploreFilterParams, ExploreMenuData } from "@/application/repositories/IVehicleRepository";
 import { getCachedExploreMenuData } from "@/lib/cachedVehicleQueries";
 import {
-  PRICE_BUCKETS, YEAR_OPTIONS, KM_OPTIONS, BODY_TYPES, TRANSMISSION_OPTIONS, RANGE_OPTIONS,
-  EXPLORE_PATH, SORT_OPTIONS, categoryFromTypeSlug,
+  YEAR_OPTIONS, KM_OPTIONS, BODY_TYPES, RANGE_OPTIONS, PRICE_CAP,
+  EXPLORE_PATH, SORT_OPTIONS, EMI_DISCLAIMER, categoryFromTypeSlug, buildPriceBuckets, priceSliderBounds,
+  clampPrice, priceRangeLabel, formatINR,
 } from "@/lib/explore";
-import { CATEGORY_TO_SLUG, TRANSMISSION_DISPLAY, TRANSMISSION_TYPES, type TransmissionType, type VehicleCategory } from "@/lib/constants";
+import { CATEGORY_TO_SLUG, type VehicleCategory } from "@/lib/constants";
 import ExploreVehicleCard from "@/presentation/components/ExploreVehicleCard";
 import Pagination from "@/presentation/components/Pagination";
-import { SortSelect, FilterPanel } from "./ExploreControls";
+import { SortSelect, FilterPanel, PriceRangeFilter } from "./ExploreControls";
 
 export const dynamic = "force-dynamic";
 
-const BASE_DESCRIPTION = "Explore ZMR Certified pre-owned EVs by price range, make & model, year, KM driven and body type — scooters, e-rickshaws, cargo loaders and electric cars.";
+const BASE_DESCRIPTION = "Explore pre-owned electric vehicles from ZMR Mobility by price, make & model, year, KM driven and body type — scooters, e-rickshaws, cargo loaders and more.";
 
 // Body-type pages (/explore?type=…) are listed in the sitemap, so they get their own
 // canonical URL and title; every other filter combination canonicalises to /explore.
@@ -29,7 +30,7 @@ export async function generateMetadata(props: { searchParams: Promise<SP> }): Pr
   if (bodyType && keys.length === 1) {
     return {
       title: `Buy Used Electric ${bodyType.label} (${bodyType.hint}) | ZMR Mobility`,
-      description: `Certified pre-owned electric ${bodyType.label.toLowerCase()} for sale with warranty, IoT tracking and easy EMI. ${BASE_DESCRIPTION}`,
+      description: `Pre-owned electric ${bodyType.label.toLowerCase()} for sale from ZMR Mobility. ${BASE_DESCRIPTION}`,
       alternates: { canonical: `/explore?type=${type}` },
     };
   }
@@ -44,7 +45,7 @@ const repo = new PrismaVehicleRepository();
 
 type SP = Record<string, string | string[] | undefined>;
 
-const FILTER_KEYS = ["q", "minPrice", "maxPrice", "make", "model", "minYear", "maxKm", "type", "transmission", "minRange", "sort"] as const;
+const FILTER_KEYS = ["q", "minPrice", "maxPrice", "make", "model", "minYear", "maxKm", "type", "minRange", "sort"] as const;
 type FilterKey = (typeof FILTER_KEYS)[number];
 
 function readParams(sp: SP): Partial<Record<FilterKey, string>> {
@@ -85,29 +86,32 @@ function toggleInList(list: string | undefined, value: string): string | undefin
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <details open className="group border-b border-ink/[0.08] last:border-b-0">
-      <summary className="flex items-center justify-between cursor-pointer list-none py-4 text-sm font-bold text-ink">
+    <details open className="group border-b border-ink/10 last:border-b-0">
+      <summary className="flex items-center justify-between cursor-pointer list-none py-4 text-sm font-bold text-forest rounded-md">
         {title}
-        <ChevronRight className="w-4 h-4 text-ink/40 transition-transform group-open:rotate-90" />
+        <ChevronRight className="w-4 h-4 text-ink/60 transition-transform group-open:rotate-90" aria-hidden />
       </summary>
       <div className="pb-4 space-y-1">{children}</div>
     </details>
   );
 }
 
-function Option({ href, active, children, multi }: { href: string; active: boolean; children: React.ReactNode; multi?: boolean }) {
+function Option({ href, active, children, multi, count }: { href: string; active: boolean; children: React.ReactNode; multi?: boolean; count?: number }) {
   return (
     <Link
       href={href}
       scroll={false}
-      className={`flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm transition-colors ${active ? "text-primary font-semibold bg-primary-50" : "text-ink/70 hover:bg-secondary hover:text-ink"}`}
+      aria-current={active ? "true" : undefined}
+      className={`flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors ${active ? "text-forest font-semibold bg-lime/40" : "text-ink/80 hover:bg-tint hover:text-forest"}`}
     >
       <span
-        className={`w-4 h-4 shrink-0 flex items-center justify-center border ${multi ? "rounded" : "rounded-full"} ${active ? "border-primary bg-primary text-white" : "border-ink/25 bg-white"}`}
+        aria-hidden
+        className={`w-4 h-4 shrink-0 flex items-center justify-center border ${multi ? "rounded" : "rounded-full"} ${active ? "border-primary bg-primary text-white" : "border-ink/40 bg-white"}`}
       >
         {active && <Check className="w-3 h-3" strokeWidth={3} />}
       </span>
-      {children}
+      <span className="flex-1">{children}</span>
+      {count !== undefined && <span className="text-[11px] text-ink/60">{count}</span>}
     </Link>
   );
 }
@@ -122,51 +126,61 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
   const makes = p.make ? p.make.split(",").filter(Boolean) : undefined;
   const typeSlugs = p.type ? p.type.split(",").filter(Boolean) : [];
   const categories = typeSlugs.map(categoryFromTypeSlug).filter(Boolean) as VehicleCategory[];
-  const transmission = TRANSMISSION_TYPES.includes(p.transmission as TransmissionType) ? (p.transmission as TransmissionType) : undefined;
   const sortBy = SORT_OPTIONS.some((o) => o.value === p.sort) ? (p.sort as ExploreFilterParams["sortBy"]) : "newest";
+
+  // Selectable prices never exceed the ₹3,00,000 cap; out-of-range links are clamped.
+  let minPrice = clampPrice(toInt(p.minPrice));
+  let maxPrice = clampPrice(toInt(p.maxPrice));
+  if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
+  if (minPrice === 0) minPrice = undefined;
+  const priceActive = minPrice !== undefined || maxPrice !== undefined;
+  // Any price filter implies the selling-price cap.
+  if (priceActive && maxPrice === undefined) maxPrice = PRICE_CAP;
+  const pc = { ...p, minPrice: minPrice?.toString(), maxPrice: maxPrice?.toString() };
 
   const filters: ExploreFilterParams = {
     q: p.q,
-    minPrice: toInt(p.minPrice),
-    maxPrice: toInt(p.maxPrice),
+    minPrice,
+    maxPrice,
     makes,
     model: p.model,
     minYear: toInt(p.minYear),
     maxKm: toInt(p.maxKm),
     categories,
-    transmission,
     minRange: toInt(p.minRange),
     sortBy,
     page,
     pageSize: 12,
   };
 
+  const emptyMenu: ExploreMenuData = { makes: [], prices: [], unpricedCount: 0, overCapCount: 0 };
   const [result, menu] = await Promise.all([
     repo.findForExplore(filters),
-    getCachedExploreMenuData().catch(() => ({ makes: [] })),
+    getCachedExploreMenuData().catch(() => emptyMenu),
   ]);
   const { data: vehicles, total, totalPages } = result;
+  const priceBuckets = buildPriceBuckets(menu.prices);
+  const bounds = priceSliderBounds(menu.prices);
 
   // Active filter chips
   const chips: { label: string; href: string }[] = [];
-  if (p.q) chips.push({ label: `“${p.q}”`, href: hrefWith(p, { q: undefined }) });
-  if (p.minPrice || p.maxPrice) {
-    const bucket = PRICE_BUCKETS.find((b) => String(b.min ?? "") === (p.minPrice ?? "") && String(b.max ?? "") === (p.maxPrice ?? ""));
-    chips.push({ label: bucket?.label ?? "Custom price", href: hrefWith(p, { minPrice: undefined, maxPrice: undefined }) });
+  if (p.q) chips.push({ label: `“${p.q}”`, href: hrefWith(pc, { q: undefined }) });
+  if (priceActive) {
+    const bucket = priceBuckets.find((b) => b.min === minPrice && b.max === maxPrice);
+    chips.push({ label: bucket?.label ?? priceRangeLabel(minPrice, maxPrice), href: hrefWith(pc, { minPrice: undefined, maxPrice: undefined }) });
   }
-  makes?.forEach((m) => chips.push({ label: m, href: hrefWith(p, { make: toggleInList(p.make, m), model: undefined }) }));
-  if (p.model) chips.push({ label: p.model, href: hrefWith(p, { model: undefined }) });
-  if (p.minYear) chips.push({ label: `${p.minYear} & above`, href: hrefWith(p, { minYear: undefined }) });
-  if (p.maxKm) chips.push({ label: `Under ${Number(p.maxKm).toLocaleString("en-IN")} km`, href: hrefWith(p, { maxKm: undefined }) });
+  makes?.forEach((m) => chips.push({ label: m, href: hrefWith(pc, { make: toggleInList(p.make, m), model: undefined }) }));
+  if (p.model) chips.push({ label: p.model, href: hrefWith(pc, { model: undefined }) });
+  if (p.minYear) chips.push({ label: `${p.minYear} & above`, href: hrefWith(pc, { minYear: undefined }) });
+  if (p.maxKm) chips.push({ label: `Up to ${Number(p.maxKm).toLocaleString("en-IN")} km`, href: hrefWith(pc, { maxKm: undefined }) });
   categories.forEach((c) => {
     const bt = BODY_TYPES.find((b) => b.category === c);
-    chips.push({ label: bt?.label ?? c, href: hrefWith(p, { type: toggleInList(p.type, CATEGORY_TO_SLUG[c]) }) });
+    chips.push({ label: bt?.label ?? c, href: hrefWith(pc, { type: toggleInList(p.type, CATEGORY_TO_SLUG[c]) }) });
   });
-  if (transmission) chips.push({ label: TRANSMISSION_DISPLAY[transmission], href: hrefWith(p, { transmission: undefined }) });
-  if (p.minRange) chips.push({ label: `${p.minRange}+ km range`, href: hrefWith(p, { minRange: undefined }) });
+  if (p.minRange) chips.push({ label: `${p.minRange}+ km range`, href: hrefWith(pc, { minRange: undefined }) });
 
   const pageParams = new URLSearchParams();
-  for (const k of FILTER_KEYS) if (p[k]) pageParams.set(k, p[k]!);
+  for (const k of FILTER_KEYS) if (pc[k]) pageParams.set(k, pc[k]!);
 
   const heading = categories.length === 1
     ? `Pre-owned ${BODY_TYPES.find((b) => b.category === categories[0])?.label ?? "EVs"}`
@@ -175,49 +189,47 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
     : "Pre-owned Electric Vehicles";
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-cream">
       {/* ── Header band ── */}
-      <section className="pt-24 lg:pt-36 pb-8 px-4 md:px-6 bg-gradient-to-b from-primary-50 to-background border-b border-ink/[0.06]">
+      <section className="pt-24 lg:pt-36 pb-8 px-4 md:px-6 bg-tint border-b border-ink/10">
         <div className="max-w-7xl mx-auto">
-          <nav className="flex items-center gap-1.5 text-xs font-semibold text-ink/50 mb-4" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-1.5 text-xs font-semibold text-ink/70 mb-4" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-primary">Home</Link>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-ink/80">Buy Pre-owned EVs</span>
+            <ChevronRight className="w-3 h-3" aria-hidden />
+            <span aria-current="page" className="text-forest">Buy Pre-owned EVs</span>
           </nav>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-black tracking-tight text-ink">{heading}</h1>
-              <p className="text-ink/60 mt-2">
-                <span className="font-bold text-primary">{total}</span> ZMR Certified {total === 1 ? "vehicle" : "vehicles"} available
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight text-forest">{heading}</h1>
+              <p className="text-ink/75 mt-2" aria-live="polite">
+                <span className="font-bold text-primary">{total}</span> {total === 1 ? "vehicle" : "vehicles"} available
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 text-xs font-semibold text-ink/70">
-              {[
-                { icon: ShieldCheck, label: "200+ point inspection" },
-                { icon: Wrench, label: "Up to 24-month warranty" },
-                { icon: BadgeIndianRupee, label: "Easy EMI" },
-                { icon: Truck, label: "Doorstep delivery" },
-              ].map((b) => (
-                <span key={b.label} className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/10 px-3 py-1.5">
-                  <b.icon className="w-3.5 h-3.5 text-primary" /> {b.label}
-                </span>
-              ))}
+            <div className="flex flex-wrap gap-2 text-xs font-semibold">
+              <Link href="/warranty-ownership" className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/15 px-3 py-2 text-forest hover:border-primary">
+                <ShieldCheck className="w-3.5 h-3.5 text-leaf" aria-hidden /> Warranty & ownership support
+              </Link>
+              <Link href="/compare" className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/15 px-3 py-2 text-forest hover:border-primary">
+                <ArrowLeftRight className="w-3.5 h-3.5 text-leaf" aria-hidden /> Compare up to 3 vehicles
+              </Link>
             </div>
           </div>
 
           {/* Body type quick tiles */}
-          <div className="mt-6 flex gap-3 overflow-x-auto no-scrollbar pb-1">
+          <div className="mt-6 flex gap-3 overflow-x-auto no-scrollbar pb-1" role="list" aria-label="Body type">
             {BODY_TYPES.map((bt) => {
               const slug = CATEGORY_TO_SLUG[bt.category];
               const active = typeSlugs.includes(slug);
               return (
                 <Link
                   key={bt.category}
-                  href={hrefWith(p, { type: toggleInList(p.type, slug) })}
+                  role="listitem"
+                  href={hrefWith(pc, { type: toggleInList(p.type, slug) })}
                   scroll={false}
-                  className={`shrink-0 flex items-center gap-3 rounded-2xl border pr-4 pl-1.5 py-1.5 transition-all ${active ? "border-primary bg-primary text-white shadow-md shadow-primary/25" : "border-ink/10 bg-white text-ink hover:border-primary/40"}`}
+                  aria-current={active ? "true" : undefined}
+                  className={`shrink-0 flex items-center gap-3 rounded-2xl border pr-4 pl-1.5 py-1.5 transition-all ${active ? "border-forest bg-lime text-forest shadow-md" : "border-ink/15 bg-white text-forest hover:border-primary"}`}
                 >
-                  <span className="relative w-14 h-10 rounded-xl overflow-hidden bg-secondary">
+                  <span className="relative w-14 h-10 rounded-xl overflow-hidden bg-cream">
                     <Image src={bt.image} alt="" fill sizes="56px" className="object-cover" />
                   </span>
                   <span className="text-sm font-bold whitespace-nowrap">{bt.label}</span>
@@ -230,40 +242,50 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 flex flex-col lg:flex-row gap-8">
         {/* ── Sidebar ── */}
-        <aside className="w-full lg:w-72 shrink-0">
+        <aside className="w-full lg:w-72 shrink-0" aria-label="Filters">
           <FilterPanel activeCount={chips.length}>
-            <div className="lg:sticky lg:top-36 rounded-2xl bg-white border border-ink/[0.08] shadow-card px-4">
+            <div className="lg:sticky lg:top-36 rounded-2xl bg-white border border-ink/10 shadow-card px-4">
               <div className="flex items-center justify-between pt-4">
-                <p className="font-black text-ink">Filters</p>
+                <h2 className="hidden lg:block font-black text-forest">Filters</h2>
                 {chips.length > 0 && (
                   <Link href={EXPLORE_PATH} className="text-xs font-bold text-primary hover:underline">Clear all</Link>
                 )}
               </div>
 
               <FilterGroup title="Price Range">
-                {PRICE_BUCKETS.map((b) => {
-                  const active = (p.minPrice ?? "") === String(b.min ?? "") && (p.maxPrice ?? "") === String(b.max ?? "");
+                {priceBuckets.map((b) => {
+                  const active = minPrice === b.min && maxPrice === b.max;
                   return (
                     <Option
                       key={b.label}
                       active={active}
-                      href={hrefWith(p, active ? { minPrice: undefined, maxPrice: undefined } : { minPrice: b.min?.toString(), maxPrice: b.max?.toString() })}
+                      count={b.count}
+                      href={hrefWith(pc, active ? { minPrice: undefined, maxPrice: undefined } : { minPrice: b.min?.toString(), maxPrice: b.max?.toString() })}
                     >
                       {b.label}
                     </Option>
                   );
                 })}
+                <div className="pt-3 px-1">
+                  <PriceRangeFilter bounds={bounds} currentMin={minPrice} currentMax={maxPrice} />
+                </div>
+                <p className="flex gap-1.5 px-1 pt-2 text-[11px] leading-snug text-ink/70">
+                  <Info className="w-3.5 h-3.5 shrink-0 mt-px" aria-hidden />
+                  <span>
+                    Prices up to {formatINR(PRICE_CAP)}.
+                    {menu.unpricedCount > 0 && ` ${menu.unpricedCount} listing${menu.unpricedCount === 1 ? "" : "s"} without a published price ${menu.unpricedCount === 1 ? "is" : "are"} hidden while a price filter is on.`}
+                  </span>
+                </p>
               </FilterGroup>
 
               <FilterGroup title="Make and Model">
-                {menu.makes.length === 0 && <p className="text-xs text-ink/50 px-2">No brands listed yet.</p>}
+                {menu.makes.length === 0 && <p className="text-xs text-ink/70 px-2">No brands listed yet.</p>}
                 {menu.makes.map((m) => {
                   const active = makes?.includes(m.make) ?? false;
                   return (
                     <div key={m.make}>
-                      <Option multi active={active} href={hrefWith(p, { make: toggleInList(p.make, m.make), model: undefined })}>
-                        <span className="flex-1">{m.make}</span>
-                        <span className="text-[11px] text-ink/40">{m.count}</span>
+                      <Option multi active={active} count={m.count} href={hrefWith(pc, { make: toggleInList(p.make, m.make), model: undefined })}>
+                        {m.make}
                       </Option>
                       {active && makes?.length === 1 && m.models.length > 1 && (
                         <div className="ml-7 mt-1 mb-2 flex flex-wrap gap-1">
@@ -272,9 +294,10 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
                             return (
                               <Link
                                 key={model}
-                                href={hrefWith(p, { model: on ? undefined : model })}
+                                href={hrefWith(pc, { model: on ? undefined : model })}
                                 scroll={false}
-                                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${on ? "border-primary bg-primary text-white" : "border-ink/15 text-ink/70 hover:border-primary/40"}`}
+                                aria-current={on ? "true" : undefined}
+                                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${on ? "border-forest bg-lime text-forest" : "border-ink/20 text-ink/80 hover:border-primary"}`}
                               >
                                 {model}
                               </Link>
@@ -290,14 +313,14 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
               <FilterGroup title="Year">
                 {YEAR_OPTIONS.map((y) => {
                   const active = p.minYear === String(y);
-                  return <Option key={y} active={active} href={hrefWith(p, { minYear: active ? undefined : String(y) })}>{y} & above</Option>;
+                  return <Option key={y} active={active} href={hrefWith(pc, { minYear: active ? undefined : String(y) })}>{y} & above</Option>;
                 })}
               </FilterGroup>
 
               <FilterGroup title="KM Driven">
                 {KM_OPTIONS.map((km) => {
                   const active = p.maxKm === String(km);
-                  return <Option key={km} active={active} href={hrefWith(p, { maxKm: active ? undefined : String(km) })}>{km.toLocaleString("en-IN")} kms or less</Option>;
+                  return <Option key={km} active={active} href={hrefWith(pc, { maxKm: active ? undefined : String(km) })}>{km.toLocaleString("en-IN")} kms or less</Option>;
                 })}
               </FilterGroup>
 
@@ -305,24 +328,17 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
                 {BODY_TYPES.map((bt) => {
                   const slug = CATEGORY_TO_SLUG[bt.category];
                   return (
-                    <Option key={slug} multi active={typeSlugs.includes(slug)} href={hrefWith(p, { type: toggleInList(p.type, slug) })}>
-                      <span>{bt.label} <span className="text-[11px] text-ink/40">· {bt.hint}</span></span>
+                    <Option key={slug} multi active={typeSlugs.includes(slug)} href={hrefWith(pc, { type: toggleInList(p.type, slug) })}>
+                      {bt.label} <span className="text-[11px] text-ink/60">· {bt.hint}</span>
                     </Option>
                   );
-                })}
-              </FilterGroup>
-
-              <FilterGroup title="Transmission">
-                {TRANSMISSION_OPTIONS.map((t) => {
-                  const active = transmission === t.value;
-                  return <Option key={t.value} active={active} href={hrefWith(p, { transmission: active ? undefined : t.value })}>{t.label}</Option>;
                 })}
               </FilterGroup>
 
               <FilterGroup title="Range per Charge">
                 {RANGE_OPTIONS.map((r) => {
                   const active = p.minRange === String(r);
-                  return <Option key={r} active={active} href={hrefWith(p, { minRange: active ? undefined : String(r) })}>{r}+ km</Option>;
+                  return <Option key={r} active={active} href={hrefWith(pc, { minRange: active ? undefined : String(r) })}>{r}+ km</Option>;
                 })}
               </FilterGroup>
             </div>
@@ -330,11 +346,11 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
         </aside>
 
         {/* ── Results ── */}
-        <section className="flex-1 min-w-0">
+        <section className="flex-1 min-w-0" aria-label="Results">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <div className="flex flex-wrap items-center gap-2">
               {chips.length === 0 ? (
-                <p className="text-sm text-ink/55">Showing all certified EVs</p>
+                <p className="text-sm text-ink/70">Showing all available vehicles</p>
               ) : (
                 <>
                   {chips.map((c) => (
@@ -342,12 +358,13 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
                       key={c.label}
                       href={c.href}
                       scroll={false}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 border border-primary/20 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary-100"
+                      aria-label={`Remove filter: ${c.label}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-lime/50 border border-lime px-3 py-1.5 text-xs font-bold text-forest hover:bg-lime"
                     >
-                      {c.label} <X className="w-3 h-3" />
+                      {c.label} <X className="w-3 h-3" aria-hidden />
                     </Link>
                   ))}
-                  <Link href={EXPLORE_PATH} className="text-xs font-bold text-ink/50 hover:text-primary px-1">Clear all</Link>
+                  <Link href={EXPLORE_PATH} className="text-xs font-bold text-primary hover:underline px-1">Clear all</Link>
                 </>
               )}
             </div>
@@ -357,22 +374,25 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
           {vehicles.length > 0 ? (
             <>
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                {vehicles.map((v) => <ExploreVehicleCard key={v.id} vehicle={v} />)}
+                {vehicles.map((v, i) => <ExploreVehicleCard key={v.id} vehicle={v} eager={i < 3} />)}
               </div>
               <Pagination currentPage={page} totalPages={totalPages} basePath={EXPLORE_PATH} searchParams={pageParams} />
+              <p className="mt-8 text-xs text-ink/65">{EMI_DISCLAIMER}</p>
             </>
           ) : (
-            <div className="rounded-3xl bg-white border border-dashed border-ink/15 py-20 px-6 text-center">
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-primary-50 flex items-center justify-center mb-4">
-                <SearchX className="w-7 h-7 text-primary" />
+            <div className="rounded-3xl bg-white border border-dashed border-ink/20 py-20 px-6 text-center">
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-tint flex items-center justify-center mb-4">
+                <SearchX className="w-7 h-7 text-leaf" aria-hidden />
               </div>
-              <h2 className="text-xl font-bold text-ink">No EVs match these filters</h2>
-              <p className="text-ink/55 text-sm mt-1 max-w-md mx-auto">
-                Try removing a filter — or tell us what you need and our team will source it for you.
+              <h2 className="text-xl font-bold text-forest">No vehicles match these filters</h2>
+              <p className="text-ink/75 text-sm mt-1 max-w-md mx-auto">
+                {priceActive
+                  ? `No listed vehicle is priced ${priceRangeLabel(minPrice, maxPrice).toLowerCase()} with the other filters you chose. Try a wider price range or remove a filter.`
+                  : "Try removing a filter — or tell us what you need and our team will help you find it."}
               </p>
               <div className="flex flex-wrap justify-center gap-3 mt-6">
                 <Link href={EXPLORE_PATH} className="rounded-xl bg-primary text-white px-5 py-2.5 text-sm font-bold hover:bg-primary-dark">Clear all filters</Link>
-                <Link href="/#contact" className="rounded-xl border border-ink/15 bg-white px-5 py-2.5 text-sm font-bold text-ink hover:border-primary/40">Request a vehicle</Link>
+                <Link href="/#contact" className="rounded-xl border border-ink/20 bg-white px-5 py-2.5 text-sm font-bold text-forest hover:border-primary">Request a vehicle</Link>
               </div>
             </div>
           )}

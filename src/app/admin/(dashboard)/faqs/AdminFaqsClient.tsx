@@ -5,6 +5,7 @@ import { HelpCircle, AlertTriangle, Edit, Trash2, X, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
 import type { FaqItem } from '@/app/actions/faqActions';
+import { POLICY_TOPICS, policyTopicTitle } from '@/lib/policies';
 
 interface AdminFaqsClientProps {
   initialFaqs: FaqItem[];
@@ -26,6 +27,7 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
         question: formData.get('question'),
         answer: formData.get('answer'),
         order: Number(formData.get('order')) || undefined,
+        topic: formData.get('topic') || null,
       });
 
       if (!result.success) {
@@ -48,6 +50,7 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
         answer: formData.get('answer'),
         order: Number(formData.get('order')) || undefined,
         isActive: formData.get('isActive') === 'on',
+        topic: formData.get('topic') || null,
       });
 
       if (!result.success) {
@@ -120,6 +123,7 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
                 </button>
               </div>
               <FaqForm 
+                key={editingFaq?.id ?? 'new'}
                 initialData={editingFaq} 
                 isSubmitting={isSubmitting}
                 onSubmit={editingFaq ? (formData) => handleUpdate(editingFaq.id, formData) : handleCreate} 
@@ -132,6 +136,22 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
           <h2 className="text-xl font-bold">
             FAQ List ({faqs.length})
           </h2>
+
+          {(() => {
+            const missing = POLICY_TOPICS.filter((t) => !faqs.some((f) => f.topic === t.key && f.isActive));
+            if (missing.length === 0) return null;
+            return (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                <p className="font-bold">Warranty &amp; Ownership topics still showing placeholder text ({missing.length}/{POLICY_TOPICS.length})</p>
+                <p className="mt-1">Add an FAQ with the matching policy topic once the team has confirmed these details:</p>
+                <ul className="mt-2 space-y-1 list-disc pl-5">
+                  {missing.map((t) => (
+                    <li key={t.key}><strong>{t.title}:</strong> {t.pending.join('; ')}</li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
 
           {dbError && (
             <div className="glass-card p-6 border-red-500/20 bg-red-500/5 flex items-center gap-4">
@@ -152,6 +172,11 @@ export default function AdminFaqsClient({ initialFaqs, dbError }: AdminFaqsClien
                       <span className="bg-ink/10 px-2 py-1 rounded text-xs font-bold text-ink/70">
                         Order: {faq.order}
                       </span>
+                      {faq.topic && (
+                        <span className="bg-lime/50 px-2 py-1 rounded text-xs font-bold text-forest">
+                          Policy: {policyTopicTitle(faq.topic) ?? faq.topic}
+                        </span>
+                      )}
                       {!faq.isActive && (
                         <span className="bg-red-500/20 px-2 py-1 rounded text-xs font-bold text-red-500">
                           Inactive
@@ -231,13 +256,32 @@ function FaqForm({
         />
       </div>
       <div>
+        <label htmlFor="faq-topic" className="text-xs font-bold uppercase tracking-wider text-ink/60 mb-2 block">Policy topic</label>
+        <select
+          id="faq-topic"
+          name="topic"
+          defaultValue={initialData?.topic ?? ''}
+          className="w-full bg-white border border-ink/15 rounded-lg px-4 py-3 text-ink focus:outline-none focus:border-primary"
+        >
+          <option value="">General FAQ</option>
+          {POLICY_TOPICS.map((t) => (
+            <option key={t.key} value={t.key}>{t.title} (Warranty &amp; Ownership section)</option>
+          ))}
+        </select>
+        <p className="text-[11px] text-ink/60 mt-1.5">
+          Choosing a topic publishes this answer in the Warranty &amp; Ownership Support section, on vehicle pages and in FAQs,
+          replacing the neutral placeholder text. Only publish confirmed terms.
+        </p>
+      </div>
+      <div>
         <label className="text-xs font-bold uppercase tracking-wider text-ink/60 mb-2 block">Order</label>
         <input 
           type="number" 
           name="order" 
           min={1}
           step={1}
-          defaultValue={initialData?.order || 0}
+          defaultValue={initialData?.order || ""}
+          placeholder="Leave blank to add at the end"
           className="w-full bg-ink/5 border border-ink/10 rounded-lg px-4 py-3 text-ink placeholder-ink/40 focus:outline-none focus:border-primary"
         />
       </div>

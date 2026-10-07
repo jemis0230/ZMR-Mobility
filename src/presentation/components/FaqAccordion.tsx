@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useId, useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 
 interface Faq {
@@ -12,82 +11,73 @@ interface Faq {
 
 interface FaqAccordionProps {
   faqs: Faq[];
+  /** Number badges (01, 02 …) before each question */
+  numbered?: boolean;
+  /** Heading level used for questions (keeps the page outline valid) */
+  headingLevel?: 'h3' | 'h4';
 }
 
-export default function FaqAccordion({ faqs }: FaqAccordionProps) {
+/**
+ * Accessible single-open accordion. Answers stay in the HTML (good for search
+ * engines) and expand with a CSS grid-rows transition — no animation library.
+ */
+export default function FaqAccordion({ faqs, numbered = true, headingLevel = 'h3' }: FaqAccordionProps) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const uid = useId();
+  const Heading = headingLevel;
 
   return (
     <div className="w-full space-y-3">
       {faqs.map((faq, i) => {
         const isOpen = openId === faq.id;
+        const panelId = `${uid}-panel-${i}`;
+        const buttonId = `${uid}-button-${i}`;
         return (
-          <motion.div
+          <div
             key={faq.id}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06, duration: 0.4, ease: 'easeOut' }}
-            className="glass-card overflow-hidden"
-            style={{
-              border: isOpen
-                ? '1px solid rgba(26,115,232,0.25)'
-                : '1px solid rgba(15,23,42,0.08)',
-              boxShadow: isOpen ? '0 0 24px rgba(26,115,232,0.06)' : 'none',
-              transition: 'border-color 0.3s, box-shadow 0.3s',
-            }}
+            className={`rounded-2xl bg-white border transition-colors ${isOpen ? 'border-primary/50 shadow-card' : 'border-ink/10'}`}
           >
-            <button
-              onClick={() => setOpenId(isOpen ? null : faq.id)}
-              className="w-full px-6 py-5 flex items-center justify-between text-left gap-4 group"
-              aria-expanded={isOpen}
+            <Heading className="m-0">
+              <button
+                id={buttonId}
+                type="button"
+                onClick={() => setOpenId(isOpen ? null : faq.id)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                className="w-full px-5 md:px-6 py-5 flex items-center justify-between text-left gap-4 group rounded-2xl"
+              >
+                {numbered && (
+                  <span
+                    aria-hidden
+                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${
+                      isOpen ? 'bg-lime text-forest' : 'bg-tint text-forest'
+                    }`}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                )}
+                <span className="flex-1 text-[15px] font-semibold leading-snug text-forest group-hover:text-primary transition-colors">
+                  {faq.question}
+                </span>
+                <span className="flex-shrink-0" aria-hidden>
+                  {isOpen ? <Minus className="w-4 h-4 text-primary" /> : <Plus className="w-4 h-4 text-ink/70 group-hover:text-primary" />}
+                </span>
+              </button>
+            </Heading>
+
+            <div
+              id={panelId}
+              role="region"
+              aria-labelledby={buttonId}
+              className={`grid transition-[grid-template-rows] duration-300 ease-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
             >
-              {/* Number badge */}
-              <span
-                className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-colors"
-                style={{
-                  background: isOpen ? 'rgba(26,115,232,0.15)' : 'rgba(15,23,42,0.04)',
-                  color: isOpen ? '#1A73E8' : 'rgba(15,23,42,0.45)',
-                  border: isOpen ? '1px solid rgba(26,115,232,0.3)' : '1px solid rgba(15,23,42,0.08)',
-                }}
-              >
-                {String(i + 1).padStart(2, '0')}
-              </span>
-
-              <span className="flex-1 text-[15px] font-semibold leading-snug text-ink group-hover:text-primary transition-colors">
-                {faq.question}
-              </span>
-
-              <motion.span
-                animate={{ rotate: isOpen ? 180 : 0 }}
-                transition={{ duration: 0.25 }}
-                className="flex-shrink-0"
-              >
-                {isOpen
-                  ? <Minus className="w-4 h-4 text-primary" />
-                  : <Plus className="w-4 h-4 text-ink/60 group-hover:text-primary transition-colors" />
-                }
-              </motion.span>
-            </button>
-
-            <AnimatePresence initial={false}>
-              {isOpen && (
-                <motion.div
-                  key="answer"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
-                  style={{ overflow: 'hidden' }}
-                >
-                  <div className="px-6 pb-5 pt-1">
-                    <div className="pl-11 text-sm text-ink/70 leading-relaxed border-l border-primary/20">
-                      {faq.answer}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+              <div className="overflow-hidden" aria-hidden={!isOpen}>
+                <p className={`px-5 md:px-6 pb-5 pt-0 text-sm text-ink/80 leading-relaxed ${numbered ? 'md:pl-[4.25rem]' : ''}`}>
+                  {faq.answer}
+                </p>
+              </div>
+            </div>
+          </div>
         );
       })}
     </div>

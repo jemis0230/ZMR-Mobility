@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -17,11 +16,13 @@ export default function BlogFilters({ categories }: { categories: string[] }) {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
+      if ((params.get("q") ?? "") === searchValue) return; // no change → don't navigate
       if (searchValue) {
         params.set("q", searchValue);
       } else {
         params.delete("q");
       }
+      params.delete("page");
       router.push(`/blogs?${params.toString()}`, { scroll: false });
     }, 500);
 
@@ -35,6 +36,7 @@ export default function BlogFilters({ categories }: { categories: string[] }) {
     } else {
       params.set("category", cat);
     }
+    params.delete("page");
     router.push(`/blogs?${params.toString()}`, { scroll: false });
   };
 
@@ -44,18 +46,18 @@ export default function BlogFilters({ categories }: { categories: string[] }) {
     <div className="space-y-8 mb-12">
       {/* Search Bar */}
       <div className="relative max-w-2xl mx-auto">
-        <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
-        <div className="relative glass-card border-ink/10 flex items-center px-6 py-4 bg-ink/[0.02]">
-          <Search className="w-5 h-5 text-primary mr-4" />
+        <div className="relative rounded-2xl bg-white border border-ink/15 flex items-center px-6 py-4 shadow-card">
+          <Search className="w-5 h-5 text-leaf mr-4" aria-hidden />
           <input 
-            type="text" 
+            type="search"
+            aria-label="Search articles"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Search for articles, technology, or news..." 
-            className="bg-transparent flex-1 outline-none text-ink placeholder:text-ink/40 font-medium"
+            className="bg-transparent flex-1 outline-none text-ink placeholder:text-ink/55 font-medium"
           />
           {searchValue && (
-            <button onClick={() => setSearchValue("")} className="text-ink/40 hover:text-ink transition-colors">
+            <button type="button" aria-label="Clear search" onClick={() => setSearchValue("")} className="text-ink/60 hover:text-ink transition-colors">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -67,11 +69,13 @@ export default function BlogFilters({ categories }: { categories: string[] }) {
         {allCategories.map((cat) => (
           <button
             key={cat}
+            type="button"
+            aria-pressed={currentCategory === cat}
             onClick={() => handleCategoryChange(cat)}
             className={`px-6 py-2 rounded-full text-xs font-bold transition-all border ${
               currentCategory === cat
-                ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(26,115,232,0.3)]"
-                : "bg-ink/5 text-ink/60 border-ink/10 hover:border-ink/15 hover:text-ink"
+                ? "bg-primary text-white border-primary"
+                : "bg-white text-forest border-ink/15 hover:border-primary"
             }`}
           >
             {cat}

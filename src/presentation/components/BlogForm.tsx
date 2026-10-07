@@ -21,7 +21,7 @@ export default function BlogForm({ initialData }: { initialData?: any }) {
     content: initialData?.content || "",
     published: initialData?.published || false,
     authorName: initialData?.authorName || "ZMR Mobility Team",
-    tags: initialData?.tags || "",
+    tags: Array.isArray(initialData?.tags) ? initialData.tags.join(", ") : initialData?.tags || "",
   });
 
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,13 +209,26 @@ export default function BlogForm({ initialData }: { initialData?: any }) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-black text-ink/60 ml-1">Author Name</label>
+              <label className="text-[10px] uppercase tracking-[0.2em] font-black text-ink/60 ml-1">Author Name (shown as the article byline — use the real author)</label>
               <input 
                 type="text" 
                 value={formData.authorName}
                 onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
                 className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-xs text-ink/70 focus:border-primary/50 outline-none transition-all"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="blog-tags" className="text-[10px] uppercase tracking-[0.2em] font-black text-ink/60 ml-1">Topic Tags</label>
+              <input
+                id="blog-tags"
+                type="text"
+                value={formData.tags}
+                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                placeholder="e.g. EV leasing, Battery health, Fleet"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-xs text-ink/70 focus:border-primary/50 outline-none transition-all"
+              />
+              <p className="text-[10px] text-ink/60 ml-1">Comma-separated, up to 10. Shown on the article and used for topic filtering on /blogs.</p>
             </div>
           </div>
         </div>

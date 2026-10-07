@@ -6,6 +6,7 @@ export class PrismaBlogRepository implements IBlogRepository {
   async findAll(filters?: {
     category?: string;
     search?: string;
+    tag?: string;
     publishedOnly?: boolean;
     page?: number;
     limit?: number;
@@ -21,10 +22,13 @@ export class PrismaBlogRepository implements IBlogRepository {
     }
     if (filters?.search) {
       where.OR = [
-        { title: { contains: filters.search } },
-        { content: { contains: filters.search } },
-        { excerpt: { contains: filters.search } },
+        { title: { contains: filters.search, mode: "insensitive" } },
+        { content: { contains: filters.search, mode: "insensitive" } },
+        { excerpt: { contains: filters.search, mode: "insensitive" } },
       ];
+    }
+    if (filters?.tag) {
+      where.tags = { has: filters.tag };
     }
     if (filters?.publishedOnly) {
       where.published = true;
@@ -56,6 +60,14 @@ export class PrismaBlogRepository implements IBlogRepository {
 
   async delete(id: string): Promise<void> {
     await prisma.blogPost.delete({ where: { id } });
+  }
+
+  /** Tags used by published posts, most used first. */
+  async getTags(): Promise<{ tag: string; count: number }[]> {
+    const rows = await prisma.blogPost.findMany({ where: { published: true }, select: { tags: true } });
+    const counts = new Map<string, number>();
+    rows.forEach((r) => r.tags.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
+    return Array.from(counts, ([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
   }
 
   async getCategories(): Promise<string[]> {

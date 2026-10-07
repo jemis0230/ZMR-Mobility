@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { ChevronRight } from 'lucide-react';
-import EVConsultationModal from './EVConsultationModal';
+// Enquiry modal (and its animation library) loads only when opened.
+const EVConsultationModal = dynamic(() => import('./EVConsultationModal'), { ssr: false });
 
 interface StartLeasingButtonProps {
   vehicleId: string;
@@ -15,34 +16,24 @@ export default function StartLeasingButton({ vehicleId, vehicleName }: StartLeas
 
   return (
     <>
-      <motion.button
+      <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="relative w-full overflow-hidden rounded-2xl py-4 text-base font-extrabold tracking-wide flex items-center justify-center gap-2 transition-all duration-200"
-        style={{
-          background: 'linear-gradient(135deg, #1A73E8 0%, #1557B0 100%)',
-          color: '#ffffff',
-          boxShadow: '0 0 40px rgba(26,115,232,0.40), 0 6px 24px rgba(0,0,0,0.35)',
-        }}
+        className="w-full rounded-2xl py-4 text-base font-extrabold tracking-wide flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark active:scale-[0.99] text-white transition-colors electric-glow"
         id="start-leasing-btn"
       >
-        {/* Shimmer sweep */}
-        <motion.div
-          animate={{ x: ['-100%', '200%'] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 2 }}
-          className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-ink/25 to-transparent skew-x-12 pointer-events-none"
-        />
-        <span className="relative">Start Leasing</span>
-        <ChevronRight className="relative w-5 h-5" />
-      </motion.button>
+        <span>Start Leasing</span>
+        <ChevronRight className="w-5 h-5" aria-hidden />
+      </button>
 
-      <EVConsultationModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        vehicleId={vehicleId}
-        vehicleName={vehicleName}
-      />
+      {isOpen && (
+        <EVConsultationModal
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          vehicleId={vehicleId}
+          vehicleName={vehicleName}
+        />
+      )}
     </>
   );
 }

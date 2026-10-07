@@ -66,8 +66,8 @@ async function main() {
         chargingTimeMinutes: chargeMins,
         transmission: 'AUTO',
         chargerType: category === 'FOUR_WHEELER_PASSENGER' ? 'BOTH' : 'NORMAL',
-        overview: `This ${year} ${make} ${model} has been driven ${km.toLocaleString('en-IN')} km and is ZMR Certified — inspected, refurbished and IoT-enabled before delivery.`,
-        buyingInfo: 'Includes ZMR extended warranty, free RSA for 6 months, and easy financing with minimal down payment.',
+        overview: `Demo listing: ${year} ${make} ${model}, ${km.toLocaleString('en-IN')} km driven.`,
+        buyingInfo: 'Demo listing. Contact ZMR Mobility to confirm warranty, ownership transfer, insurance and financing terms for this vehicle.',
       },
     });
     created++;

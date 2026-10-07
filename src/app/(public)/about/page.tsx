@@ -97,7 +97,7 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="relative min-h-[90vh] flex items-center pt-24 lg:pt-40 pb-20 px-6 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image src="/about-hero.png" alt="ZMR Mobility EV Fleet" fill className="object-cover opacity-25" priority />
+          <Image src="/about-hero.webp" alt="ZMR Mobility EV Fleet" fill priority sizes="100vw" className="object-cover opacity-25" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
         </div>
         {/* Glowing orbs */}
@@ -110,7 +110,7 @@ export default function AboutPage() {
           </div>
           <h1 className="text-5xl md:text-7xl font-black leading-none tracking-tight mb-6">
             Accelerating India Towards<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-400">Sustainable Mobility</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-sage">Sustainable Mobility</span>
           </h1>
           <p className="text-xl text-ink/70 max-w-3xl leading-relaxed mb-10">
             ZMR Mobility Private Limited is a technology-first EV asset management company leading the green movement in India's clean and sustainable mobility sector. We operate within the <span className="text-ink font-semibold">Circular Economy</span> — offering 360° solutions for IoT in electric vehicles, including Sale, Lease, IoT, and Refinance.

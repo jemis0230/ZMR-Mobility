@@ -16,7 +16,8 @@ export interface BlogPost {
 export interface IBlogRepository {
   findAll(filters?: { 
     category?: string; 
-    search?: string; 
+    search?: string;
+    tag?: string; 
     publishedOnly?: boolean;
     page?: number;
     limit?: number;
@@ -28,4 +29,5 @@ export interface IBlogRepository {
   update(id: string, data: Partial<Omit<BlogPost, "id" | "createdAt" | "updatedAt">>): Promise<BlogPost>;
   delete(id: string): Promise<void>;
   getCategories(): Promise<string[]>;
+  getTags(): Promise<{ tag: string; count: number }[]>;
 }

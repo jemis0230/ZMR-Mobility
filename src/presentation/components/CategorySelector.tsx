@@ -90,7 +90,7 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
             href={`/leasing/vehicles/${currentSlug}`}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
               mode === 'leasing'
-                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(56,152,236,0.15)]'
+                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(139,172,104,0.15)]'
                 : 'bg-ink/5 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/75'
             }`}
           >
@@ -101,7 +101,7 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
             href={`/buying/vehicles/${currentSlug}`}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
               mode === 'buying'
-                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(56,152,236,0.15)]'
+                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(139,172,104,0.15)]'
                 : 'bg-ink/5 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/75'
             }`}
           >
@@ -112,7 +112,7 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
             href={`/rent/vehicles/${currentSlug}`}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${
               mode === 'rent'
-                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(56,152,236,0.15)]'
+                ? 'bg-primary/10 border-primary/60 text-ink shadow-[0_0_16px_rgba(139,172,104,0.15)]'
                 : 'bg-ink/5 border-ink/10 text-ink/60 hover:border-ink/15 hover:text-ink/75'
             }`}
           >

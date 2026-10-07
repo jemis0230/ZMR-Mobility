@@ -16,7 +16,7 @@ import type { SellApplicationItem } from '@/app/actions/sellActions';
 const STATUS_CONFIG = {
   NEW: { label: 'New', dot: 'bg-primary animate-pulse', badge: 'bg-primary/10 text-primary', next: 'REVIEWING' as const, nextLabel: 'Mark Reviewing' },
   REVIEWING: { label: 'Reviewing', dot: 'bg-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400', next: 'VALUED' as const, nextLabel: 'Mark Valued' },
-  VALUED: { label: 'Valued', dot: 'bg-blue-400', badge: 'bg-blue-400/10 text-blue-400', next: 'CLOSED' as const, nextLabel: 'Mark Closed' },
+  VALUED: { label: 'Valued', dot: 'bg-sage', badge: 'bg-tint text-leaf', next: 'CLOSED' as const, nextLabel: 'Mark Closed' },
   CLOSED: { label: 'Closed', dot: 'bg-green-500', badge: 'bg-green-500/10 text-green-400', next: 'NEW' as const, nextLabel: 'Re-open' },
 } as const;
 
@@ -75,7 +75,7 @@ function DeleteConfirm({ app, onCancel, onDeleted }: { app: SellApplicationItem;
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
       <div className="relative w-full max-w-sm rounded-2xl p-6 space-y-4"
-        style={{ background: 'linear-gradient(145deg,#ffffff,#fff5f5)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 25px 60px rgba(15,23,42,0.18)' }}>
+        style={{ background: 'linear-gradient(145deg,#ffffff,#fff5f5)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 25px 60px rgba(45,71,62,0.18)' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
             <AlertTriangle className="w-5 h-5 text-red-400" />
@@ -125,7 +125,7 @@ function DetailModal({ app, onClose, onDeleteRequest }: { app: SellApplicationIt
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl"
-        style={{ background: 'linear-gradient(145deg,#ffffff,#f5f9ff)', border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 25px 60px rgba(15,23,42,0.18)' }}>
+        style={{ background: 'linear-gradient(145deg,#ffffff,#f5f9ff)', border: '1px solid rgba(45,71,62,0.08)', boxShadow: '0 25px 60px rgba(45,71,62,0.18)' }}>
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-ink/[0.08] sticky top-0 bg-white z-10">
           <div>

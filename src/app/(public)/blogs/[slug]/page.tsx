@@ -1,173 +1,166 @@
-import { getBlogBySlugAction, getBlogsAction } from "@/app/actions/blogActions";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-
-export const revalidate = 300;
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Calendar, User, Clock, Share2, Twitter, Linkedin, Facebook } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Clock, RefreshCw } from "lucide-react";
+import { getBlogBySlugAction, getBlogsAction } from "@/app/actions/blogActions";
 import BlogCard from "@/presentation/components/BlogCard";
+import ShareLinks from "@/presentation/components/ShareLinks";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 
-export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
-  const blog = await getBlogBySlugAction(params.slug);
-  if (!blog) return { title: "Blog Not Found" };
-  
+export const revalidate = 300;
+
+const fmtDate = (d: Date) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+const isTeamAuthor = (name: string) => /team|zmr mobility/i.test(name);
+
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await props.params;
+  const blog = await getBlogBySlugAction(slug);
+  if (!blog || !blog.published) return { title: "Article not found | ZMR Mobility" };
+
+  const description = blog.excerpt || blog.title;
   return {
     title: `${blog.title} | ZMR Mobility Blog`,
-    description: blog.excerpt || blog.title,
+    description,
+    alternates: { canonical: `/blogs/${blog.slug}` },
+    authors: [{ name: blog.authorName }],
+    keywords: blog.tags,
+    openGraph: {
+      type: "article",
+      title: blog.title,
+      description,
+      url: `${SITE_URL}/blogs/${blog.slug}`,
+      publishedTime: new Date(blog.createdAt).toISOString(),
+      modifiedTime: new Date(blog.updatedAt).toISOString(),
+      authors: [blog.authorName],
+      section: blog.category,
+      tags: blog.tags,
+      ...(blog.coverImage ? { images: [{ url: blog.coverImage }] } : {}),
+    },
   };
 }
 
 export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
-  const blog = await getBlogBySlugAction(params.slug);
-  
-  if (!blog) {
-    notFound();
-  }
+  const { slug } = await props.params;
+  const blog = await getBlogBySlugAction(slug);
+  if (!blog || !blog.published) notFound();
 
-  // Related posts from same category
-  const { blogs: relatedPosts } = await getBlogsAction({ 
-    category: blog.category, 
-    publishedOnly: true, 
-    limit: 3 
-  });
-  
-  const filteredRelated = relatedPosts.filter(p => p.id !== blog.id).slice(0, 2);
+  const { blogs: relatedPosts } = await getBlogsAction({ category: blog.category, publishedOnly: true, limit: 3 });
+  const related = relatedPosts.filter((p) => p.id !== blog.id).slice(0, 2);
 
-  const wordsPerMinute = 200;
-  const wordCount = blog.content.split(/\s+/g).length;
-  const readTime = Math.ceil(wordCount / wordsPerMinute);
+  const wordCount = blog.content.replace(/<[^>]+>/g, " ").split(/\s+/g).filter(Boolean).length;
+  const readTime = Math.max(1, Math.ceil(wordCount / 200));
+  const published = new Date(blog.createdAt);
+  const updated = new Date(blog.updatedAt);
+  // Only show "Updated" when the article was edited at least a day after publishing.
+  const showUpdated = updated.getTime() - published.getTime() > 24 * 60 * 60 * 1000;
+  const url = `${SITE_URL}/blogs/${blog.slug}`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: blog.title,
+    description: blog.excerpt || undefined,
+    image: blog.coverImage ? [blog.coverImage.startsWith("http") ? blog.coverImage : `${SITE_URL}${blog.coverImage}`] : undefined,
+    datePublished: published.toISOString(),
+    dateModified: updated.toISOString(),
+    author: isTeamAuthor(blog.authorName)
+      ? { "@type": "Organization", name: blog.authorName, url: SITE_URL }
+      : { "@type": "Person", name: blog.authorName },
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${SITE_URL}/zmr-logo-official.png` } },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    articleSection: blog.category,
+    keywords: blog.tags.length ? blog.tags.join(", ") : undefined,
+    wordCount,
+  };
 
   return (
-    <main className="min-h-screen bg-background pb-20 overflow-hidden">
-      {/* Hero Header */}
-      <div className="relative h-[60vh] md:h-[70vh] w-full">
-        {blog.coverImage ? (
-          <Image src={blog.coverImage} alt={blog.title} fill className="object-cover" priority />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-secondary to-background" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        
-        <div className="absolute inset-0 flex flex-col justify-end px-6 pb-12">
-          <div className="max-w-4xl mx-auto w-full">
-            <Link 
-              href="/blogs" 
-              className="inline-flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-8 hover:gap-3 transition-all"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Journal
-            </Link>
-            
-            <div className="space-y-6">
-              <span className="px-4 py-1.5 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em]">
-                {blog.category}
+    <main className="min-h-screen bg-cream pb-20">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      {/* Header */}
+      <header className="pt-24 lg:pt-40 px-4 md:px-6">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/blogs" className="inline-flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-6 hover:gap-3 transition-all">
+            <ArrowLeft className="w-4 h-4" aria-hidden /> Back to Journal
+          </Link>
+          <Link href={`/blogs?category=${encodeURIComponent(blog.category)}`} className="inline-block ml-3 align-middle rounded-full bg-lime px-3 py-1 text-[11px] font-black uppercase tracking-widest text-forest">
+            {blog.category}
+          </Link>
+          <h1 className="mt-5 text-4xl md:text-6xl font-black text-forest leading-tight">{blog.title}</h1>
+          {blog.excerpt && <p className="mt-4 text-lg text-ink/80 leading-relaxed">{blog.excerpt}</p>}
+
+          {/* Byline */}
+          <div className="mt-6 pt-5 border-t border-ink/15 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink/80">
+            <span className="flex items-center gap-3">
+              <span aria-hidden className="w-10 h-10 rounded-full bg-forest text-lime flex items-center justify-center font-black">
+                {blog.authorName.charAt(0).toUpperCase()}
               </span>
-              <h1 className="text-4xl md:text-6xl font-black text-ink leading-tight">
-                {blog.title}
-              </h1>
-              
-              <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-ink/10">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                    {blog.authorName[0]}
-                  </div>
-                  <div>
-                    <p className="text-ink font-bold text-sm">{blog.authorName}</p>
-                    <p className="text-ink/60 text-[10px] uppercase tracking-widest">Author</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2 text-ink/60 text-xs">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </div>
-                  <div className="flex items-center gap-2 text-ink/60 text-xs">
-                    <Clock className="w-4 h-4 text-primary" />
-                    {readTime} min read
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 mt-16">
-        {/* Main Content */}
-        <div className="lg:col-span-8">
-          <article 
-            className="prose prose-slate prose-primary max-w-none prose-h2:text-3xl prose-h2:font-black prose-h3:text-2xl prose-h3:font-bold prose-p:text-ink/75 prose-p:leading-relaxed prose-p:text-lg prose-img:rounded-3xl prose-img:shadow-2xl prose-blockquote:border-primary prose-blockquote:bg-ink/5 prose-blockquote:p-8 prose-blockquote:rounded-3xl prose-blockquote:not-italic prose-blockquote:text-xl prose-blockquote:font-bold"
-            dangerouslySetInnerHTML={{ __html: blog.content }}
-          />
-          
-          {/* Share Section */}
-          <div className="mt-16 pt-8 border-t border-ink/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-black uppercase tracking-widest text-ink/60">Share this article:</span>
-              <div className="flex gap-2">
-                {[Twitter, Linkedin, Facebook].map((Icon, i) => (
-                  <button key={i} className="w-10 h-10 rounded-xl bg-ink/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-all border border-ink/10">
-                    <Icon className="w-4 h-4" />
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <button className="flex items-center gap-2 text-ink/60 hover:text-ink text-xs font-bold transition-colors">
-              <Share2 className="w-4 h-4" />
-              Copy Article Link
-            </button>
+              <span>
+                <span className="block text-[11px] uppercase tracking-widest text-ink/70">Written by</span>
+                <span className="block font-bold text-forest">{blog.authorName}</span>
+              </span>
+            </span>
+            <span className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-leaf" aria-hidden />
+              Published <time dateTime={published.toISOString()}>{fmtDate(published)}</time>
+            </span>
+            {showUpdated && (
+              <span className="flex items-center gap-2">
+                <RefreshCw className="w-4 h-4 text-leaf" aria-hidden />
+                Updated <time dateTime={updated.toISOString()}>{fmtDate(updated)}</time>
+              </span>
+            )}
+            <span className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-leaf" aria-hidden /> {readTime} min read
+            </span>
           </div>
         </div>
 
-        {/* Sidebar */}
-        <aside className="lg:col-span-4 space-y-12">
-          {/* Author Card */}
-          <div className="glass-card p-8 border-ink/10 bg-ink/[0.02] sticky top-32">
-            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-ink/60 mb-6">About the Author</h3>
-            <div className="space-y-4">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-cyan-400 flex items-center justify-center text-white text-3xl font-black">
-                {blog.authorName[0]}
-              </div>
-              <div>
-                <h4 className="text-xl font-bold text-ink">{blog.authorName}</h4>
-                <p className="text-ink/60 text-xs mt-1">Sustainability & EV Mobility Expert</p>
-              </div>
-              <p className="text-ink/70 text-sm leading-relaxed">
-                Passionate about driving India's transition to sustainable energy through 
-                IoT-enabled electric vehicle solutions.
-              </p>
-              <div className="pt-4 flex gap-4">
-                <Linkedin className="w-5 h-5 text-ink/40 hover:text-primary transition-colors cursor-pointer" />
-                <Twitter className="w-5 h-5 text-ink/40 hover:text-primary transition-colors cursor-pointer" />
-              </div>
-            </div>
+        {blog.coverImage && (
+          <div className="max-w-5xl mx-auto mt-10 relative aspect-[16/9] rounded-3xl overflow-hidden bg-tint">
+            <Image src={blog.coverImage} alt="" fill priority sizes="(min-width: 1024px) 1024px, 100vw" className="object-cover" />
           </div>
-        </aside>
+        )}
+      </header>
+
+      {/* Content */}
+      <div className="max-w-3xl mx-auto px-4 md:px-6 mt-12">
+        <article
+          className="prose prose-lg max-w-none prose-headings:text-forest prose-h2:text-3xl prose-h2:font-black prose-h3:text-2xl prose-h3:font-bold prose-p:text-ink/85 prose-p:leading-relaxed prose-a:text-primary-dark prose-strong:text-forest prose-img:rounded-3xl prose-blockquote:border-primary prose-blockquote:bg-tint prose-blockquote:p-6 prose-blockquote:rounded-2xl prose-blockquote:not-italic"
+          dangerouslySetInnerHTML={{ __html: blog.content }}
+        />
+
+        {blog.tags.length > 0 && (
+          <nav aria-label="Article topics" className="mt-10 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-black uppercase tracking-widest text-ink/75 mr-1">Topics:</span>
+            {blog.tags.map((t) => (
+              <Link key={t} href={`/blogs?tag=${encodeURIComponent(t)}`} className="rounded-full bg-white border border-ink/15 px-3 py-1.5 text-xs font-bold text-forest hover:border-primary hover:bg-lime/40">
+                #{t}
+              </Link>
+            ))}
+          </nav>
+        )}
+
+        <div className="mt-10 pt-8 border-t border-ink/15">
+          <ShareLinks url={url} title={blog.title} />
+        </div>
       </div>
 
-      {/* Related Posts Section */}
-      {filteredRelated.length > 0 && (
-        <section className="mt-32 pt-24 border-t border-ink/[0.08] bg-ink/[0.01]">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex items-end justify-between mb-12">
+      {related.length > 0 && (
+        <section aria-labelledby="related-title" className="mt-24 pt-16 border-t border-ink/10 bg-tint">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 pb-16">
+            <div className="flex items-end justify-between mb-10">
               <div>
-                <span className="text-primary text-xs font-bold uppercase tracking-widest">More for you</span>
-                <h2 className="text-3xl md:text-4xl font-black text-ink mt-2">Related Articles</h2>
+                <p className="text-primary text-xs font-bold uppercase tracking-widest">More for you</p>
+                <h2 id="related-title" className="text-3xl md:text-4xl font-black text-forest mt-2">Related articles</h2>
               </div>
-              <Link href="/blogs" className="text-primary font-bold text-xs uppercase tracking-widest hover:gap-3 flex items-center gap-2 transition-all">
-                View All <ArrowRight className="w-4 h-4" />
+              <Link href="/blogs" className="text-primary font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+                View all <ArrowRight className="w-4 h-4" aria-hidden />
               </Link>
             </div>
-            
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl">
-              {filteredRelated.map((post, i) => (
-                <BlogCard key={post.id} blog={post} index={i} />
-              ))}
+              {related.map((post, i) => <BlogCard key={post.id} blog={post} index={i} />)}
             </div>
           </div>
         </section>
