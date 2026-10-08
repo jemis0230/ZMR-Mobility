@@ -7,8 +7,7 @@ import HomeExplore, { TrustBar } from "@/presentation/components/HomeExplore";
 import FeaturedVehicles from "@/presentation/components/FeaturedVehicles";
 import HomeSections from "@/presentation/components/HomeSections";
 import PolicySection from "@/presentation/components/PolicySection";
-import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
-import { getCachedExploreMenuData } from "@/lib/cachedVehicleQueries";
+import { getCachedExploreMenuData, getCachedExplorePage } from "@/lib/cachedVehicleQueries";
 import { getPolicyItems } from "@/app/actions/faqActions";
 import { buildPriceBuckets } from "@/lib/explore";
 import LeasingContactForm from "@/presentation/components/LeasingContactForm";
@@ -22,13 +21,11 @@ export const metadata = {
   description: "ZMR Mobility offers affordable, reliable electric vehicle leasing, IoT monitoring, and comprehensive aftersales support for individuals, gig workers, and B2B fleets across India.",
 };
 
-const vehicleRepo = new PrismaVehicleRepository();
-
 // Home page data is best-effort: if the DB is unreachable (e.g. at image build time)
 // the page still renders, just without the featured row / dynamic brand list.
 async function loadHomeData() {
   const [featured, menu, policyItems] = await Promise.all([
-    vehicleRepo.findForExplore({ sortBy: 'newest', pageSize: 8 }).then((r) => r.data).catch(() => []),
+    getCachedExplorePage({ sortBy: 'newest', pageSize: 8 }).then((r) => r.data).catch(() => []),
     getCachedExploreMenuData().catch(() => ({ makes: [], prices: [] as number[] })),
     getPolicyItems(),
   ]);

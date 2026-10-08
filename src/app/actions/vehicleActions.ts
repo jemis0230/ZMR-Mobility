@@ -94,6 +94,7 @@ export async function addLeasePlanAction(vehicleId: string, formData: FormData):
     const plan = await vehicleRepo.addLeasePlan({ vehicleId, ...parsed.data });
     revalidatePath('/');
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     return { success: true, plan };
   } catch (error) {
     console.error("Failed to add lease plan:", error);
@@ -105,6 +106,7 @@ export async function deleteLeasePlanAction(planId: string) {
   try {
     await vehicleRepo.deleteLeasePlan(planId);
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     return { success: true };
   } catch (error) {
     console.error("Failed to delete lease plan:", error);
@@ -116,6 +118,7 @@ export async function updateLeasePlanAction(planId: string, data: { isActive: bo
   try {
     await vehicleRepo.updateLeasePlan(planId, data);
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     revalidateTag('vehicles');
     return { success: true };
   } catch (error) {
@@ -139,6 +142,7 @@ export async function addRentPlanAction(vehicleId: string, formData: FormData): 
     const plan = await vehicleRepo.addRentPlan({ vehicleId, ...parsed.data });
     revalidatePath('/');
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     return { success: true, plan };
   } catch (error) {
     console.error("Failed to add rent plan:", error);
@@ -150,6 +154,7 @@ export async function deleteRentPlanAction(planId: string) {
   try {
     await vehicleRepo.deleteRentPlan(planId);
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     return { success: true };
   } catch (error) {
     console.error("Failed to delete rent plan:", error);
@@ -161,6 +166,7 @@ export async function updateRentPlanAction(planId: string, data: { isActive: boo
   try {
     await vehicleRepo.updateRentPlan(planId, data);
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     revalidateTag('vehicles');
     return { success: true };
   } catch (error) {

@@ -1,4 +1,4 @@
-import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
+import { getPublicVehicle } from "@/lib/cachedVehicleQueries";
 import ImageGallery from "@/presentation/components/ImageGallery";
 import SpecificationSection from "@/presentation/components/SpecificationSection";
 import BuyEnquireButton from "@/presentation/components/BuyEnquireButton";
@@ -14,14 +14,17 @@ import CompareButton from "@/presentation/components/compare/CompareButton";
 import { VehiclePolicySummary } from "@/presentation/components/PolicySection";
 import type { Metadata } from "next";
 
-const vehicleRepo = new PrismaVehicleRepository();
-
+// Rendered on first visit, then served from cache for up to 5 minutes; admin changes to
+// the vehicle clear it straight away (revalidateTag in the admin actions/API).
 export const revalidate = 300;
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const params = await props.params;
   const id = extractIdFromSlug(params.id);
-  const vehicle = await vehicleRepo.findById(id);
+  const vehicle = await getPublicVehicle(id);
   if (!vehicle) return { title: "Vehicle Not Found" };
 
   const title = `${vehicle.make} ${vehicle.model} – Buy EV | ZMR Mobility`;
@@ -39,7 +42,7 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
 export default async function BuyingVehicleDetailsPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = extractIdFromSlug(params.id);
-  const vehicle = await vehicleRepo.findById(id);
+  const [vehicle, policyItems] = await Promise.all([getPublicVehicle(id), getPolicyItems()]);
 
   if (!vehicle) notFound();
 
@@ -47,7 +50,6 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
   if (params.id !== expectedSlug) redirect(`/buying/vehicles/detail/${expectedSlug}`);
 
   const allImages = [vehicle.mainImage, ...vehicle.images.map((img) => img.url)];
-  const policyItems = await getPolicyItems();
   const name = `${vehicle.make} ${vehicle.model}`;
   const vehicleType = vehicle.category === 'TWO_WHEELER' ? 'scooter' : vehicle.category.includes('THREE') ? 'rickshaw' : 'car';
 

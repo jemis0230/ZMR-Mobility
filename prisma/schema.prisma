@@ -1,6 +1,9 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+  // Lets single-vehicle reads load their relations in one SQL query
+  // (relationLoadStrategy: 'join') instead of one round trip per relation.
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {

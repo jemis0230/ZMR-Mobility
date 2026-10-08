@@ -2,7 +2,7 @@ import { ok, created, badRequest, notFound, serverError } from '@/app/api/_lib/r
 import { withSession, isResponse } from '@/app/api/_lib/auth-guard';
 import { PrismaVehicleRepository } from '@/infrastructure/repositories/PrismaVehicleRepository';
 import { LeasePlanFormSchema } from '@/lib/schemas/vehicle';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 const repo = new PrismaVehicleRepository();
 
@@ -40,6 +40,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const plan = await repo.addLeasePlan({ vehicleId: id, ...parsed.data });
     revalidatePath('/');
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     return created(plan);
   } catch (error) {
     return serverError(error);

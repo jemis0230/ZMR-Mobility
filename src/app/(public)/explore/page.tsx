@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight, X, Check, SearchX, ShieldCheck, ArrowLeftRight, Info, Bike } from "lucide-react";
-import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
 import type { ExploreFilterParams, ExploreMenuData } from "@/application/repositories/IVehicleRepository";
-import { getCachedExploreMenuData } from "@/lib/cachedVehicleQueries";
+import { getCachedExploreMenuData, getCachedExplorePage } from "@/lib/cachedVehicleQueries";
 import {
   YEAR_OPTIONS, KM_OPTIONS, BODY_TYPES, RANGE_OPTIONS, PRICE_CAP,
   EXPLORE_PATH, SORT_OPTIONS, EMI_DISCLAIMER, buildPriceBuckets, priceSliderBounds,
@@ -41,7 +40,6 @@ export async function generateMetadata(props: { searchParams: Promise<SP> }): Pr
   };
 }
 
-const repo = new PrismaVehicleRepository();
 
 const ALLOWED_MAKES_EMPTY = ALLOWED_BRANDS.map((make) => ({ make, models: [] as string[], count: 0 }));
 
@@ -182,7 +180,7 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
 
   const emptyMenu: ExploreMenuData = { makes: [], prices: [], unpricedCount: 0, overCapCount: 0 };
   const [result, menu] = await Promise.all([
-    repo.findForExplore(filters),
+    getCachedExplorePage(filters),
     getCachedExploreMenuData().catch(() => emptyMenu),
   ]);
   const { data: vehicles, total, totalPages } = result;

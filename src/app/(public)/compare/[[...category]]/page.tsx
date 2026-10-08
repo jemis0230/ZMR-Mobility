@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
+import { getCachedVehiclesByIds, getCachedVehicleSummaries } from "@/lib/cachedVehicleQueries";
 import { SLUG_TO_CATEGORY, CATEGORY_DISPLAY } from "@/lib/constants";
 import type { Vehicle } from "@/domain/entities/Vehicle";
 import ComparePageClient, { type CatalogItem } from "./ComparePageClient";
 import { COMPARE_MAX } from "@/lib/compare";
 
-const vehicleRepo = new PrismaVehicleRepository();
 
 // Always read current inventory so availability is accurate.
 export const dynamic = "force-dynamic";
@@ -32,10 +31,14 @@ export default async function ComparePage(props: {
   let catalog: CatalogItem[] = [];
   let dbError = false;
   try {
-    const [found, all] = await Promise.all([vehicleRepo.findByIds(ids), vehicleRepo.findAll()]);
+    // Picker rows need only a few columns; full records (with images and plans) are
+    // loaded just for the 2–3 vehicles being compared.
+    const [found, all] = await Promise.all([
+      ids.length ? getCachedVehiclesByIds(ids) : Promise.resolve([] as Vehicle[]),
+      getCachedVehicleSummaries(),
+    ]);
     selected = found.filter(isListed);
     catalog = all
-      .filter(isListed)
       .map((v) => ({
         id: v.id,
         title: `${v.manufactureYear ? `${v.manufactureYear} ` : ""}${v.make} ${v.model}`,
