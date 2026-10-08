@@ -21,7 +21,7 @@ const SLIDES: Slide[] = [
   {
     eyebrow: "Pre-owned EVs",
     title: ["Buy an electric vehicle", "you'll love to drive"],
-    sub: "Browse electric scooters, e-rickshaws, cargo loaders and cars — compare up to 3 side by side and get help with warranty and ownership transfer.",
+    sub: "Browse pre-owned electric scooters and bikes — compare up to 3 side by side and get help with warranty and ownership transfer.",
     cta: { label: "View all EVs", href: "/explore" },
     secondary: { label: "Compare EVs", href: "/compare" },
     image: "/hero-handover.webp",

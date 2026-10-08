@@ -17,7 +17,7 @@ import { SortSelect, FilterPanel, PriceRangeFilter } from "./ExploreControls";
 
 export const dynamic = "force-dynamic";
 
-const BASE_DESCRIPTION = "Explore pre-owned electric vehicles from ZMR Mobility by price, make & model, year, KM driven, body type and range per charge.";
+const BASE_DESCRIPTION = "Explore pre-owned electric scooters and bikes from ZMR Mobility by price, make & model, year, KM driven, body type and range per charge.";
 
 // Body-type pages (/explore?type=…) are listed in the sitemap, so they get their own
 // canonical URL and title; every other filter combination canonicalises to /explore.
@@ -35,7 +35,7 @@ export async function generateMetadata(props: { searchParams: Promise<SP> }): Pr
     };
   }
   return {
-    title: "Buy Pre-owned Electric Vehicles | ZMR Mobility",
+    title: "Buy Pre-owned Electric Scooters & Bikes | ZMR Mobility",
     description: BASE_DESCRIPTION,
     alternates: { canonical: "/explore" },
   };
@@ -215,7 +215,7 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
     ? `Pre-owned Electric ${BODY_TYPES.find((b) => b.slug === typeSlugs[0])?.label ?? "Vehicle"}s`
     : makes?.length === 1
     ? `Pre-owned ${makes[0]}${p.model ? ` ${p.model}` : ""} EVs`
-    : "Pre-owned Electric Vehicles";
+    : "Pre-owned Electric Two-Wheelers";
 
   return (
     <main className="min-h-screen bg-cream">
@@ -231,7 +231,7 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
             <div>
               <h1 className="text-3xl md:text-4xl font-black tracking-tight text-forest">{heading}</h1>
               <p className="text-ink/75 mt-2" aria-live="polite">
-                <span className="font-bold text-primary">{total}</span> {total === 1 ? "vehicle" : "vehicles"} available
+                <span className="font-bold text-primary">{total}</span> {total === 1 ? "two-wheeler" : "two-wheelers"} available
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs font-semibold">
@@ -378,7 +378,7 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <div className="flex flex-wrap items-center gap-2">
               {chips.length === 0 ? (
-                <p className="text-sm text-ink/70">Showing all available vehicles</p>
+                <p className="text-sm text-ink/70">Showing all available electric scooters and bikes</p>
               ) : (
                 <>
                   {chips.map((c) => (
