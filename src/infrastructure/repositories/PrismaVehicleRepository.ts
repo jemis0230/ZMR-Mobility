@@ -1,4 +1,4 @@
-import { IVehicleRepository, ExploreFilterParams, ExploreMenuData, VehicleFilterParams, PaginatedResult, FilterOptions, VehicleCreateInput, VehicleUpdateInput } from "@/application/repositories/IVehicleRepository";
+import { IVehicleRepository, ExploreFilterParams, ExploreMenuData, VehicleFilterParams, PaginatedResult, FilterOptions, VehicleCreateInput, VehicleUpdateInput, VehicleSummary } from "@/application/repositories/IVehicleRepository";
 import { Vehicle, LeasePlan, RentPlan, VehicleImage } from "@/domain/entities/Vehicle";
 import { VehicleCategory, ChargerType, TransmissionType } from "@/lib/constants";
 import { Prisma, TransmissionType as PrismaTransmissionType, ChargerType as PrismaChargerType } from "@prisma/client";
@@ -17,7 +17,7 @@ const vehicleInclude = { images: true, leasePlans: true, rentPlans: true, batter
 
 export class PrismaVehicleRepository implements IVehicleRepository {
   async findAll(): Promise<Vehicle[]> {
-    const vehicles = await prisma.vehicle.findMany({ include: vehicleInclude });
+    const vehicles = await prisma.vehicle.findMany({ include: vehicleInclude, relationLoadStrategy: 'join' });
     return vehicles.map((v) => this.mapToEntity(v));
   }
 
@@ -116,11 +116,13 @@ export class PrismaVehicleRepository implements IVehicleRepository {
     const skip = (page - 1) * pageSize;
     const [total, vehicles] = await Promise.all([
       prisma.vehicle.count({ where }),
-      prisma.vehicle.findMany({ where, skip, take: pageSize, orderBy, include: vehicleInclude }),
+      // Listing cards only use scalar fields, so relations (images, plans, battery/motor
+      // types) are not loaded — each would be another database round trip.
+      prisma.vehicle.findMany({ where, skip, take: pageSize, orderBy }),
     ]);
 
     return {
-      data: vehicles.map((v) => this.mapToEntity(v)),
+      data: vehicles.map((v) => this.mapToEntity({ ...v, images: [], leasePlans: [], rentPlans: [], batteryType: null, motorType: null })),
       total,
       page,
       totalPages: Math.ceil(total / pageSize) || 1,
@@ -160,6 +162,14 @@ export class PrismaVehicleRepository implements IVehicleRepository {
     };
   }
 
+  /** Minimal rows for pickers (e.g. the compare page's "Add a vehicle" list). */
+  async listSummaries(): Promise<VehicleSummary[]> {
+    return prisma.vehicle.findMany({
+      where: { OR: [{ showInBuying: true }, { showInLeasing: true }, { showInRent: true }] },
+      select: { id: true, make: true, model: true, manufactureYear: true, category: true, mainImage: true },
+    }) as Promise<VehicleSummary[]>;
+  }
+
   /** Stored make values (any spelling) that belong to the requested allowed brands. */
   private async storedMakesForBrands(brands: string[], where: Prisma.VehicleWhereInput): Promise<string[]> {
     const stored = await prisma.vehicle.groupBy({ by: ['make'], where });
@@ -168,7 +178,7 @@ export class PrismaVehicleRepository implements IVehicleRepository {
 
   async findByIds(ids: string[]): Promise<Vehicle[]> {
     if (ids.length === 0) return [];
-    const vehicles = await prisma.vehicle.findMany({ where: { id: { in: ids } }, include: vehicleInclude });
+    const vehicles = await prisma.vehicle.findMany({ where: { id: { in: ids } }, include: vehicleInclude, relationLoadStrategy: 'join' });
     const byId = new Map(vehicles.map((v) => [v.id, this.mapToEntity(v)]));
     return ids.map((id) => byId.get(id)).filter((v): v is Vehicle => Boolean(v));
   }
@@ -301,7 +311,7 @@ export class PrismaVehicleRepository implements IVehicleRepository {
   // ── Single vehicle ───────────────────────────────────────────
 
   async findById(id: string): Promise<Vehicle | null> {
-    const v = await prisma.vehicle.findUnique({ where: { id }, include: vehicleInclude });
+    const v = await prisma.vehicle.findUnique({ where: { id }, include: vehicleInclude, relationLoadStrategy: 'join' });
     return v ? this.mapToEntity(v) : null;
   }
 

@@ -20,6 +20,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ planId: 
 
     const plan = await repo.updateRentPlan(planId, { isActive: body.isActive });
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     revalidateTag('vehicles');
     return ok(plan);
   } catch (error) {
@@ -36,6 +37,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ plan
     const { planId } = await params;
     await repo.deleteRentPlan(planId);
     revalidatePath('/admin/vehicles');
+    revalidateTag('vehicle-filter-options');
     return ok({ deleted: true });
   } catch (error) {
     return serverError(error);

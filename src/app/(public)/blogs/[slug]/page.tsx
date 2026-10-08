@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,6 +9,9 @@ import BlogCard from "@/presentation/components/BlogCard";
 import ShareLinks from "@/presentation/components/ShareLinks";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
+// Shared by generateMetadata and the page, so the post is fetched once per request.
+const getPost = cache((slug: string) => getBlogBySlugAction(slug));
+
 export const revalidate = 300;
 
 const fmtDate = (d: Date) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
@@ -15,7 +19,7 @@ const isTeamAuthor = (name: string) => /team|zmr mobility/i.test(name);
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await props.params;
-  const blog = await getBlogBySlugAction(slug);
+  const blog = await getPost(slug);
   if (!blog || !blog.published) return { title: "Article not found | ZMR Mobility" };
 
   const description = blog.excerpt || blog.title;
@@ -42,7 +46,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
 
 export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
   const { slug } = await props.params;
-  const blog = await getBlogBySlugAction(slug);
+  const blog = await getPost(slug);
   if (!blog || !blog.published) notFound();
 
   const { blogs: relatedPosts } = await getBlogsAction({ category: blog.category, publishedOnly: true, limit: 3 });

@@ -53,6 +53,15 @@ export interface ExploreFilterParams {
   pageSize?: number;
 }
 
+export interface VehicleSummary {
+  id: string;
+  make: string;
+  model: string;
+  manufactureYear: number | null;
+  category: VehicleCategory;
+  mainImage: string;
+}
+
 export interface ExploreMenuData {
   makes: { make: string; models: string[]; count: number }[];
   /** Buying prices (₹) of listed vehicles at or below the selling-price cap. */
@@ -80,9 +89,11 @@ export interface IVehicleRepository {
   getFilterOptionsForRent(category: VehicleCategory): Promise<FilterOptions>;
 
   // Explore (cross-category buying catalogue)
+  /** Listing rows: scalar fields only (images, plans and battery/motor types are not loaded). */
   findForExplore(filters: ExploreFilterParams): Promise<PaginatedResult<Vehicle>>;
   getExploreMenuData(): Promise<ExploreMenuData>;
   findByIds(ids: string[]): Promise<Vehicle[]>;
+  listSummaries(): Promise<VehicleSummary[]>;
 
   findById(id: string): Promise<Vehicle | null>;
 

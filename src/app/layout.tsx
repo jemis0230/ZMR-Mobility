@@ -46,9 +46,13 @@ export const metadata: Metadata = {
   ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
     : {}),
+  // Small, correctly sized icons (the 500×500 source was 83 KB and fetched on every visit).
   icons: {
-    icon: "/favIcon.png",
-    apple: "/favIcon.png",
+    icon: [
+      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
 };
 
