@@ -30,6 +30,6 @@ export const getCachedRentFilterOptions = unstable_cache(
 export const getCachedExploreMenuData = unstable_cache(
   async () => vehicleRepo.getExploreMenuData(),
   // Bump the version when the returned shape changes so stale cache entries are never reused.
-  ['explore-menu-data-v3'],
+  ['explore-menu-data-v4'],
   { tags: ['vehicle-filter-options', 'vehicle-filter-options-buying'], revalidate: 3600 }
 );

@@ -94,16 +94,20 @@ h1, h2, h3 { letter-spacing: -0.02em; text-wrap: balance; }
 .marquee-row:focus-within .animate-marquee-left { animation-play-state: paused; }
 
 /* ── Navbar dropdowns (CSS transitions, no JS animation library) ── */
+/* Closed panels are invisible, unfocusable (visibility) and never catch the pointer,
+   even while fading out. */
 .dropdown-panel {
   opacity: 0;
   transform: translateY(-4px);
   visibility: hidden;
+  pointer-events: none;
   transition: opacity 150ms ease, transform 150ms ease, visibility 0s linear 150ms;
 }
 .dropdown-panel[data-open="true"] {
   opacity: 1;
   transform: none;
   visibility: visible;
+  pointer-events: auto;
   transition: opacity 150ms ease, transform 150ms ease, visibility 0s;
 }
 

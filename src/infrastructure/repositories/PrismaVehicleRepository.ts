@@ -3,8 +3,11 @@ import { Vehicle, LeasePlan, RentPlan, VehicleImage } from "@/domain/entities/Ve
 import { VehicleCategory, ChargerType, TransmissionType } from "@/lib/constants";
 import { Prisma, TransmissionType as PrismaTransmissionType, ChargerType as PrismaChargerType } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { PRICE_CAP } from "@/lib/explore";
+import { PRICE_CAP, CATALOG_CATEGORIES } from "@/lib/explore";
 import { ALLOWED_BRANDS, canonicalBrand, rawMakesForBrands, type AllowedBrand } from "@/lib/brands";
+
+/** Listed for sale and in a catalogue category — the base of every /explore query. */
+const CATALOG_WHERE: Prisma.VehicleWhereInput = { showInBuying: true, category: { in: CATALOG_CATEGORIES } };
 
 type VehicleWithRelations = Prisma.VehicleGetPayload<{
   include: { images: true; leasePlans: true; rentPlans: true; batteryType: true; motorType: true };
@@ -66,7 +69,8 @@ export class PrismaVehicleRepository implements IVehicleRepository {
       sortBy = 'newest', page = 1, pageSize = 12,
     } = filters;
 
-    const and: Prisma.VehicleWhereInput[] = [{ showInBuying: true }];
+    // Only catalogue categories (two-wheelers), applied before counting and pagination.
+    const and: Prisma.VehicleWhereInput[] = [CATALOG_WHERE];
 
     if (q && q.trim()) {
       const terms = q.trim().split(/\s+/).slice(0, 5);
@@ -84,7 +88,7 @@ export class PrismaVehicleRepository implements IVehicleRepository {
     }
     if (makes && makes.length > 0) {
       // Brands are matched by canonical name, so "Bgauss" or "TVS Motor" listings count too.
-      and.push({ make: { in: await this.storedMakesForBrands(makes, { showInBuying: true }) } });
+      and.push({ make: { in: await this.storedMakesForBrands(makes, CATALOG_WHERE) } });
     }
     if (model) and.push({ model: { equals: model, mode: 'insensitive' } });
     if (minYear !== undefined) and.push({ manufactureYear: { gte: minYear } });
@@ -127,15 +131,15 @@ export class PrismaVehicleRepository implements IVehicleRepository {
     const [groups, priced, unpricedCount, overCapCount] = await Promise.all([
       prisma.vehicle.groupBy({
         by: ['make', 'model'],
-        where: { showInBuying: true },
+        where: CATALOG_WHERE,
         _count: { _all: true },
       }),
       prisma.vehicle.findMany({
-        where: { showInBuying: true, buyingPrice: { gt: 0, lte: PRICE_CAP } },
+        where: { ...CATALOG_WHERE, buyingPrice: { gt: 0, lte: PRICE_CAP } },
         select: { buyingPrice: true },
       }),
-      prisma.vehicle.count({ where: { showInBuying: true, OR: [{ buyingPrice: null }, { buyingPrice: { lte: 0 } }] } }),
-      prisma.vehicle.count({ where: { showInBuying: true, buyingPrice: { gt: PRICE_CAP } } }),
+      prisma.vehicle.count({ where: { ...CATALOG_WHERE, OR: [{ buyingPrice: null }, { buyingPrice: { lte: 0 } }] } }),
+      prisma.vehicle.count({ where: { ...CATALOG_WHERE, buyingPrice: { gt: PRICE_CAP } } }),
     ]);
 
     // Only the allowed brands are offered, in a fixed order, including brands with no

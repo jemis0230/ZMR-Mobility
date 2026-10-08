@@ -45,6 +45,16 @@ function buildExploreMenus(makes: MakeWithModels[], priceBuckets: PriceBucket[])
 
 // ── Small building blocks ─────────────────────────────────────
 
+/**
+ * Header dropdowns share one "open menu" key owned by <Navbar>, so only one can be
+ * open at a time across both rows. They open on click/tap only (never on hover);
+ * outside click and Escape close them.
+ */
+type MenuControl = { id: string; open: boolean; toggle: () => void; close: () => void };
+
+const triggerId = (id: string) => `menu-${id}-trigger`;
+const panelId = (id: string) => `menu-${id}`;
+
 function DropdownLink({ href, children, count }: { href: string; children: ReactNode; count?: number }) {
   return (
     <Link
@@ -60,25 +70,30 @@ function DropdownLink({ href, children, count }: { href: string; children: React
   );
 }
 
-function ExploreItem({
-  id, label, open, onOpen, onClose, onToggle, children,
-}: {
-  id: string; label: string; open: boolean; onOpen: () => void; onClose: () => void; onToggle: () => void; children: ReactNode;
-}) {
+function ExploreItem({ menu, label, children }: { menu: MenuControl; label: string; children: ReactNode }) {
+  const { id, open, toggle, close } = menu;
   return (
-    <div className="relative h-full flex items-center" onMouseEnter={onOpen} onMouseLeave={onClose}>
+    <div className="relative h-full flex items-center" data-menu-root={id}>
       <button
         type="button"
-        onClick={onToggle}
+        id={triggerId(id)}
+        onClick={toggle}
         aria-expanded={open}
-        aria-controls={`explore-${id}`}
+        aria-controls={panelId(id)}
         className={`flex items-center gap-1.5 h-full px-1 text-[15px] font-medium transition-colors ${open ? "text-white" : "text-cream/90 hover:text-white"}`}
       >
         {label}
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
       </button>
       <span className={`absolute left-0 right-0 bottom-0 h-[3px] rounded-t bg-lime transition-opacity ${open ? "opacity-100" : "opacity-0"}`} />
-      <div id={`explore-${id}`} data-open={open} className="dropdown-panel absolute top-full -left-6 z-50">
+      <div
+        id={panelId(id)}
+        data-open={open}
+        aria-labelledby={triggerId(id)}
+        // Choosing a destination closes the menu (also when only the query string changes).
+        onClick={(e) => { if ((e.target as HTMLElement).closest("a")) close(); }}
+        className="dropdown-panel absolute top-full -left-6 z-50"
+      >
         <div className="rounded-b-2xl bg-forest shadow-2xl shadow-forest/30 p-3 ring-1 ring-black/10">
           {children}
         </div>
@@ -89,40 +104,32 @@ function ExploreItem({
 
 type TopItem = { label: string; href?: string; onClick?: () => void; desc?: string };
 
-function TopMenu({ label, items }: { label: string; items: TopItem[] }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    const onDoc = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onDoc);
-    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("mousedown", onDoc); };
-  }, [open]);
+function TopMenu({ menu, label, items }: { menu: MenuControl; label: string; items: TopItem[] }) {
+  const { id, open, toggle, close } = menu;
 
   return (
-    <div ref={ref} className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+    <div className="relative" data-menu-root={id}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        id={triggerId(id)}
+        onClick={toggle}
         aria-expanded={open}
+        aria-controls={panelId(id)}
         className="flex items-center gap-1 py-2 text-[15px] font-semibold text-forest hover:text-primary transition-colors"
       >
         {label}
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
       </button>
-      <div data-open={open} className="dropdown-panel absolute right-0 top-full pt-2 z-50">
+      <div id={panelId(id)} data-open={open} className="dropdown-panel absolute right-0 top-full pt-2 z-50">
         <div className="w-64 rounded-2xl bg-white border border-ink/10 shadow-xl p-2">
           {items.map((it) =>
             it.href ? (
-              <Link key={it.label} href={it.href} onClick={() => setOpen(false)} className="block px-4 py-2.5 rounded-xl hover:bg-tint transition-colors">
+              <Link key={it.label} href={it.href} onClick={close} className="block px-4 py-2.5 rounded-xl hover:bg-tint transition-colors">
                 <span className="block text-sm font-semibold text-forest">{it.label}</span>
                 {it.desc && <span className="block text-xs text-ink/65 mt-0.5">{it.desc}</span>}
               </Link>
             ) : (
-              <button key={it.label} type="button" onClick={() => { setOpen(false); it.onClick?.(); }} className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-tint transition-colors">
+              <button key={it.label} type="button" onClick={() => { close(); it.onClick?.(); }} className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-tint transition-colors">
                 <span className="block text-sm font-semibold text-forest">{it.label}</span>
                 {it.desc && <span className="block text-xs text-ink/65 mt-0.5">{it.desc}</span>}
               </button>
@@ -134,36 +141,29 @@ function TopMenu({ label, items }: { label: string; items: TopItem[] }) {
   );
 }
 
-function CitySelector() {
+function CitySelector({ menu }: { menu: MenuControl }) {
+  const { id, open, toggle, close } = menu;
   const [city, setCity] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try { setCity(localStorage.getItem(CITY_KEY)); } catch { /* storage unavailable */ }
   }, []);
 
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onKey); };
-  }, [open]);
-
   const choose = (c: string) => {
     setCity(c);
-    setOpen(false);
+    close();
+    document.getElementById(triggerId(id))?.focus();
     try { localStorage.setItem(CITY_KEY, c); } catch { /* storage unavailable */ }
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div className="relative" data-menu-root={id}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        id={triggerId(id)}
+        onClick={toggle}
         aria-expanded={open}
+        aria-controls={panelId(id)}
         aria-haspopup="listbox"
         className="flex items-center gap-1.5 rounded-full border border-ink/20 bg-white/60 px-4 py-2 text-sm font-semibold text-forest hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
       >
@@ -172,7 +172,7 @@ function CitySelector() {
         <ChevronDown className="w-3.5 h-3.5" aria-hidden />
       </button>
       {open && (
-        <div role="listbox" aria-label="Select your city" className="absolute left-0 top-full mt-2 w-56 rounded-2xl bg-white border border-ink/10 shadow-xl p-2 z-50">
+        <div id={panelId(id)} role="listbox" aria-label="Select your city" className="absolute left-0 top-full mt-2 w-56 rounded-2xl bg-white border border-ink/10 shadow-xl p-2 z-50">
           <p className="px-3 pt-1 pb-2 text-[11px] font-bold uppercase tracking-wider text-ink/65">We serve in</p>
           {CITIES.map((c) => (
             <button
@@ -255,7 +255,8 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
   const [testDriveOpen, setTestDriveOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileSection, setMobileSection] = useState<string | null>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openMenuRef = useRef<string | null>(null);
+  openMenuRef.current = openMenu;
   const drawerRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -265,6 +266,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
   // Closed drawer is removed from the tab order / accessibility tree.
   useEffect(() => {
     drawerRef.current?.toggleAttribute("inert", !isMobileMenuOpen);
+    if (!isMobileMenuOpen) setOpenMenu((m) => (m === "city-mobile" ? null : m));
   }, [isMobileMenuOpen]);
 
   // Close menus on navigation
@@ -273,14 +275,33 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  // Escape closes any open explore menu / drawer
+  // Escape closes the open menu (returning focus to its trigger) or the drawer.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setOpenMenu(null); setIsMobileMenuOpen(false); }
+      if (e.key !== "Escape") return;
+      const current = openMenuRef.current;
+      if (current) {
+        setOpenMenu(null);
+        document.getElementById(triggerId(current))?.focus();
+      } else {
+        setIsMobileMenuOpen(false);
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
+
+  // A press anywhere outside the open menu (trigger + panel) closes it. Pressing another
+  // trigger therefore closes this one first, and its own click then opens it.
+  useEffect(() => {
+    if (!openMenu) return;
+    const onDown = (e: PointerEvent) => {
+      const root = document.querySelector(`[data-menu-root="${openMenu}"]`);
+      if (!root || !root.contains(e.target as Node)) setOpenMenu(null);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [openMenu]);
 
   // Lock body scroll while mobile drawer is open
   useEffect(() => {
@@ -288,15 +309,12 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
     return () => { document.body.style.overflow = ""; };
   }, [isMobileMenuOpen]);
 
-  const openWithIntent = (key: string) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setOpenMenu(key);
-  };
-  const closeWithDelay = () => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setOpenMenu(null), 120);
-  };
-  const toggle = (key: string) => setOpenMenu((m) => (m === key ? null : key));
+  const menu = (id: string): MenuControl => ({
+    id,
+    open: openMenu === id,
+    toggle: () => setOpenMenu((m) => (m === id ? null : id)),
+    close: () => setOpenMenu((m) => (m === id ? null : m)),
+  });
 
   const openTestDrive = () => {
     setIsMobileMenuOpen(false);
@@ -341,7 +359,9 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
       </a>
       <header className="fixed top-0 inset-x-0 z-50">
         {/* ── Top bar (Cream) ── */}
-        <div className="bg-cream/95 backdrop-blur border-b border-ink/10">
+        {/* backdrop-blur creates a stacking context: z-20 keeps its city / Buy EV / More
+            panels above the Explore-by ribbon below instead of underneath it. */}
+        <div className="relative z-20 bg-cream/95 backdrop-blur border-b border-ink/10">
           <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-3 lg:gap-5 px-3 sm:px-4 md:px-6 h-[72px] lg:h-[84px]">
             <Link href="/" className="shrink-0 flex items-center" aria-label="ZMR Mobility home">
               <Image
@@ -356,14 +376,14 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
               />
             </Link>
 
-            <div className="hidden lg:block"><CitySelector /></div>
+            <div className="hidden lg:block"><CitySelector menu={menu("city")} /></div>
 
             <SearchBar className="hidden md:flex flex-1 max-w-md" />
 
             <nav aria-label="Main" className="hidden lg:flex items-center gap-5 ml-auto">
-              <TopMenu label="Buy EV" items={buyItems} />
+              <TopMenu menu={menu("buy")} label="Buy EV" items={buyItems} />
               <Link href="/sell-ev" className="text-[15px] font-semibold text-forest hover:text-primary transition-colors">Sell EV</Link>
-              <TopMenu label="More" items={moreItems} />
+              <TopMenu menu={menu("more")} label="More" items={moreItems} />
               <CompareLink />
             </nav>
 
@@ -388,11 +408,11 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
         </div>
 
         {/* ── Explore-by bar (desktop, Forest) ── */}
-        <nav aria-label="Explore by" className="hidden lg:block bg-forest shadow-md shadow-forest/20 focus-on-dark">
+        <nav aria-label="Explore by" className="relative z-10 hidden lg:block bg-forest shadow-md shadow-forest/20 focus-on-dark">
           <div className="max-w-7xl mx-auto px-6 h-12 flex items-stretch gap-9">
             <span className="flex items-center text-[15px] font-semibold text-lime">Explore By</span>
 
-            <ExploreItem id="price" label="Price Range" open={openMenu === "price"} onOpen={() => openWithIntent("price")} onClose={closeWithDelay} onToggle={() => toggle("price")}>
+            <ExploreItem menu={menu("price")} label="Price Range">
               <div className="w-72 py-1">
                 {menus.simple[0].links.map((l) => <DropdownLink key={l.label} href={l.href} count={l.count}>{l.label}</DropdownLink>)}
                 <Link href={exploreHref({ sort: "price_asc" })} className="mt-1 mx-2 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/15 py-2.5 text-sm font-bold text-cream">
@@ -401,7 +421,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
               </div>
             </ExploreItem>
 
-            <ExploreItem id="make" label="Make and Model" open={openMenu === "make"} onOpen={() => openWithIntent("make")} onClose={closeWithDelay} onToggle={() => toggle("make")}>
+            <ExploreItem menu={menu("make")} label="Make and Model">
               <div className="grid grid-cols-5 w-[min(820px,calc(100vw-22rem))] gap-1 p-2">
                 {menus.makes.map((m) => (
                   <div key={m.make} className="py-1 min-w-0">
@@ -432,10 +452,10 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
               </Link>
             </ExploreItem>
 
-            {menus.simple.slice(1).map((menu) => (
-              <ExploreItem key={menu.key} id={menu.key} label={menu.label} open={openMenu === menu.key} onOpen={() => openWithIntent(menu.key)} onClose={closeWithDelay} onToggle={() => toggle(menu.key)}>
-                <div className={`${menu.key === "km" || menu.key === "body" ? "w-72" : "w-60"} py-1`}>
-                  {menu.links.map((l) => (
+            {menus.simple.slice(1).map((group) => (
+              <ExploreItem key={group.key} menu={menu(group.key)} label={group.label}>
+                <div className={`${group.key === "km" || group.key === "body" ? "w-72" : "w-60"} py-1`}>
+                  {group.links.map((l) => (
                     <DropdownLink key={l.label} href={l.href}>
                       {l.image && (
                         <span className="relative w-10 h-8 rounded-md overflow-hidden bg-cream shrink-0">
@@ -465,7 +485,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
       >
         <div className="p-4 space-y-4">
           <SearchBar onSubmitted={() => setIsMobileMenuOpen(false)} />
-          <CitySelector />
+          <CitySelector menu={menu("city-mobile")} />
 
           <div className="rounded-2xl bg-forest p-1 focus-on-dark">
             <p className="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-widest text-lime">Explore By</p>

@@ -6,6 +6,14 @@ import { ALLOWED_BRANDS } from '@/lib/brands';
 
 export const EXPLORE_PATH = '/explore';
 
+/**
+ * The pre-owned catalogue ("View all EVs" → /explore, its menus, counts and price
+ * ranges) lists electric two-wheelers only. Enforced in the database query, so no URL
+ * parameter can bring other vehicle types back. Other categories stay in the database
+ * for leasing, rent and comparison.
+ */
+export const CATALOG_CATEGORIES: VehicleCategory[] = ['TWO_WHEELER'];
+
 // ── Price ────────────────────────────────────────────────────────────────────
 // ZMR sells vehicles up to ₹3,00,000, so selectable price filters never go above this.
 export const PRICE_CAP = 300000;
