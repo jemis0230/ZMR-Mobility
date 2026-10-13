@@ -13,6 +13,7 @@ import {
   FALLBACK_MAKES, ALL_BRANDS_HREF, exploreHref, priceHref, bodyTypeHref, type MakeWithModels, type PriceBucket,
 } from "@/lib/explore";
 import { useCompare, compareHref } from "./compare/compareStore";
+import BrandWordmark from "./BrandWordmark";
 
 // Category picker modal is only downloaded when first opened.
 const CategoryModal = dynamic(() => import("./CategoryModal"), { ssr: false });
@@ -363,17 +364,10 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             panels above the Explore-by ribbon below instead of underneath it. */}
         <div className="relative z-20 bg-cream/95 backdrop-blur border-b border-ink/10">
           <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-3 lg:gap-5 px-3 sm:px-4 md:px-6 h-[72px] lg:h-[84px]">
-            <Link href="/" className="shrink-0 flex items-center" aria-label="ZMR Mobility home">
-              <Image
-                src="/zmr-logo-full.png"
-                alt="ZMR Mobility"
-                width={579}
-                height={361}
-                sizes="(min-width: 1024px) 122px, 103px"
-                quality={80}
-                className="h-11 max-[359px]:h-9 sm:h-16 lg:h-[76px] w-auto"
-                priority
-              />
+            <Link href="/" className="shrink-0 flex items-center rounded-md" aria-label="ZMR Mobility home">
+              {/* Stacked on small phones so the header actions still fit; one line from sm up. */}
+              <span className="sm:hidden"><BrandWordmark stacked className="text-[22px] max-[359px]:text-[19px]" /></span>
+              <span className="hidden sm:inline"><BrandWordmark className="text-[22px] lg:text-[26px]" /></span>
             </Link>
 
             <div className="hidden lg:block"><CitySelector menu={menu("city")} /></div>

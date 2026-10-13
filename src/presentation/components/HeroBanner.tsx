@@ -11,9 +11,9 @@ type Slide = {
   sub: string;
   cta: { label: string; href: string };
   secondary?: { label: string; href: string };
+  /** Original customer photograph, served as-is (see CUSTOMER_PHOTOS). */
   image: string;
   alt: string;
-  imagePosition: string;
 };
 
 // Copy uses only information already published by ZMR Mobility.
@@ -24,9 +24,8 @@ const SLIDES: Slide[] = [
     sub: "Browse pre-owned electric scooters and bikes — compare up to 3 side by side and get help with warranty and ownership transfer.",
     cta: { label: "View all EVs", href: "/explore" },
     secondary: { label: "Compare EVs", href: "/compare" },
-    image: "/hero-handover.webp",
-    alt: "ZMR Mobility team handing over vehicle keys",
-    imagePosition: "object-[60%_30%]",
+    image: "/customers/zmr-customer-01.jpeg",
+    alt: "A customer standing beside a red and black BGauss electric scooter",
   },
   {
     eyebrow: "Fleet Leasing",
@@ -34,37 +33,40 @@ const SLIDES: Slide[] = [
     sub: "Flexible monthly leasing plans with IoT tracking for gig workers, businesses and fleets.",
     cta: { label: "Explore leasing", href: "/leasing/vehicles/3-wheeler-cargo" },
     secondary: { label: "Cargo EVs", href: "/explore?type=3-wheeler-cargo" },
-    image: "/sampleVechiles/mahindra-treo-zor-46219.webp",
-    alt: "Electric cargo three-wheeler on a city road",
-    imagePosition: "object-[60%_50%]",
+    image: "/customers/zmr-customer-02.jpeg",
+    alt: "A customer standing with a dark blue BGauss electric scooter",
   },
   {
     eyebrow: "Sell Your EV",
     title: ["Sell your EV", "at the right price"],
     sub: "Answer a few quick questions and our team will contact you with an offer.",
     cta: { label: "Sell your EV", href: "/sell-ev" },
-    image: "/sampleVechiles/c12i-max6a0da949da693.webp",
-    alt: "Green electric scooter",
-    imagePosition: "object-center",
+    image: "/customers/zmr-customer-03.jpeg",
+    alt: "A customer standing with a matte green BGauss electric scooter",
   },
   {
     eyebrow: "Smart & Connected",
     title: ["IoT-enabled EVs,", "monitored 24×7"],
     sub: "Real-time GPS, geo-fencing and battery health monitoring on ZMR vehicles.",
     cta: { label: "Know more", href: "/about" },
-    image: "/about-hero.webp",
-    alt: "Illustration of connected electric vehicles",
-    imagePosition: "object-center",
+    image: "/customers/zmr-customer-04.jpeg",
+    alt: "A customer standing behind a silver BGauss electric scooter",
   },
 ];
 
-const INTERVAL = 7000;
+// The hero photos are ZMR customers' own photographs (public/customers). They are served
+// unchanged — no resizing or re-encoding — and shown whole (object-contain) on a plain
+// background so no one is cropped.
+const INTERVAL = 5000;
+const SWIPE_PX = 40;
 
 /** Home hero (Cream section) — lightweight CSS carousel. */
 export default function HeroBanner() {
   const [index, setIndex] = useState(0);
   const [userPaused, setUserPaused] = useState(false);
   const [hoverPaused, setHoverPaused] = useState(false);
+  const [focusPaused, setFocusPaused] = useState(false);
+  const touchX = useRef<number | null>(null);
   const [offscreen, setOffscreen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   // Slides whose images may load. Only the first loads up front (it's the LCP image).
@@ -90,7 +92,7 @@ export default function HeroBanner() {
     return () => { mq.removeEventListener("change", onChange); io.disconnect(); document.removeEventListener("visibilitychange", onVis); };
   }, []);
 
-  const playing = !userPaused && !hoverPaused && !offscreen && !reducedMotion;
+  const playing = !userPaused && !hoverPaused && !focusPaused && !offscreen && !reducedMotion;
 
   useEffect(() => {
     if (!playing) return;
@@ -108,15 +110,28 @@ export default function HeroBanner() {
       className="relative bg-cream pt-[88px] lg:pt-[148px] pb-10 px-4 md:px-6"
       aria-roledescription="carousel"
       aria-label="Highlights"
-      onMouseEnter={() => setHoverPaused(true)}
-      onMouseLeave={() => setHoverPaused(false)}
-      onFocus={() => setHoverPaused(true)}
-      onBlur={() => setHoverPaused(false)}
+      // Hover-pause for real mouse pointers only: taps on touch screens fire a "mouse enter"
+      // without a matching leave, which would otherwise leave autoplay stuck paused.
+      onPointerEnter={(e) => { if (e.pointerType === "mouse") setHoverPaused(true); }}
+      onPointerLeave={(e) => { if (e.pointerType === "mouse") setHoverPaused(false); }}
+      // Pause while keyboard focus is anywhere inside the carousel.
+      onFocus={() => setFocusPaused(true)}
+      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusPaused(false); }}
     >
       <h1 className="sr-only">ZMR Mobility — buy, lease, rent and sell pre-owned electric vehicles</h1>
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-        {/* Image (fixed aspect ratio → no layout shift) */}
-        <div className="relative order-1 lg:order-2 aspect-[16/10] lg:aspect-[5/4] rounded-3xl overflow-hidden bg-tint shadow-card">
+        {/* Photo frame: fixed size per breakpoint (no layout shift between portrait photos of
+            different proportions); each photo is shown in full on the plain tint background. */}
+        <div
+          className="relative order-1 lg:order-2 aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:h-[min(600px,calc(100svh-200px))] lg:min-h-[440px] rounded-3xl overflow-hidden bg-tint shadow-card touch-pan-y"
+          onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
+          onTouchEnd={(e) => {
+            if (touchX.current === null) return;
+            const dx = e.changedTouches[0].clientX - touchX.current;
+            touchX.current = null;
+            if (Math.abs(dx) > SWIPE_PX) go(index + (dx < 0 ? 1 : -1));
+          }}
+        >
           {SLIDES.map((s, i) =>
             mounted.has(i) ? (
               <Image
@@ -125,10 +140,11 @@ export default function HeroBanner() {
                 alt={i === index ? s.alt : ""}
                 aria-hidden={i !== index}
                 fill
+                // Serve the original JPEG bytes (no optimiser resizing / re-encoding).
+                unoptimized
                 priority={i === 0}
                 fetchPriority={i === 0 ? "high" : "auto"}
-                sizes="(min-width: 1280px) 600px, (min-width: 1024px) 50vw, 100vw"
-                className={`object-cover ${s.imagePosition} transition-opacity duration-700 ${i === index ? "opacity-100" : "opacity-0"}`}
+                className={`object-contain transition-opacity duration-500 ${i === index ? "opacity-100" : "opacity-0"}`}
               />
             ) : null
           )}

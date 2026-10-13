@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import BrandWordmark from "./BrandWordmark";
 import { Linkedin, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import {
   BODY_TYPES, YEAR_OPTIONS, DEFAULT_PRICE_BUCKETS, priceHref, bodyTypeHref, exploreHref, type PriceBucket,
@@ -62,8 +62,8 @@ export default function Footer({ priceBuckets = DEFAULT_PRICE_BUCKETS }: { price
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 mb-12 [&>*]:min-w-0">
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-6">
-            <Link href="/" className="inline-block rounded-2xl bg-cream px-4 py-2" aria-label="ZMR Mobility home">
-              <Image src="/zmr-logo-full.png" alt="ZMR Mobility" width={579} height={361} sizes="128px" quality={80} className="h-20 w-auto" />
+            <Link href="/" className="inline-block rounded-md" aria-label="ZMR Mobility home">
+              <BrandWordmark tone="light" className="text-3xl" />
             </Link>
             <p className="text-cream/85 text-sm leading-relaxed max-w-sm">
               India&apos;s technology-first EV asset management company — making electric mobility accessible,
