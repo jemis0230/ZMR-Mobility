@@ -57,9 +57,9 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
     <main className="min-h-screen bg-background text-foreground">
       <div className="pt-24 lg:pt-36 pb-20 px-6 max-w-7xl mx-auto">
         <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ink/50 mb-8">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link href="/" className="inline-flex items-center min-h-[44px] -my-3 hover:text-primary transition-colors">Home</Link>
           <span>/</span>
-          <Link href={`/buying/vehicles/${CATEGORY_TO_SLUG[vehicle.category] ?? '2-wheeler'}`} className="hover:text-primary transition-colors">Buy</Link>
+          <Link href={`/buying/vehicles/${CATEGORY_TO_SLUG[vehicle.category] ?? '2-wheeler'}`} className="inline-flex items-center min-h-[44px] -my-3 hover:text-primary transition-colors">Buy</Link>
           <span>/</span>
           <span className="text-ink/70">{vehicle.make} {vehicle.model}</span>
         </nav>
@@ -137,17 +137,17 @@ export default async function BuyingVehicleDetailsPage(props: { params: Promise<
             <div className="grid grid-cols-3 gap-2 md:gap-4">
               <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Gauge className="w-4 h-4 md:w-5 md:h-5 text-primary mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Range</p>
+                <p className="text-[11px] md:text-[11px] text-ink/50 uppercase font-bold tracking-widest">Range</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.certifiedRangeKm} km</p>
               </div>
               <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Battery className="w-4 h-4 md:w-5 md:h-5 text-accent mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Battery</p>
+                <p className="text-[11px] md:text-[11px] text-ink/50 uppercase font-bold tracking-widest">Battery</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.batteryCapKwh} kWh</p>
               </div>
               <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Zap className="w-4 h-4 md:w-5 md:h-5 text-leaf mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Top Speed</p>
+                <p className="text-[11px] md:text-[11px] text-ink/50 uppercase font-bold tracking-widest">Top Speed</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.topSpeedKmh} km/h</p>
               </div>
             </div>

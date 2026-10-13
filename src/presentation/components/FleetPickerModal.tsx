@@ -139,7 +139,7 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
 
               {/* ── Step 1: Intent ── */}
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-ink/50 mb-3">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-ink/50 mb-3">
                   What are you looking for?
                 </p>
                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -155,7 +155,7 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
                           <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${active ? textCls : "text-ink/60"}`} />
                         </div>
                         <span className={`text-sm sm:text-base font-extrabold ${active ? textCls : "text-ink/70"}`}>{label}</span>
-                        <span className="hidden sm:block text-[10px] text-ink/50 leading-tight">{desc}</span>
+                        <span className="hidden sm:block text-[11px] text-ink/50 leading-tight">{desc}</span>
                         {active && (
                           <motion.div
                             layoutId="intent-indicator"
@@ -171,7 +171,7 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
               {/* ── Divider ── */}
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-ink/10" />
-                <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${intent ? "text-ink/50" : "text-ink/35"}`}>
+                <p className={`text-[11px] font-bold uppercase tracking-widest transition-colors ${intent ? "text-ink/50" : "text-ink/35"}`}>
                   Now pick a vehicle type
                 </p>
                 <div className="flex-1 h-px bg-ink/10" />
@@ -196,14 +196,14 @@ export default function FleetPickerModal({ isOpen, onClose }: Props) {
                       {/* Text */}
                       <div className="flex-1 sm:flex-none">
                         <p className="text-sm font-bold text-ink group-hover:text-primary transition-colors leading-tight">{name}</p>
-                        <p className="text-[10px] text-ink/55 mt-0.5">{desc}</p>
+                        <p className="text-[11px] text-ink/55 mt-0.5">{desc}</p>
                       </div>
 
                       {/* Mobile arrow */}
                       <ArrowRight className="sm:hidden w-4 h-4 text-ink/40 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
 
                       {/* Desktop icon */}
-                      <div className="hidden sm:flex mt-2 items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="hidden sm:flex mt-2 items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                         Explore <ArrowRight className="w-3 h-3" />
                       </div>
                     </Link>

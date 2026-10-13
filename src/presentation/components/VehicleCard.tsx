@@ -88,7 +88,7 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
             <Zap className="w-12 h-12 text-[#577440]/10" />
           </div>
         )}
-        <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm border border-ink/10 text-[10px] font-bold tracking-widest uppercase">
+        <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm border border-ink/10 text-[11px] font-bold tracking-widest uppercase">
           {CATEGORY_DISPLAY[vehicle.category]}
         </div>
       </Link>
@@ -117,7 +117,7 @@ export default function VehicleCard({ vehicle, mode = 'leasing' }: VehicleCardPr
           {cardSpecs.map((spec, idx) => (
             <div key={idx} className="bg-ink/5 rounded-lg p-2 text-center">
               <spec.icon className={`w-4 h-4 mx-auto mb-1 ${spec.color}`} />
-              <p className="text-[10px] text-ink/60 uppercase tracking-tighter">{spec.label}</p>
+              <p className="text-[11px] text-ink/60 uppercase tracking-tighter">{spec.label}</p>
               <p className="text-xs font-bold truncate">{spec.value}</p>
             </div>
           ))}

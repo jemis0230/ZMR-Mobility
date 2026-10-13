@@ -140,7 +140,7 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
                 <div className={`p-1.5 rounded-lg ${isActive ? "bg-primary/20" : "bg-ink/5"}`}>
                   <cat.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-ink/60"}`} />
                 </div>
-                <p className="text-[10px] font-bold leading-tight text-center">{cat.shortName}</p>
+                <p className="text-[11px] font-bold leading-tight text-center">{cat.shortName}</p>
               </div>
 
               {/* Desktop: image card */}
@@ -151,7 +151,7 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
                   </div>
                 </div>
                 <div className="min-w-0 py-1">
-                  <div className={`mb-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest ${isActive ? "text-primary" : "text-ink/50 group-hover:text-ink/65"}`}>
+                  <div className={`mb-0.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest ${isActive ? "text-primary" : "text-ink/50 group-hover:text-ink/65"}`}>
                     <cat.icon className="w-3 h-3" />
                     Category
                   </div>

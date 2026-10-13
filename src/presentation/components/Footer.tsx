@@ -57,7 +57,7 @@ export default function Footer({ priceBuckets = DEFAULT_PRICE_BUCKETS }: { price
   ];
 
   return (
-    <footer className="bg-green-900 text-cream pt-16 pb-10 px-6 focus-on-dark">
+    <footer className="bg-green-900 text-cream pt-16 pb-24 sm:pb-10 px-6 focus-on-dark">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 mb-12 [&>*]:min-w-0">
           {/* Brand Column */}

@@ -137,7 +137,7 @@ export default function DualRangeSlider({
         />
       </div>
 
-      <div className="flex justify-between mt-1 text-[10px] text-ink/70 font-medium">
+      <div className="flex justify-between mt-1 text-[11px] text-ink/70 font-medium">
         <span>{formatLabel(min)}</span>
         <span>{formatLabel(max)}</span>
       </div>

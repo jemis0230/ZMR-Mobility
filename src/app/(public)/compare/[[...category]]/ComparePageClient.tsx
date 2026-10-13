@@ -248,7 +248,7 @@ export default function ComparePageClient({
                               type="button"
                               onClick={() => remove(id)}
                               aria-label={`Remove ${v.make} ${v.model} from comparison`}
-                              className="inline-flex items-center gap-1 rounded-full border border-ink/20 px-2.5 py-1 text-xs font-bold text-forest hover:border-red-400 hover:text-red-800"
+                              className="inline-flex items-center gap-1 rounded-full border border-ink/20 px-3 min-h-[40px] text-xs font-bold text-forest hover:border-red-400 hover:text-red-800"
                             >
                               <X className="w-3 h-3" aria-hidden /> Remove
                             </button>
@@ -257,7 +257,7 @@ export default function ComparePageClient({
                               id={`replace-${id}`}
                               value=""
                               onChange={(e) => replace(id, e.target.value)}
-                              className="rounded-full border border-ink/20 bg-white px-2.5 py-1 text-xs font-bold text-forest max-w-[150px]"
+                              className="rounded-full border border-ink/20 bg-white px-3 min-h-[40px] text-xs font-bold text-forest max-w-[150px]"
                             >
                               <option value="">Replace with…</option>
                               {catalog.filter((c) => !requestedIds.includes(c.id)).map((c) => (

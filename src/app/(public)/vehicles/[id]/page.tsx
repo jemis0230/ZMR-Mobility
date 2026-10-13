@@ -62,9 +62,9 @@ export default async function VehicleDetailsPage(props: { params: Promise<{ id: 
     <main className="min-h-screen bg-background text-foreground">
       <div className="pt-24 lg:pt-36 pb-20 px-6 max-w-7xl mx-auto">
         <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ink/50 mb-8">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <Link href="/" className="inline-flex items-center min-h-[44px] -my-3 hover:text-primary transition-colors">Home</Link>
           <span>/</span>
-          <Link href={`/leasing/vehicles/${CATEGORY_TO_SLUG[vehicle.category] ?? '2-wheeler'}`} className="hover:text-primary transition-colors">Fleet</Link>
+          <Link href={`/leasing/vehicles/${CATEGORY_TO_SLUG[vehicle.category] ?? '2-wheeler'}`} className="inline-flex items-center min-h-[44px] -my-3 hover:text-primary transition-colors">Fleet</Link>
           <span>/</span>
           <span className="text-ink/70">{vehicle.make} {vehicle.model}</span>
         </nav>
@@ -88,7 +88,7 @@ export default async function VehicleDetailsPage(props: { params: Promise<{ id: 
 
           <div className="space-y-10">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-widest uppercase mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold tracking-widest uppercase mb-4">
                 AIS156 Certified
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight mb-2">
@@ -135,17 +135,17 @@ export default async function VehicleDetailsPage(props: { params: Promise<{ id: 
             <div className="grid grid-cols-3 gap-2 md:gap-4">
               <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Gauge className="w-4 h-4 md:w-5 md:h-5 text-primary mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Range</p>
+                <p className="text-[11px] md:text-[11px] text-ink/50 uppercase font-bold tracking-widest">Range</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.certifiedRangeKm} km</p>
               </div>
               <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Battery className="w-4 h-4 md:w-5 md:h-5 text-accent mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Battery</p>
+                <p className="text-[11px] md:text-[11px] text-ink/50 uppercase font-bold tracking-widest">Battery</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.batteryCapKwh} kWh</p>
               </div>
               <div className="glass-card p-3 md:p-4 border-ink/[0.08] text-center">
                 <Zap className="w-4 h-4 md:w-5 md:h-5 text-leaf mx-auto mb-1 md:mb-2" />
-                <p className="text-[9px] md:text-[10px] text-ink/50 uppercase font-bold tracking-widest">Top Speed</p>
+                <p className="text-[11px] md:text-[11px] text-ink/50 uppercase font-bold tracking-widest">Top Speed</p>
                 <p className="text-sm md:text-lg font-bold">{vehicle.topSpeedKmh} km/h</p>
               </div>
             </div>

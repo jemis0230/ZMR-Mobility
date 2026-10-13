@@ -221,7 +221,7 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
       <section className="pt-24 lg:pt-36 pb-8 px-4 md:px-6 bg-tint border-b border-ink/10">
         <div className="max-w-7xl mx-auto">
           <nav className="flex items-center gap-1.5 text-xs font-semibold text-ink/70 mb-4" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-primary">Home</Link>
+            <Link href="/" className="inline-flex items-center min-h-[44px] -my-3 hover:text-primary">Home</Link>
             <ChevronRight className="w-3 h-3" aria-hidden />
             <span aria-current="page" className="text-forest">Buy Pre-owned EVs</span>
           </nav>
@@ -233,10 +233,10 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs font-semibold">
-              <Link href="/warranty-ownership" className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/15 px-3 py-2 text-forest hover:border-primary">
+              <Link href="/warranty-ownership" className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/15 px-3 min-h-[44px] text-forest hover:border-primary">
                 <ShieldCheck className="w-3.5 h-3.5 text-leaf" aria-hidden /> Warranty & ownership support
               </Link>
-              <Link href="/compare" className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/15 px-3 py-2 text-forest hover:border-primary">
+              <Link href="/compare" className="inline-flex items-center gap-1.5 rounded-full bg-white border border-ink/15 px-3 min-h-[44px] text-forest hover:border-primary">
                 <ArrowLeftRight className="w-3.5 h-3.5 text-leaf" aria-hidden /> Compare up to 3 vehicles
               </Link>
             </div>
