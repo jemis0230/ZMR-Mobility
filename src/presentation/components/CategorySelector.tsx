@@ -17,7 +17,7 @@ const categories = [
     shortName: "2W",
     slug: "2-wheeler",
     icon: Bike,
-    image: "/category-images/2-wheeler-v3.webp",
+    image: "/category-images/2-wheeler-v2.webp",
     fallbackImage: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&q=80&w=400",
   },
   {
@@ -25,7 +25,7 @@ const categories = [
     shortName: "3W (P)",
     slug: "3-wheeler-passenger",
     icon: Users,
-    image: "/category-images/3-wheeler-passenger-v3.webp",
+    image: "/category-images/3-wheeler-passenger-v2.webp",
     fallbackImage: "https://images.unsplash.com/photo-1567113463300-102a7eb3cb26?auto=format&fit=crop&q=80&w=400",
   },
   {
@@ -33,7 +33,7 @@ const categories = [
     shortName: "3W (C)",
     slug: "3-wheeler-cargo",
     icon: Package,
-    image: "/category-images/3-wheeler-cargo-v3.webp",
+    image: "/category-images/3-wheeler-cargo-v2.webp",
     fallbackImage: "https://images.unsplash.com/photo-1595113316349-9fa4ee24f884?auto=format&fit=crop&q=80&w=400",
   },
   {
@@ -41,7 +41,7 @@ const categories = [
     shortName: "4W (P)",
     slug: "4-wheeler-passenger",
     icon: Car,
-    image: "/category-images/4-wheeler-passenger-v3.webp",
+    image: "/category-images/4-wheeler-passenger-v2.webp",
     fallbackImage: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=400",
   },
   {
@@ -49,7 +49,7 @@ const categories = [
     shortName: "4W (C)",
     slug: "4-wheeler-cargo",
     icon: Truck,
-    image: "/category-images/4-wheeler-cargo-v3.webp",
+    image: "/category-images/4-wheeler-cargo-v2.webp",
     fallbackImage: "https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&q=80&w=400",
   },
 ];
@@ -140,7 +140,7 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
                 <div className={`p-1.5 rounded-lg ${isActive ? "bg-primary/20" : "bg-ink/5"}`}>
                   <cat.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-ink/60"}`} />
                 </div>
-                <p className="text-[10px] font-bold leading-tight text-center">{cat.shortName}</p>
+                <p className="text-[11px] font-bold leading-tight text-center">{cat.shortName}</p>
               </div>
 
               {/* Desktop: image card */}
@@ -151,7 +151,7 @@ export default function CategorySelector({ currentSlug, baseHref = "/leasing/veh
                   </div>
                 </div>
                 <div className="min-w-0 py-1">
-                  <div className={`mb-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest ${isActive ? "text-primary" : "text-ink/50 group-hover:text-ink/65"}`}>
+                  <div className={`mb-0.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest ${isActive ? "text-primary" : "text-ink/50 group-hover:text-ink/65"}`}>
                     <cat.icon className="w-3 h-3" />
                     Category
                   </div>

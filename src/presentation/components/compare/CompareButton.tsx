@@ -12,7 +12,7 @@ export default function CompareButton({ item, variant = "chip" }: { item: Compar
   const base =
     variant === "block"
       ? "w-full justify-center py-3 rounded-xl text-sm"
-      : "px-3 py-1.5 rounded-full text-xs";
+      : "px-3.5 min-h-[40px] rounded-full text-xs";
 
   return (
     <button

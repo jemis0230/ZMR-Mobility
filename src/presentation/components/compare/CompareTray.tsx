@@ -39,7 +39,7 @@ export default function CompareTray() {
                         type="button"
                         onClick={() => remove(i.id)}
                         aria-label={`Remove ${i.title} from comparison`}
-                        className="w-6 h-6 rounded-full hover:bg-white/20 flex items-center justify-center"
+                        className="w-9 h-9 -my-1.5 -mr-0.5 rounded-full hover:bg-white/20 flex items-center justify-center"
                       >
                         <X className="w-3.5 h-3.5" aria-hidden />
                       </button>
@@ -48,13 +48,13 @@ export default function CompareTray() {
                 </ul>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <button type="button" onClick={clear} className="px-3 py-2 rounded-lg text-xs font-bold text-cream/80 hover:text-white">
+                <button type="button" onClick={clear} className="px-3 min-h-[44px] rounded-lg text-xs font-bold text-cream/80 hover:text-white">
                   Clear
                 </button>
                 {count >= COMPARE_MIN ? (
                   <Link
                     href={compareHref(items.map((i) => i.id))}
-                    className="rounded-xl bg-lime text-forest px-5 py-2.5 text-sm font-extrabold hover:bg-white transition-colors"
+                    className="inline-flex items-center min-h-[44px] rounded-xl bg-lime text-forest px-5 text-sm font-extrabold hover:bg-white transition-colors"
                   >
                     Compare now
                   </Link>

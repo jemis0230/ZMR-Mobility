@@ -5,6 +5,7 @@ import { ArrowRight, Phone } from 'lucide-react';
 import HeroBanner from "@/presentation/components/HeroBanner";
 import HomeExplore, { TrustBar } from "@/presentation/components/HomeExplore";
 import FeaturedVehicles from "@/presentation/components/FeaturedVehicles";
+import PresenceMap from "@/presentation/components/presence/PresenceMap";
 import HomeSections from "@/presentation/components/HomeSections";
 import PolicySection from "@/presentation/components/PolicySection";
 import { getCachedExploreMenuData, getCachedExplorePage } from "@/lib/cachedVehicleQueries";
@@ -59,6 +60,8 @@ export default async function Home() {
       <HomeExplore makes={makes} priceBuckets={priceBuckets} />
       {/* Cream, white cards */}
       <FeaturedVehicles vehicles={featured} />
+      {/* White */}
+      <PresenceMap />
       {/* Tint → White → Cream → White → Forest → Cream → [White policy] → Gradient */}
       <HomeSections
         policySlot={

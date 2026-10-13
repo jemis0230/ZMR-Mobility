@@ -13,7 +13,6 @@ import {
   FALLBACK_MAKES, ALL_BRANDS_HREF, exploreHref, priceHref, bodyTypeHref, type MakeWithModels, type PriceBucket,
 } from "@/lib/explore";
 import { useCompare, compareHref } from "./compare/compareStore";
-import BrandWordmark from "./BrandWordmark";
 
 // Category picker modal is only downloaded when first opened.
 const CategoryModal = dynamic(() => import("./CategoryModal"), { ssr: false });
@@ -22,7 +21,7 @@ const TestDriveModal = dynamic(() => import("./TestDriveModal"), { ssr: false })
 
 // Shared look for the Test Drive and Contact Us buttons.
 const CTA_CLASS =
-  "bg-primary hover:bg-primary-dark text-white px-3 max-[359px]:px-2 sm:px-4 md:px-5 py-2.5 rounded-full text-[11px] sm:text-xs md:text-sm font-bold transition-colors electric-glow whitespace-nowrap";
+  "bg-primary hover:bg-primary-dark text-white px-3 max-[359px]:px-2 sm:px-4 md:px-5 py-2.5 min-h-[44px] rounded-full text-[11px] sm:text-xs md:text-sm font-bold transition-colors electric-glow whitespace-nowrap";
 
 const CITIES = ["Lucknow", "Dehradun", "Chennai", "Bangalore"];
 const CITY_KEY = "zmr-city";
@@ -234,7 +233,7 @@ function CompareLink({ className = "" }: { className?: string }) {
   return (
     <Link
       href={compareHref(items.map((i) => i.id))}
-      className={`relative flex flex-col items-center text-forest hover:text-primary transition-colors ${className}`}
+      className={`relative flex flex-col items-center justify-center min-w-[44px] min-h-[44px] max-sm:-mx-1.5 text-forest hover:text-primary transition-colors ${className}`}
       aria-label={count ? `Compare vehicles (${count} selected)` : "Compare vehicles"}
     >
       <ArrowLeftRight className="w-5 h-5" aria-hidden />
@@ -284,6 +283,10 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
       if (current) {
         setOpenMenu(null);
         document.getElementById(triggerId(current))?.focus();
+      } else if (drawerRef.current?.contains(document.activeElement)) {
+        // Close the drawer and return focus to its toggle.
+        setIsMobileMenuOpen(false);
+        document.getElementById("mobile-menu-toggle")?.focus();
       } else {
         setIsMobileMenuOpen(false);
       }
@@ -364,10 +367,17 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             panels above the Explore-by ribbon below instead of underneath it. */}
         <div className="relative z-20 bg-cream/95 backdrop-blur border-b border-ink/10">
           <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-3 lg:gap-5 px-3 sm:px-4 md:px-6 h-[72px] lg:h-[84px]">
-            <Link href="/" className="shrink-0 flex items-center rounded-md" aria-label="ZMR Mobility home">
-              {/* Stacked on small phones so the header actions still fit; one line from sm up. */}
-              <span className="sm:hidden"><BrandWordmark stacked className="text-[22px] max-[359px]:text-[19px]" /></span>
-              <span className="hidden sm:inline"><BrandWordmark className="text-[22px] lg:text-[26px]" /></span>
+            <Link href="/" className="shrink-0 flex items-center" aria-label="ZMR Mobility home">
+              <Image
+                src="/zmr-logo-full.png"
+                alt="ZMR Mobility"
+                width={579}
+                height={361}
+                sizes="(min-width: 1024px) 122px, 103px"
+                quality={80}
+                className="h-11 max-[359px]:h-9 sm:h-16 lg:h-[76px] w-auto"
+                priority
+              />
             </Link>
 
             <div className="hidden lg:block"><CitySelector menu={menu("city")} /></div>
@@ -390,10 +400,12 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
                 Contact Us
               </button>
               <button
+                id="mobile-menu-toggle"
                 onClick={() => setIsMobileMenuOpen((o) => !o)}
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-controls="mobile-menu"
                 aria-expanded={isMobileMenuOpen}
-                className="lg:hidden p-2 sm:p-2.5 rounded-lg border border-ink/15 text-forest hover:bg-white transition-colors"
+                className="lg:hidden w-11 h-11 flex items-center justify-center rounded-lg border border-ink/15 text-forest hover:bg-white transition-colors"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -474,6 +486,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
       />
       <aside
         ref={drawerRef}
+        id="mobile-menu"
         aria-label="Mobile menu"
         className={`fixed top-[72px] right-0 bottom-0 z-50 w-[88vw] max-w-sm bg-cream shadow-2xl overflow-y-auto lg:hidden transition-transform duration-200 ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
       >

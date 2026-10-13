@@ -71,7 +71,7 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
     author: isTeamAuthor(blog.authorName)
       ? { "@type": "Organization", name: blog.authorName, url: SITE_URL }
       : { "@type": "Person", name: blog.authorName },
-    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${SITE_URL}/zmr-mobility-wordmark.png` } },
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${SITE_URL}/zmr-logo-official.png` } },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     articleSection: blog.category,
     keywords: blog.tags.length ? blog.tags.join(", ") : undefined,

@@ -46,7 +46,7 @@ export default function BlogFilters({ categories }: { categories: string[] }) {
     <div className="space-y-8 mb-12">
       {/* Search Bar */}
       <div className="relative max-w-2xl mx-auto">
-        <div className="relative rounded-2xl bg-white border border-ink/15 flex items-center px-6 py-4 shadow-card">
+        <div className="relative rounded-2xl bg-white border border-ink/15 flex items-center px-6 py-1.5 shadow-card">
           <Search className="w-5 h-5 text-leaf mr-4" aria-hidden />
           <input 
             type="search"
@@ -54,7 +54,7 @@ export default function BlogFilters({ categories }: { categories: string[] }) {
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Search for articles, technology, or news..." 
-            className="bg-transparent flex-1 outline-none text-ink placeholder:text-ink/55 font-medium"
+            className="bg-transparent flex-1 min-h-[44px] outline-none text-ink placeholder:text-ink/55 font-medium"
           />
           {searchValue && (
             <button type="button" aria-label="Clear search" onClick={() => setSearchValue("")} className="text-ink/60 hover:text-ink transition-colors">
@@ -72,7 +72,7 @@ export default function BlogFilters({ categories }: { categories: string[] }) {
             type="button"
             aria-pressed={currentCategory === cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`px-6 py-2 rounded-full text-xs font-bold transition-all border ${
+            className={`px-6 min-h-[44px] rounded-full text-xs font-bold transition-all border ${
               currentCategory === cat
                 ? "bg-primary text-white border-primary"
                 : "bg-white text-forest border-ink/15 hover:border-primary"

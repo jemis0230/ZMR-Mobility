@@ -32,7 +32,7 @@ export default async function WarrantyOwnershipPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <div className="pt-24 lg:pt-40 pb-20 px-4 md:px-6 max-w-7xl mx-auto">
         <nav className="flex items-center gap-1.5 text-xs font-semibold text-ink/70 mb-6" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-primary">Home</Link>
+          <Link href="/" className="inline-flex items-center min-h-[44px] -my-3 hover:text-primary">Home</Link>
           <ChevronRight className="w-3 h-3" aria-hidden />
           <span aria-current="page" className="text-forest">Warranty &amp; Ownership</span>
         </nav>

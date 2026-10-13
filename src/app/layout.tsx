@@ -64,7 +64,7 @@ const jsonLd = [
     name: SITE_NAME,
     legalName: "ZMR Mobility Private Limited",
     url: SITE_URL,
-    logo: `${SITE_URL}/zmr-mobility-wordmark.png`,
+    logo: `${SITE_URL}/zmr-logo-official.png`,
     email: SITE_EMAIL,
     telephone: SITE_PHONE,
     sameAs: SITE_SOCIALS,

@@ -47,7 +47,7 @@ export default function BlogCard({ blog, index }: { blog: any; index: number }) 
           
           {/* Category Badge */}
           <div className="absolute top-4 left-4 z-10">
-            <span className="px-3 py-1 rounded-full bg-lime border border-forest/10 text-[10px] font-black uppercase tracking-widest text-forest">
+            <span className="px-3 py-1 rounded-full bg-lime border border-forest/10 text-[11px] font-black uppercase tracking-widest text-forest">
               {blog.category}
             </span>
           </div>

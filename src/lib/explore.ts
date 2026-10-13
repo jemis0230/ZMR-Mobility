@@ -125,7 +125,7 @@ export interface BodyType {
  * as Scooter or Bike in admin are treated as scooters.
  */
 export const BODY_TYPES: BodyType[] = [
-  { slug: 'scooter', label: 'Scooter', hint: 'Electric scooters', category: 'TWO_WHEELER', style: 'SCOOTER', image: '/category-images/2-wheeler-v3.webp' },
+  { slug: 'scooter', label: 'Scooter', hint: 'Electric scooters', category: 'TWO_WHEELER', style: 'SCOOTER', image: '/category-images/2-wheeler-v2.webp' },
   { slug: 'bike', label: 'Bike', hint: 'Electric motorcycles', category: 'TWO_WHEELER', style: 'BIKE' },
 ];
 
