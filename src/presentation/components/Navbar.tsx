@@ -345,7 +345,8 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
     { label: "Warranty & Ownership", desc: "Warranty, RC transfer, NOC, insurance, buyback", href: "/warranty-ownership" },
     { label: "Press & Media", href: "/press" },
     { label: "About Us", href: "/about" },
-    { label: "Blog", href: "/blogs" },
+    { label: "Blogs", desc: "Articles, opinions and explainers", href: "/blogs" },
+    { label: "Blog Tags", desc: "Browse articles by topic", href: "/blogs/tags" },
     { label: "FAQs", href: "/#faq" },
     { label: "Contact Us", onClick: handleContactClick },
   ];
@@ -540,7 +541,8 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             <Link href="/compare" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Compare</Link>
             <Link href="/warranty-ownership" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Warranty & Ownership</Link>
             <Link href="/press" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Press & Media</Link>
-            <Link href="/blogs" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blog</Link>
+            <Link href="/blogs" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blogs</Link>
+            <Link href="/blogs/tags" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blog Tags</Link>
             <Link href="/about" className="px-2 py-3 hover:text-primary">About</Link>
           </nav>
 

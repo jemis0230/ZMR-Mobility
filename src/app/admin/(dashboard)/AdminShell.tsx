@@ -19,6 +19,9 @@ import {
   X,
   SlidersHorizontal,
   Newspaper,
+  Tags,
+  PenLine,
+  Shapes,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
@@ -32,7 +35,10 @@ interface AdminShellProps {
 const NAV_ITEMS = [
   { name: 'Dashboard', icon: LayoutDashboard, href: '/admin' },
   { name: 'Vehicles', icon: Car, href: '/admin/vehicles' },
-  { name: 'Blogs', icon: MessageSquare, href: '/admin/blogs' },
+  { name: 'Manage Blogs', icon: MessageSquare, href: '/admin/blogs' },
+  { name: 'Manage Tags', icon: Tags, href: '/admin/blogs/tags', sub: true },
+  { name: 'Manage Authors', icon: PenLine, href: '/admin/blogs/authors', sub: true },
+  { name: 'Manage Blog Types', icon: Shapes, href: '/admin/blogs/types', sub: true },
   { name: 'FAQs', icon: HelpCircle, href: '/admin/faqs' },
   { name: 'Press & Media', icon: Newspaper, href: '/admin/press' },
   { name: 'Leads/Contacts', icon: Users, href: '/admin/leads' },
@@ -57,8 +63,12 @@ export default function AdminShell({ session, children }: AdminShellProps) {
     (item) => !('superadminOnly' in item && item.superadminOnly) || session.role === 'superadmin'
   );
 
-  const isActive = (href: string) =>
-    href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
+  // The most specific matching item is active, so /admin/blogs/tags highlights only "Manage Tags".
+  const activeHref = visibleItems
+    .map((item) => item.href)
+    .filter((href) => (href === '/admin' ? pathname === '/admin' : pathname === href || pathname.startsWith(`${href}/`)))
+    .sort((a, b) => b.length - a.length)[0];
+  const isActive = (href: string) => href === activeHref;
 
   const currentPage = visibleItems.find((item) => isActive(item.href))?.name ?? 'Admin';
 
@@ -95,7 +105,8 @@ export default function AdminShell({ session, children }: AdminShellProps) {
               key={item.name}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
+              aria-current={isActive(item.href) ? 'page' : undefined}
+              className={`flex items-center gap-3 px-4 rounded-xl transition-all group ${'sub' in item && item.sub ? 'ml-5 py-2 text-sm' : 'py-3'} ${
                 isActive(item.href)
                   ? 'bg-primary/10 text-primary border border-primary/20'
                   : 'hover:bg-ink/5 text-ink/70 hover:text-primary border border-transparent'

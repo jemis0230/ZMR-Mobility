@@ -1,60 +1,49 @@
+import { revalidatePath } from 'next/cache';
 import { ok, badRequest, notFound, serverError } from '@/app/api/_lib/response';
 import { withSession, isResponse } from '@/app/api/_lib/auth-guard';
-import { PrismaBlogRepository } from '@/infrastructure/repositories/PrismaBlogRepository';
-import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/auth';
+import { getPostById } from '@/lib/blog/queries';
+import { savePost, deletePost } from '@/lib/blog/mutations';
 
-const repo = new PrismaBlogRepository();
+type Ctx = { params: Promise<{ id: string }> };
 
-// GET /api/blogs/[id]
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+const refresh = () => {
+  revalidatePath('/blogs', 'layout');
+  revalidatePath('/admin/blogs', 'layout');
+};
+
+// GET /api/blogs/[id] — drafts are visible to signed-in staff only.
+export async function GET(_req: Request, { params }: Ctx) {
   try {
     const { id } = await params;
-    const blog = await repo.findById(id);
-    if (!blog) return notFound('Blog');
+    const blog = await getPostById(id);
+    if (!blog || (!blog.published && !(await getSession()))) return notFound('Blog');
     return ok(blog);
   } catch (error) {
     return serverError(error);
   }
 }
 
-// PUT /api/blogs/[id]
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const session = await withSession();
-    if (isResponse(session)) return session;
-
-    const { id } = await params;
-    const existing = await repo.findById(id);
-    if (!existing) return notFound('Blog');
-
-    const body = await req.json();
-    if (!body.title?.trim()) return badRequest('Title is required');
-
-    const blog = await repo.update(id, body);
-    revalidatePath('/blogs');
-    revalidatePath(`/blogs/${blog.slug}`);
-    revalidatePath('/admin/blogs');
-    return ok(blog);
-  } catch (error) {
-    return serverError(error);
-  }
+// PUT /api/blogs/[id] — staff only.
+export async function PUT(req: Request, { params }: Ctx) {
+  const session = await withSession();
+  if (isResponse(session)) return session;
+  const { id } = await params;
+  const body = await req.json().catch(() => null);
+  if (!body) return badRequest('Invalid request.');
+  const res = await savePost(id, body);
+  if (!res.success) return badRequest(res.error, { field: res.field });
+  refresh();
+  return ok(res.data);
 }
 
-// DELETE /api/blogs/[id]
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const session = await withSession();
-    if (isResponse(session)) return session;
-
-    const { id } = await params;
-    const existing = await repo.findById(id);
-    if (!existing) return notFound('Blog');
-
-    await repo.delete(id);
-    revalidatePath('/blogs');
-    revalidatePath('/admin/blogs');
-    return ok({ deleted: true });
-  } catch (error) {
-    return serverError(error);
-  }
+// DELETE /api/blogs/[id] — staff only.
+export async function DELETE(_req: Request, { params }: Ctx) {
+  const session = await withSession();
+  if (isResponse(session)) return session;
+  const { id } = await params;
+  const res = await deletePost(id);
+  if (!res.success) return notFound('Blog');
+  refresh();
+  return ok({ deleted: true });
 }

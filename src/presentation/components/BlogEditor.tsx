@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useState, useRef } from "react";
 import { uploadImageAction } from "@/app/actions/blogActions";
+import { safeAction } from "./blog-admin/safeAction";
 
 const Toolbar = ({ editor }: { editor: any }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,8 +37,8 @@ const Toolbar = ({ editor }: { editor: any }) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await uploadImageAction(formData);
-    if (res.success && res.url) {
+    const res = await safeAction(uploadImageAction(formData));
+    if (res.success) {
       editor.chain().focus().setImage({ src: res.url }).run();
     } else {
       alert(res.error || "Upload failed");
