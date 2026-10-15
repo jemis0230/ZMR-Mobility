@@ -289,15 +289,80 @@ model BlogPost {
   excerpt    String?
   coverImage String?
   category   String
+  /// Legacy free-text tags, copied into BlogTag/BlogPostTag by migration 20261015000000; no longer read.
   tags       String[]
   published  Boolean  @default(false)
   authorName String   @default("ZMR Mobility Team")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  // Byline: the author record plus a per-post snapshot of the name (authorName) and
+  // designation, so editing an author never silently rewrites published bylines.
+  authorId          String?
+  author            BlogAuthor?   @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  authorDesignation String?
+  typeId            String?
+  type              BlogType?     @relation(fields: [typeId], references: [id], onDelete: Restrict)
+  publishedAt       DateTime?
+  tagLinks          BlogPostTag[]
+
   @@index([published])
   @@index([category])
   @@index([published, createdAt])
+  @@index([authorId])
+  @@index([typeId])
+}
+
+model BlogAuthor {
+  id          String     @id @default(cuid())
+  name        String
+  /// Lower-cased, whitespace-collapsed name; keeps author names unique regardless of case.
+  nameKey     String     @unique
+  designation String
+  posts       BlogPost[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model BlogType {
+  id        String     @id @default(cuid())
+  name      String
+  nameKey   String     @unique
+  slug      String     @unique
+  posts     BlogPost[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model BlogTag {
+  id        String            @id @default(cuid())
+  name      String
+  nameKey   String            @unique
+  slug      String            @unique
+  posts     BlogPostTag[]
+  redirects BlogTagRedirect[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model BlogPostTag {
+  postId String
+  tagId  String
+  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+/// Old tag slugs (from renames and merges) that should still resolve to a tag.
+model BlogTagRedirect {
+  fromSlug  String   @id
+  tagId     String
+  tag       BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([tagId])
 }
 
 // ── EV Brand Catalogue ────────────────────────────────────────────────────────

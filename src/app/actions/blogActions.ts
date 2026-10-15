@@ -1,120 +1,63 @@
 "use server";
 
-import { PrismaBlogRepository } from "@/infrastructure/repositories/PrismaBlogRepository";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/auth";
 import { saveUploadedFile } from "@/lib/upload";
+import * as m from "@/lib/blog/mutations";
+import type { Result } from "@/lib/blog/mutations";
 
-const getRepo = () => new PrismaBlogRepository();
+// Every action here is a public endpoint as far as the network is concerned, so each
+// one checks the staff session itself. Reads live in src/lib/blog/queries.ts.
 
-/** Accepts "a, b, c" or ["a","b"] and returns up to 10 unique, trimmed tags. */
-function normalizeTags(input: unknown): string[] {
-  const list = Array.isArray(input) ? input : typeof input === "string" ? input.split(",") : [];
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const raw of list) {
-    const t = String(raw).trim().replace(/\s+/g, " ").slice(0, 40);
-    const key = t.toLowerCase();
-    if (t && !seen.has(key)) { seen.add(key); out.push(t); }
-  }
-  return out.slice(0, 10);
+const DENIED = { success: false as const, error: "Your session has expired. Please sign in again." };
+
+async function staff<T>(fn: () => Promise<Result<T>>): Promise<Result<T>> {
+  if (!(await getSession())) return DENIED;
+  const res = await fn();
+  if (res.success) refreshBlogPages();
+  return res;
 }
 
-function normalizeBlogInput(data: any) {
-  const out = { ...data };
-  if ("tags" in out) out.tags = normalizeTags(out.tags);
-  if (typeof out.authorName === "string") out.authorName = out.authorName.trim() || "ZMR Mobility Team";
-  return out;
+/** Listings, tag pages and articles all show taxonomy, so refresh everything under /blogs. */
+function refreshBlogPages() {
+  revalidatePath("/blogs", "layout");
+  revalidatePath("/admin/blogs", "layout");
+  revalidatePath("/sitemap.xml");
 }
 
-export async function getBlogsAction(filters?: any) {
-  try {
-    const blogRepo = getRepo();
-    return await blogRepo.findAll(filters);
-  } catch (error) {
-    console.error("Error fetching blogs:", error);
-    return { blogs: [], total: 0 };
-  }
-}
+// Posts
+export async function savePostAction(id: string | null, data: unknown) { return staff(() => m.savePost(id, data)); }
+export async function deletePostAction(id: string) { return staff(() => m.deletePost(id)); }
 
-export async function getBlogBySlugAction(slug: string) {
-  try {
-    const blogRepo = getRepo();
-    return await blogRepo.findBySlug(slug);
-  } catch (error) {
-    console.error("Error fetching blog by slug:", error);
-    return null;
-  }
+// Tags
+export async function createTagAction(data: unknown) { return staff(() => m.createTag(data)); }
+export async function renameTagAction(id: string, data: unknown) { return staff(() => m.renameTag(id, data)); }
+export async function previewTagMergeAction(data: unknown) {
+  if (!(await getSession())) return DENIED;
+  return m.previewTagMerge(data);
 }
+export async function mergeTagsAction(data: unknown) { return staff(() => m.mergeTags(data)); }
+export async function deleteTagAction(id: string) { return staff(() => m.deleteTag(id)); }
 
-export async function createBlogAction(data: any) {
-  try {
-    const blogRepo = getRepo();
-    const blog = await blogRepo.create(normalizeBlogInput(data));
-    revalidatePath("/blogs");
-    revalidatePath("/admin/blogs");
-    return { success: true, data: blog };
-  } catch (error: any) {
-    console.error("SERVER ACTION ERROR: createBlogAction failed:", error);
-    return { success: false, error: error.message || "Failed to create blog" };
-  }
-}
+// Authors
+export async function createAuthorAction(data: unknown) { return staff(() => m.createAuthor(data)); }
+export async function updateAuthorAction(id: string, data: unknown) { return staff(() => m.updateAuthor(id, data)); }
+export async function deleteAuthorAction(id: string, reassignToId?: string | null) { return staff(() => m.deleteAuthor(id, reassignToId)); }
 
-export async function updateBlogAction(id: string, data: any) {
-  try {
-    const blogRepo = getRepo();
-    const blog = await blogRepo.update(id, normalizeBlogInput(data));
-    revalidatePath("/blogs");
-    revalidatePath(`/blogs/${blog.slug}`);
-    revalidatePath("/admin/blogs");
-    return { success: true, data: blog };
-  } catch (error: any) {
-    console.error("Error updating blog:", error);
-    return { success: false, error: error.message || "Failed to update blog" };
-  }
-}
-
-export async function deleteBlogAction(id: string) {
-  try {
-    const blogRepo = getRepo();
-    await blogRepo.delete(id);
-    revalidatePath("/blogs");
-    revalidatePath("/admin/blogs");
-    return { success: true };
-  } catch (error) {
-    console.error("Error deleting blog:", error);
-    return { success: false, error: "Failed to delete blog" };
-  }
-}
-
-export async function getBlogTagsAction() {
-  try {
-    return await getRepo().getTags();
-  } catch (error) {
-    console.error("Error fetching blog tags:", error);
-    return [];
-  }
-}
-
-export async function getBlogCategoriesAction() {
-  try {
-    const blogRepo = getRepo();
-    return await blogRepo.getCategories();
-  } catch (error) {
-    console.error("Error fetching blog categories:", error);
-    return [];
-  }
-}
+// Types
+export async function createTypeAction(data: unknown) { return staff(() => m.createType(data)); }
+export async function renameTypeAction(id: string, data: unknown) { return staff(() => m.renameType(id, data)); }
+export async function deleteTypeAction(id: string, reassignToId?: string | null) { return staff(() => m.deleteType(id, reassignToId)); }
 
 export async function uploadImageAction(formData: FormData) {
+  if (!(await getSession())) return DENIED;
   try {
-    const file = formData.get("file") as File;
-    if (!file || file.size === 0) {
-      return { success: false, error: "No file uploaded" };
-    }
+    const file = formData.get("file");
+    if (!(file instanceof File) || file.size === 0) return { success: false as const, error: "No file uploaded" };
     const url = await saveUploadedFile(file, "uploads/blogs");
-    return { success: true, url };
+    return { success: true as const, url };
   } catch (error) {
     console.error("Error uploading image:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Failed to upload image" };
+    return { success: false as const, error: error instanceof Error ? error.message : "Failed to upload image" };
   }
 }
