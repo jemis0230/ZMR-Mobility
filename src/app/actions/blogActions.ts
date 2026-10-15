@@ -18,9 +18,14 @@ async function staff<T>(fn: () => Promise<Result<T>>): Promise<Result<T>> {
   return res;
 }
 
-/** Listings, tag pages and articles all show taxonomy, so refresh everything under /blogs. */
+/**
+ * Listings, the tag directory and articles all show taxonomy, so refresh them all.
+ * There is no layout file at /blogs, so each route is named explicitly.
+ */
 function refreshBlogPages() {
-  revalidatePath("/blogs", "layout");
+  revalidatePath("/blogs");
+  revalidatePath("/blogs/tags");
+  revalidatePath("/blogs/[slug]", "page");
   revalidatePath("/admin/blogs", "layout");
   revalidatePath("/sitemap.xml");
 }

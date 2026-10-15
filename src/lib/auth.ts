@@ -95,3 +95,14 @@ export async function requireSuperAdmin(): Promise<SessionPayload> {
 }
 
 export { COOKIE_NAME };
+
+/**
+ * For server actions that change data. Server actions can be called by anyone who
+ * knows their ID, so each write must check the session itself (the /admin middleware
+ * only protects page requests under /admin).
+ */
+export async function assertStaff(): Promise<SessionPayload> {
+  const session = await getSession();
+  if (!session) throw new Error('Not authorised. Please sign in again.');
+  return session;
+}

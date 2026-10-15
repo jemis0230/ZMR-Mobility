@@ -23,7 +23,8 @@ export type BlogPostView = Omit<PostRow, "tagLinks" | "tags"> & {
 };
 
 function toView(row: PostRow): BlogPostView {
-  const { tagLinks, tags: _legacy, ...rest } = row;
+  // `rest.tags` (the legacy free-text column) is overridden by the managed tags below.
+  const { tagLinks, ...rest } = row;
   return {
     ...rest,
     tags: tagLinks.map((l) => l.tag).sort((a, b) => a.name.localeCompare(b.name)),
@@ -38,6 +39,8 @@ export type BlogListFilters = {
   typeSlug?: string;
   tagId?: string;
   authorId?: string;
+  /** Only posts without an author or a blog type (older posts needing completion). */
+  missingMeta?: boolean;
   page?: number;
   limit?: number;
 };
@@ -51,6 +54,7 @@ export async function listPosts(f: BlogListFilters): Promise<{ blogs: BlogPostVi
   if (f.typeSlug) where.type = { slug: f.typeSlug };
   if (f.tagId) where.tagLinks = { some: { tagId: f.tagId } };
   if (f.authorId) where.authorId = f.authorId;
+  if (f.missingMeta) where.AND = [{ OR: [{ authorId: null }, { typeId: null }] }];
   if (f.search) {
     where.OR = [
       { title: { contains: f.search, mode: "insensitive" } },
