@@ -1,5 +1,6 @@
 'use server';
 
+import { assertStaff } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { saveUploadedFile } from '@/lib/upload';
@@ -63,6 +64,7 @@ export async function getBrands(category?: string): Promise<{ success: boolean; 
 }
 
 export async function getAllBrandsAdmin(): Promise<{ success: boolean; data?: BrandItem[]; error?: string }> {
+  await assertStaff();
   try {
     const brands = await prisma.evBrand.findMany({
       orderBy: { name: 'asc' },
@@ -86,6 +88,7 @@ export async function getAllBrandsAdmin(): Promise<{ success: boolean; data?: Br
 }
 
 export async function createBrand(formData: FormData): Promise<{ success: boolean; error?: string }> {
+  await assertStaff();
   const name = (formData.get('name') as string)?.trim();
   if (!name || name.length < 1) return { success: false, error: 'Brand name is required.' };
   const categories = (formData.getAll('categories') as string[]).filter((c): c is VehicleCategory =>
@@ -103,6 +106,7 @@ export async function createBrand(formData: FormData): Promise<{ success: boolea
 }
 
 export async function updateBrand(id: string, formData: FormData): Promise<{ success: boolean; error?: string }> {
+  await assertStaff();
   const name = (formData.get('name') as string)?.trim();
   const isActive = formData.get('isActive') === 'true';
   const categories = (formData.getAll('categories') as string[]).filter((c): c is VehicleCategory =>
@@ -121,6 +125,7 @@ export async function updateBrand(id: string, formData: FormData): Promise<{ suc
 }
 
 export async function deleteBrand(id: string): Promise<{ success: boolean; error?: string }> {
+  await assertStaff();
   try {
     await prisma.evBrand.delete({ where: { id } });
     revalidatePath('/admin/ev-catalog');
@@ -157,6 +162,7 @@ export async function getModelsByBrand(
 }
 
 export async function getAllModelsAdmin(brandId?: string): Promise<{ success: boolean; data?: ModelItem[]; error?: string }> {
+  await assertStaff();
   try {
     const models = await prisma.evBrandModel.findMany({
       where: brandId ? { brandId } : undefined,
@@ -183,6 +189,7 @@ export async function getAllModelsAdmin(brandId?: string): Promise<{ success: bo
 }
 
 export async function createModel(formData: FormData): Promise<{ success: boolean; error?: string }> {
+  await assertStaff();
   const name = (formData.get('name') as string)?.trim();
   const brandId = (formData.get('brandId') as string)?.trim();
   const category = (formData.get('category') as string)?.trim() ?? '';
@@ -205,6 +212,7 @@ export async function createModel(formData: FormData): Promise<{ success: boolea
 }
 
 export async function updateModel(id: string, formData: FormData): Promise<{ success: boolean; error?: string }> {
+  await assertStaff();
   const name = (formData.get('name') as string)?.trim();
   const isActive = formData.get('isActive') === 'true';
   const category = (formData.get('category') as string)?.trim() ?? '';
@@ -226,6 +234,7 @@ export async function updateModel(id: string, formData: FormData): Promise<{ suc
 }
 
 export async function deleteModel(id: string): Promise<{ success: boolean; error?: string }> {
+  await assertStaff();
   try {
     await prisma.evBrandModel.delete({ where: { id } });
     revalidatePath('/admin/ev-catalog');

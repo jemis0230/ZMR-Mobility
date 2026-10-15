@@ -8,7 +8,9 @@ import { savePost, deletePost } from '@/lib/blog/mutations';
 type Ctx = { params: Promise<{ id: string }> };
 
 const refresh = () => {
-  revalidatePath('/blogs', 'layout');
+  revalidatePath('/blogs');
+  revalidatePath('/blogs/tags');
+  revalidatePath('/blogs/[slug]', 'page');
   revalidatePath('/admin/blogs', 'layout');
 };
 

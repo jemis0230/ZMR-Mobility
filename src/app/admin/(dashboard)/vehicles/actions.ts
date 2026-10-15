@@ -1,5 +1,6 @@
 'use server';
 
+import { assertStaff } from '@/lib/auth';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { PrismaVehicleRepository } from '@/infrastructure/repositories/PrismaVehicleRepository';
 import { saveUploadedFile } from '@/lib/upload';
@@ -22,6 +23,7 @@ function extractTextFields(formData: FormData): Record<string, string> {
 // ─────────────────────────────────────────────────────────────
 
 export async function deleteVehicle(id: string) {
+  await assertStaff();
   try {
     await vehicleRepo.delete(id);
     revalidateTag('vehicle-filter-options');
@@ -38,6 +40,7 @@ export async function deleteVehicle(id: string) {
 // ─────────────────────────────────────────────────────────────
 
 export async function updateVehicle(id: string, formData: FormData) {
+  await assertStaff();
   try {
     const parsed = VehicleFormSchema.safeParse(extractTextFields(formData));
 

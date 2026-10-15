@@ -4,6 +4,7 @@ import { listAuthors, listPosts, listTags, listTypes } from "@/lib/blog/queries"
 import BlogAdminTabs from "@/presentation/components/blog-admin/BlogAdminTabs";
 import DeletePostButton from "@/presentation/components/blog-admin/DeletePostButton";
 import Pagination from "@/presentation/components/Pagination";
+import { storageMode } from "@/lib/upload";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ const PAGE_SIZE = 15;
 const SELECT = "min-h-[44px] rounded-lg border border-ink/20 bg-white px-3 text-sm text-ink focus:outline-none focus:border-primary";
 
 export default async function AdminBlogsPage(props: {
-  searchParams: Promise<{ q?: string; page?: string; type?: string; tag?: string; author?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; type?: string; tag?: string; author?: string; missing?: string }>;
 }) {
   const sp = await props.searchParams;
   const page = Math.max(1, parseInt(sp.page || "1") || 1);
@@ -22,6 +23,7 @@ export default async function AdminBlogsPage(props: {
     typeSlug: sp.type || undefined,
     tagId: tags.find((t) => t.slug === sp.tag)?.id,
     authorId: sp.author || undefined,
+    missingMeta: sp.missing === "1",
     page,
     limit: PAGE_SIZE,
   });
@@ -42,6 +44,12 @@ export default async function AdminBlogsPage(props: {
       </div>
 
       <BlogAdminTabs current="posts" />
+
+      {storageMode() === "unconfigured" && (
+        <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-ink/85">
+          <strong>Image uploads are switched off</strong> until a Vercel Blob store is connected to this project. Articles can still be written and published; paste an image URL instead of uploading.
+        </p>
+      )}
 
       <div className="glass-card p-4 sm:p-6">
         <form method="get" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6 mb-6" role="search" aria-label="Filter articles">
@@ -65,6 +73,10 @@ export default async function AdminBlogsPage(props: {
             <option value="">All authors</option>
             {authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>
+          <label className="flex items-center gap-2 min-h-[44px] text-sm font-semibold text-forest lg:col-span-6">
+            <input type="checkbox" name="missing" value="1" defaultChecked={sp.missing === "1"} className="w-5 h-5 accent-[#577440]" />
+            Only articles missing an author or blog type
+          </label>
           <div className="flex gap-2">
             <button type="submit" className="min-h-[44px] flex-1 rounded-lg bg-forest px-4 text-sm font-bold text-white">Apply</button>
             {filtered && <Link href="/admin/blogs" className="min-h-[44px] inline-flex items-center rounded-lg border border-ink/20 px-3 text-sm font-bold text-ink/75">Reset</Link>}

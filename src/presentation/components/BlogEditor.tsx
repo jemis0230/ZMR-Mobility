@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Image from "@tiptap/extension-image";
@@ -15,11 +15,11 @@ import {
   Quote, Code, Image as ImageIcon, Youtube as YoutubeIcon, 
   Undo, Redo, Link as LinkIcon, Upload
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { uploadImageAction } from "@/app/actions/blogActions";
 import { safeAction } from "./blog-admin/safeAction";
 
-const Toolbar = ({ editor }: { editor: any }) => {
+const Toolbar = ({ editor }: { editor: Editor | null }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   if (!editor) return null;
 
@@ -97,7 +97,7 @@ const Toolbar = ({ editor }: { editor: any }) => {
           <button 
             key={level}
             type="button"
-            onClick={() => editor.chain().focus().toggleHeading({ level: level as any }).run()} 
+            onClick={() => editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run()} 
             className={`p-1.5 px-2.5 rounded hover:bg-ink/10 transition-colors ${editor.isActive('heading', { level }) ? 'text-primary bg-primary/10' : 'text-ink/60'}`}
             title={`Heading ${level}`}
           >

@@ -1,5 +1,6 @@
 'use server';
 
+import { assertStaff } from '@/lib/auth';
 import { PrismaVehicleRepository } from "@/infrastructure/repositories/PrismaVehicleRepository";
 import { LeasePlan, RentPlan } from "@/domain/entities/Vehicle";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -26,6 +27,7 @@ type PendingRentPlan  = { durationDays: number; pricePerDayRs: number;  depositR
 // ─────────────────────────────────────────────────────────────
 
 export async function createVehicleAction(formData: FormData) {
+  await assertStaff();
   try {
     const parsed = VehicleFormSchema.safeParse(extractTextFields(formData));
 
@@ -84,6 +86,7 @@ export async function createVehicleAction(formData: FormData) {
 // ─────────────────────────────────────────────────────────────
 
 export async function addLeasePlanAction(vehicleId: string, formData: FormData): Promise<{ success: boolean; error?: string; plan?: LeasePlan }> {
+  await assertStaff();
   const parsed = LeasePlanFormSchema.safeParse(extractTextFields(formData));
 
   if (!parsed.success) {
@@ -103,6 +106,7 @@ export async function addLeasePlanAction(vehicleId: string, formData: FormData):
 }
 
 export async function deleteLeasePlanAction(planId: string) {
+  await assertStaff();
   try {
     await vehicleRepo.deleteLeasePlan(planId);
     revalidatePath('/admin/vehicles');
@@ -115,6 +119,7 @@ export async function deleteLeasePlanAction(planId: string) {
 }
 
 export async function updateLeasePlanAction(planId: string, data: { isActive: boolean }) {
+  await assertStaff();
   try {
     await vehicleRepo.updateLeasePlan(planId, data);
     revalidatePath('/admin/vehicles');
@@ -132,6 +137,7 @@ export async function updateLeasePlanAction(planId: string, data: { isActive: bo
 // ─────────────────────────────────────────────────────────────
 
 export async function addRentPlanAction(vehicleId: string, formData: FormData): Promise<{ success: boolean; error?: string; plan?: RentPlan }> {
+  await assertStaff();
   const parsed = RentPlanFormSchema.safeParse(extractTextFields(formData));
 
   if (!parsed.success) {
@@ -151,6 +157,7 @@ export async function addRentPlanAction(vehicleId: string, formData: FormData): 
 }
 
 export async function deleteRentPlanAction(planId: string) {
+  await assertStaff();
   try {
     await vehicleRepo.deleteRentPlan(planId);
     revalidatePath('/admin/vehicles');
@@ -163,6 +170,7 @@ export async function deleteRentPlanAction(planId: string) {
 }
 
 export async function updateRentPlanAction(planId: string, data: { isActive: boolean }) {
+  await assertStaff();
   try {
     await vehicleRepo.updateRentPlan(planId, data);
     revalidatePath('/admin/vehicles');

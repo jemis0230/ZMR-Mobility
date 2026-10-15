@@ -36,7 +36,9 @@ export async function POST(req: Request) {
   if (!body) return badRequest('Invalid request.');
   const res = await savePost(null, body);
   if (!res.success) return badRequest(res.error, { field: res.field });
-  revalidatePath('/blogs', 'layout');
+  revalidatePath('/blogs');
+  revalidatePath('/blogs/tags');
+  revalidatePath('/blogs/[slug]', 'page');
   revalidatePath('/admin/blogs', 'layout');
   return created(res.data);
 }
