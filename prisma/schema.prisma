@@ -95,14 +95,14 @@ model MotorType {
 // ── Vehicle ────────────────────────────────────────────────────────────────────
 
 model Vehicle {
-  id        String          @id @default(cuid())
-  make      String
-  model     String
-  category  VehicleCategory
+  id              String           @id @default(cuid())
+  make            String
+  model           String
+  category        VehicleCategory
   /// Scooter or bike, for two-wheelers only. Unset two-wheelers are treated as scooters.
   twoWheelerStyle TwoWheelerStyle?
-  warranty  String          @default("")
-  mainImage String
+  warranty        String           @default("")
+  mainImage       String
 
   // Visibility flags — controls which section(s) this vehicle appears in
   showInLeasing Boolean @default(false)
@@ -122,30 +122,30 @@ model Vehicle {
   topSpeedKmh      Int
 
   // ── Battery & Drivetrain ──────────────────────────────────────────
-  batteryCapKwh    Float
-  batteryTypeId    String?
-  batteryType      BatteryType?    @relation(fields: [batteryTypeId], references: [id], onDelete: SetNull)
-  peakVoltageV     Int?
-  motorTypeId      String?
-  motorType        MotorType?      @relation(fields: [motorTypeId], references: [id], onDelete: SetNull)
-  peakPowerKw      Float?
-  peakTorqueNm     Float?
-  transmission     TransmissionType @default(AUTO)
-  gradabilityPct   Float?
+  batteryCapKwh  Float
+  batteryTypeId  String?
+  batteryType    BatteryType?     @relation(fields: [batteryTypeId], references: [id], onDelete: SetNull)
+  peakVoltageV   Int?
+  motorTypeId    String?
+  motorType      MotorType?       @relation(fields: [motorTypeId], references: [id], onDelete: SetNull)
+  peakPowerKw    Float?
+  peakTorqueNm   Float?
+  transmission   TransmissionType @default(AUTO)
+  gradabilityPct Float?
 
   // ── Charging ──────────────────────────────────────────────────────
-  chargingTimeMinutes Int         @default(0)   // stored as total minutes e.g. 90 = 1h 30m
+  chargingTimeMinutes Int         @default(0) // stored as total minutes e.g. 90 = 1h 30m
   chargerType         ChargerType @default(NORMAL)
-  hasOnBoardCharger Boolean     @default(true)
+  hasOnBoardCharger   Boolean     @default(true)
 
   // ── Dimensions (SI units throughout) ─────────────────────────────
-  curbWeightKg      Float @default(0)
+  curbWeightKg      Float  @default(0)
   grossWeightKg     Float?
-  widthMm           Float @default(0)
-  heightMm          Float @default(0)
-  lengthMm          Float @default(0)
-  groundClearanceMm Float @default(0)
-  wheelbaseMm       Float @default(0)
+  widthMm           Float  @default(0)
+  heightMm          Float  @default(0)
+  lengthMm          Float  @default(0)
+  groundClearanceMm Float  @default(0)
+  wheelbaseMm       Float  @default(0)
 
   // ── Cargo-specific (null for non-cargo categories) ────────────────
   payloadKg           Float?
@@ -198,14 +198,14 @@ model LeasePlan {
   id             String   @id @default(cuid())
   vehicleId      String
   vehicle        Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  tenureMonths   Int                     // 12 | 24 | 36
+  tenureMonths   Int // 12 | 24 | 36
   monthlyPriceRs Float
   depositRs      Float
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  @@unique([vehicleId, tenureMonths])    // BCNF: one plan per vehicle per tenure
+  @@unique([vehicleId, tenureMonths]) // BCNF: one plan per vehicle per tenure
   @@index([vehicleId, isActive])
 }
 
@@ -213,7 +213,7 @@ model RentPlan {
   id            String   @id @default(cuid())
   vehicleId     String
   vehicle       Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  durationDays  Int                     // 1 | 7 | 30
+  durationDays  Int // 1 | 7 | 30
   pricePerDayRs Float
   depositRs     Float
   isActive      Boolean  @default(true)
@@ -227,20 +227,25 @@ model RentPlan {
 // ── CRM ───────────────────────────────────────────────────────────────────────
 
 model Lead {
-  id          String      @id @default(cuid())
-  name        String
-  phone       String
-  email       String?
-  state       String      @default("")
-  city        String      @default("")
-  inquiryType InquiryType
-  vehicleId   String?
-  vehicleName String?     // snapshot — vehicle may be deleted later
+  id            String             @id @default(cuid())
+  name          String
+  phone         String
+  email         String?
+  state         String             @default("")
+  city          String             @default("")
+  inquiryType   InquiryType
+  vehicleId     String?
+  vehicleName   String? // snapshot — vehicle may be deleted later
   /// Test drives: the customer's preferred date (a preference, not a confirmed slot).
-  preferredDate DateTime? @db.Date
-  notes       String?
-  status      LeadStatus  @default(PENDING)
-  createdAt   DateTime    @default(now())
+  preferredDate DateTime?          @db.Date
+  notes         String?
+  status        LeadStatus         @default(PENDING)
+  /// Short reference shown to staff and in notifications, e.g. ZMR-L-7K3QX9 (null for older leads).
+  reference     String?            @unique
+  /// Which website form created the lead (contact-form, vehicle-enquiry, test-drive).
+  source        String?
+  notifications LeadNotification[]
+  createdAt     DateTime           @default(now())
 
   @@index([status])
   @@index([createdAt])
@@ -272,7 +277,7 @@ model PressMention {
   title       String
   url         String
   publishedAt DateTime?
-  imageUrl    String?   // publication logo or article image (only where authorised)
+  imageUrl    String? // publication logo or article image (only where authorised)
   sortOrder   Int       @default(0)
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
@@ -419,8 +424,9 @@ model SellApplication {
   contactEmail String
   contactCity  String
 
-  status     SellStatus @default(NEW)
-  adminNotes String?
+  status        SellStatus         @default(NEW)
+  adminNotes    String?
+  notifications LeadNotification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -429,13 +435,68 @@ model SellApplication {
 // ── Admin ─────────────────────────────────────────────────────────────────────
 
 model AdminUser {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  name         String    @default("")
-  passwordHash String
-  role         AdminRole @default(ADMIN)
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  lastLoginAt  DateTime?
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String    @default("")
+  passwordHash   String
+  role           AdminRole @default(ADMIN)
+  isActive       Boolean   @default(true)
+  /// Bumped on sign-out, password change/reset and deactivation; sessions carrying an
+  /// older value are rejected, so those events end every existing session.
+  sessionVersion Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastLoginAt    DateTime?
+}
+
+// ── Lead notifications (database-backed outbox) ──────────────────────────────
+
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  QUEUED // waiting for (re)delivery
+  SENDING // claimed by a worker
+  ACCEPTED // provider accepted the message
+  DELIVERED // provider confirmed delivery (WhatsApp webhook)
+  READ // provider reported it read (WhatsApp webhook)
+  FAILED // gave up (permanent error or attempts exhausted); staff can retry
+  NOT_CONFIGURED // channel settings missing when processed; staff can retry later
+}
+
+/// One row per lead (or sell application) and channel; unique so a lead is never
+/// notified twice on the same channel by repeated submissions or workers.
+model LeadNotification {
+  id                 String              @id @default(cuid())
+  leadId             String?
+  lead               Lead?               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  sellApplicationId  String?
+  sellApplication    SellApplication?    @relation(fields: [sellApplicationId], references: [id], onDelete: Cascade)
+  channel            NotificationChannel
+  status             NotificationStatus  @default(QUEUED)
+  attempts           Int                 @default(0)
+  maxAttempts        Int                 @default(5)
+  nextAttemptAt      DateTime            @default(now())
+  lockedUntil        DateTime?
+  /// Recipients the provider already accepted, so a retry never re-sends to them.
+  sentTo             String[]            @default([])
+  providerMessageIds String[]            @default([])
+  lastError          String?
+  acceptedAt         DateTime?
+  deliveredAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@unique([leadId, channel])
+  @@unique([sellApplicationId, channel])
+  @@index([status, nextAttemptAt])
+}
+
+/// Fixed-window counters for login throttling and public form rate limits.
+model RateLimitBucket {
+  key         String   @id
+  count       Int      @default(0)
+  windowStart DateTime @default(now())
 }

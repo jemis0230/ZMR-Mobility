@@ -1,5 +1,6 @@
 'use server';
 
+import { assertStaff } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { POLICY_TOPICS, isPolicyTopic, type PolicyItem } from '@/lib/policies';
@@ -79,6 +80,7 @@ export async function getPolicyItems(): Promise<PolicyItem[]> {
 }
 
 export async function getAllFaqsAdmin() {
+  await assertStaff();
   try {
     const faqs = await prisma.faq.findMany({
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
@@ -91,6 +93,7 @@ export async function getAllFaqsAdmin() {
 }
 
 export async function createFaq(formData: FormData) {
+  await assertStaff();
   try {
     const parsed = parseFaqFormData(formData);
     if ('error' in parsed) return { success: false, error: parsed.error };
@@ -122,6 +125,7 @@ export async function createFaq(formData: FormData) {
 }
 
 export async function updateFaq(id: string, formData: FormData) {
+  await assertStaff();
   try {
     const parsed = parseFaqFormData(formData);
     if ('error' in parsed) return { success: false, error: parsed.error };
@@ -168,6 +172,7 @@ export async function updateFaq(id: string, formData: FormData) {
 }
 
 export async function deleteFaq(id: string) {
+  await assertStaff();
   try {
     const faq = await prisma.faq.findUnique({ where: { id } });
     if (!faq) return { success: false, error: 'FAQ not found' };

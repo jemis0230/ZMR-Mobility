@@ -39,6 +39,7 @@ export default async function AdminDashboardPage() {
     totalVehicles, vehiclesByCategory, activeLeasePlans,
     publishedBlogs, draftBlogs,
     recentLeads, recentApps,
+    notificationProblems,
   ] = await Promise.all([
     prisma.lead.count(),
     prisma.lead.count({ where: { status: 'PENDING' } }),
@@ -69,6 +70,7 @@ export default async function AdminDashboardPage() {
       take: 5,
       select: { id: true, applicationId: true, brandName: true, modelName: true, status: true, createdAt: true },
     }),
+    prisma.leadNotification.count({ where: { status: { in: ['FAILED', 'NOT_CONFIGURED'] } } }),
   ]);
 
   const leadConversionRate = totalLeads > 0 ? Math.round((closedLeads / totalLeads) * 100) : 0;
@@ -80,6 +82,13 @@ export default async function AdminDashboardPage() {
         <h1 className="text-3xl font-black">Dashboard</h1>
         <p className="text-ink/60 mt-1">Live overview of your business activity</p>
       </div>
+
+      {notificationProblems > 0 && (
+        <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-ink/85">
+          <strong>{notificationProblems} lead notification{notificationProblems === 1 ? '' : 's'}</strong> to staff by email or WhatsApp failed or are waiting for settings.{' '}
+          <Link href="/admin/leads?notify=problem" className="font-bold text-primary-dark underline">Review leads</Link>
+        </p>
+      )}
 
       {/* ── Leads Pipeline ─────────────────────────────────────── */}
       <section className="space-y-4">
@@ -107,7 +116,7 @@ export default async function AdminDashboardPage() {
 
           <div className="glass-card p-6 border-amber-400/10 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-black uppercase tracking-widest text-ink/60">Pending</p>
+              <p className="text-xs font-black uppercase tracking-widest text-ink/60">New</p>
               <AlertCircle className="w-4 h-4 text-amber-400/50" />
             </div>
             <p className="text-4xl font-black text-amber-400">{pendingLeads}</p>

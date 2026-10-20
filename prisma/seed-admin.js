@@ -16,7 +16,12 @@ async function main() {
     return;
   }
 
-  const password = process.env.SEED_ADMIN_PASSWORD || 'ChangeMe@123!';
+  // No built-in fallback: a default password in a public repository is a known password.
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  if (!password || password.length < 12) {
+    console.warn('[seed-admin] SEED_ADMIN_PASSWORD is not set (or shorter than 12 characters); first superadmin not created.');
+    return;
+  }
   const passwordHash = await bcrypt.hash(password, 12);
 
   await prisma.adminUser.create({
@@ -32,7 +37,6 @@ async function main() {
   console.log('');
   console.log('✅ Superadmin created successfully!');
   console.log('   Email:    ' + email);
-  console.log('   Password: ' + password);
   console.log('');
   console.log('⚠️  Change this password immediately after first login!');
   console.log('');

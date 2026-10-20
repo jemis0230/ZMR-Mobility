@@ -31,6 +31,23 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       NODE_ENV: production
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD}
+      APP_BASE_URL: https://${DOMAIN}
+      CRON_SECRET: ${CRON_SECRET}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_SECURE: ${SMTP_SECURE:-true}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      LEAD_EMAIL_FROM: ${LEAD_EMAIL_FROM:-}
+      LEAD_NOTIFY_EMAIL_TO: ${LEAD_NOTIFY_EMAIL_TO:-}
+      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID:-}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
+      WHATSAPP_LEAD_RECIPIENTS: ${WHATSAPP_LEAD_RECIPIENTS:-}
+      WHATSAPP_LEAD_TEMPLATE: ${WHATSAPP_LEAD_TEMPLATE:-}
+      WHATSAPP_LEAD_TEMPLATE_LANGUAGE: ${WHATSAPP_LEAD_TEMPLATE_LANGUAGE:-en}
+      WHATSAPP_GRAPH_API_VERSION: ${WHATSAPP_GRAPH_API_VERSION:-v21.0}
+      WHATSAPP_WEBHOOK_VERIFY_TOKEN: ${WHATSAPP_WEBHOOK_VERIFY_TOKEN:-}
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
     volumes:
       - uploads:/app/public/uploads
     expose:
@@ -52,6 +69,22 @@ services:
       - uploads:/srv/uploads:ro
     depends_on:
       - app
+
+  # Sends queued/retrying lead notifications every 5 minutes (new leads are also
+  # sent immediately by the app). Uses the same CRON_SECRET as the app; it is written
+  # into the crontab at start because crond does not pass environment variables to jobs.
+  notifier:
+    image: alpine:3.20
+    restart: unless-stopped
+    init: true
+    depends_on:
+      - app
+    environment:
+      CRON_SECRET: ${CRON_SECRET}
+    entrypoint: >
+      /bin/sh -c "
+        echo \"*/5 * * * * wget -q -O /dev/null --header='Authorization: Bearer $$CRON_SECRET' http://app:3000/api/cron/notifications\" | crontab - &&
+        crond -f -l 2"
 
   backup:
     image: postgres:16-alpine

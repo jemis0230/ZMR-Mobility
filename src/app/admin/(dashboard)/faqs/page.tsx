@@ -1,6 +1,9 @@
 import AdminFaqsClient from "@/app/admin/(dashboard)/faqs/AdminFaqsClient";
 import { getAllFaqsAdmin, type FaqItem } from "@/app/actions/faqActions";
 
+// Staff-only data: always render per request.
+export const dynamic = 'force-dynamic';
+
 export default async function AdminFaqsPage() {
   let faqs: FaqItem[] = [];
   let dbError = false;

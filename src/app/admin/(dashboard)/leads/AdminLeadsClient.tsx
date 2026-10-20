@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Phone,
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import type { LeadItem } from '@/app/actions/leadActions';
+import { NotificationBadges, NotificationPanel } from '@/presentation/components/admin/LeadNotifications';
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -25,7 +26,7 @@ import type { LeadItem } from '@/app/actions/leadActions';
 
 const STATUS_CONFIG = {
   PENDING: {
-    label: 'Pending',
+    label: 'New',
     dot: 'bg-primary animate-pulse',
     badge: 'bg-primary/10 text-primary',
     next: 'CONTACTED' as const,
@@ -36,24 +37,24 @@ const STATUS_CONFIG = {
     dot: 'bg-yellow-500',
     badge: 'bg-yellow-500/10 text-yellow-400',
     next: 'QUALIFIED' as const,
-    nextLabel: 'Mark as Qualified',
+    nextLabel: 'Mark as In progress',
   },
   QUALIFIED: {
-    label: 'Qualified',
+    label: 'In progress',
     dot: 'bg-sage',
     badge: 'bg-tint text-leaf',
     next: 'CLOSED_WON' as const,
-    nextLabel: 'Mark as Won',
+    nextLabel: 'Mark as Closed – won',
   },
   CLOSED_WON: {
-    label: 'Won',
+    label: 'Closed – won',
     dot: 'bg-green-500',
     badge: 'bg-green-500/10 text-green-400',
     next: 'PENDING' as const,
     nextLabel: 'Re-open',
   },
   CLOSED_LOST: {
-    label: 'Lost',
+    label: 'Closed – lost',
     dot: 'bg-red-500',
     badge: 'bg-red-500/10 text-red-400',
     next: 'PENDING' as const,
@@ -240,6 +241,13 @@ function LeadDetailModal({
   const config = STATUS_CONFIG[currentStatus as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.PENDING;
   const { primary: dateStr } = formatDate(lead.createdAt);
 
+  // Escape closes the details panel.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   const handleStatusChange = (newStatus: string) => {
     startTransition(async () => {
       await api.patch(`/leads/${lead.id}`, { status: newStatus });
@@ -258,7 +266,7 @@ function LeadDetailModal({
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       <div
-        className="relative w-full max-w-lg rounded-2xl overflow-hidden"
+        className="relative w-full max-w-lg rounded-2xl overflow-y-auto max-h-[calc(100dvh-2rem)]"
         style={{
           background: 'linear-gradient(145deg, #ffffff 0%, #f5f9ff 100%)',
           border: '1px solid rgba(45,71,62,0.08)',
@@ -295,6 +303,18 @@ function LeadDetailModal({
 
         {/* Body */}
         <div className="p-6 space-y-4">
+          <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+            <dt className="text-ink/55 font-bold uppercase tracking-widest text-[10px]">Reference</dt>
+            <dd className="text-ink font-mono">{lead.reference ?? '—'}</dd>
+            <dt className="text-ink/55 font-bold uppercase tracking-widest text-[10px]">Form</dt>
+            <dd className="text-ink">{lead.source ? SOURCE_LABEL[lead.source] ?? lead.source : 'Not recorded'}</dd>
+            <dt className="text-ink/55 font-bold uppercase tracking-widest text-[10px]">Received</dt>
+            <dd className="text-ink">{new Date(lead.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })} IST</dd>
+          </dl>
+          <section aria-label="Staff notifications" className="space-y-2">
+            <p className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Staff notifications</p>
+            <NotificationPanel items={lead.notifications} />
+          </section>
           {/* Contact grid */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-ink/5 rounded-xl p-4 space-y-1">
@@ -427,7 +447,7 @@ function SearchBar({ defaultValue }: { defaultValue: string }) {
     <input
       defaultValue={defaultValue}
       onChange={handleChange}
-      placeholder="Search by name, phone, city…"
+      placeholder="Search name, phone, reference, city…"
       className="bg-ink/5 border border-ink/10 rounded-lg px-4 py-2 text-sm focus:border-primary outline-none w-full sm:w-64"
     />
   );
@@ -436,6 +456,40 @@ function SearchBar({ defaultValue }: { defaultValue: string }) {
 // ─────────────────────────────────────────────────────────────
 // Status Filter
 // ─────────────────────────────────────────────────────────────
+
+const FILTER_LABEL = { ALL: 'All', PENDING: 'New', CONTACTED: 'Contacted', QUALIFIED: 'In progress', CLOSED: 'Closed' } as const;
+
+const SOURCE_LABEL: Record<string, string> = {
+  'contact-form': 'Contact Us form',
+  'vehicle-enquiry': 'Vehicle enquiry',
+  'test-drive': 'Test drive',
+};
+
+/** Form and notification-problem filters (kept in the URL). */
+function ExtraFilters({ source, notify }: { source: string; notify: string }) {
+  const router = useRouter();
+  const set = (key: string, val: string) => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('page');
+    if (val) params.set(key, val); else params.delete(key);
+    router.replace(`/admin/leads?${params.toString()}`);
+  };
+  const cls = 'min-h-[40px] rounded-lg border border-ink/15 bg-white px-3 text-xs font-bold text-ink/80';
+  return (
+    <div className="flex flex-wrap gap-2">
+      <label className="sr-only" htmlFor="lead-source">Form</label>
+      <select id="lead-source" value={source} onChange={(e) => set('source', e.target.value)} className={cls}>
+        <option value="">All forms</option>
+        {Object.entries(SOURCE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+      </select>
+      <label className="sr-only" htmlFor="lead-notify">Notifications</label>
+      <select id="lead-notify" value={notify} onChange={(e) => set('notify', e.target.value)} className={cls}>
+        <option value="">All notifications</option>
+        <option value="problem">Failed or not set up</option>
+      </select>
+    </div>
+  );
+}
 
 function StatusFilter({ current }: { current: string }) {
   const router = useRouter();
@@ -449,18 +503,19 @@ function StatusFilter({ current }: { current: string }) {
   };
 
   return (
-    <div className="flex gap-1">
-      {(['ALL', 'PENDING', 'CONTACTED', 'CLOSED'] as const).map((val) => (
+    <div className="flex flex-wrap gap-1">
+      {(['ALL', 'PENDING', 'CONTACTED', 'QUALIFIED', 'CLOSED'] as const).map((val) => (
         <button
           key={val}
           onClick={() => handle(val)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+          aria-pressed={current === val}
+          className={`px-3 min-h-[40px] rounded-lg text-xs font-bold transition-all ${
             current === val
               ? 'bg-primary/10 text-primary border border-primary/30'
               : 'text-ink/60 hover:text-ink/75 border border-ink/[0.08] hover:border-ink/15'
           }`}
         >
-          {val === 'ALL' ? 'All' : val.charAt(0) + val.slice(1).toLowerCase()}
+          {FILTER_LABEL[val]}
         </button>
       ))}
     </div>
@@ -548,6 +603,8 @@ interface AdminLeadsClientProps {
   leads: LeadItem[];
   search: string;
   statusFilter: string;
+  source: string;
+  notify: string;
   page: number;
   pageCount: number;
   total: number;
@@ -558,6 +615,8 @@ export default function AdminLeadsClient({
   leads,
   search,
   statusFilter,
+  source,
+  notify,
   page,
   pageCount,
   total,
@@ -582,13 +641,14 @@ export default function AdminLeadsClient({
         <StatusFilter current={statusFilter} />
         <SearchBar defaultValue={search} />
       </div>
+      <ExtraFilters source={source} notify={notify} />
 
       {/* Mobile: card list */}
       {leads.length === 0 ? (
         <div className="glass-card py-20 text-center border-ink/[0.08]">
           <User className="w-10 h-10 text-ink/25 mx-auto mb-3" />
           <p className="text-ink/50 text-sm">
-            {search || statusFilter !== 'ALL'
+            {search || statusFilter !== 'ALL' || source || notify
               ? 'No leads match your filters.'
               : 'No leads yet. Submit an inquiry from the website to see it here.'}
           </p>
@@ -628,6 +688,7 @@ export default function AdminLeadsClient({
                     )}
                     <span className="text-ink/50 ml-auto">{secondary}</span>
                   </div>
+                  <NotificationBadges items={lead.notifications} />
                   <div className="flex gap-2 pt-1">
                     <button
                       onClick={() => setDetailLead(lead)}
@@ -657,6 +718,7 @@ export default function AdminLeadsClient({
                     <th className="px-6 py-4">Interest</th>
                     <th className="px-6 py-4">Location</th>
                     <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4">Notified</th>
                     <th className="px-6 py-4">Received</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
@@ -668,6 +730,7 @@ export default function AdminLeadsClient({
                       <tr key={lead.id} className="hover:bg-ink/5 transition-colors group">
                         <td className="px-6 py-4">
                           <div className="font-bold text-ink">{lead.name}</div>
+                          {lead.reference && <div className="text-[11px] font-mono text-ink/50">{lead.reference}{lead.source ? ` · ${SOURCE_LABEL[lead.source] ?? lead.source}` : ''}</div>}
                           <div className="text-xs text-ink/60 flex items-center gap-1.5 mt-0.5">
                             <Phone className="w-3 h-3" /> +91 {lead.phone}
                           </div>
@@ -696,6 +759,7 @@ export default function AdminLeadsClient({
                             : lead.state || lead.city || <span className="text-ink/40">—</span>}
                         </td>
                         <td className="px-6 py-4"><StatusToggle lead={lead} /></td>
+                        <td className="px-6 py-4"><NotificationBadges items={lead.notifications} /></td>
                         <td className="px-6 py-4">
                           <div className="text-xs text-ink/70">{primary}</div>
                           <div className="text-[11px] text-ink/50 mt-0.5">{secondary}</div>

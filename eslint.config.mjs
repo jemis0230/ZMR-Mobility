@@ -9,6 +9,11 @@ const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    // Plain Node scripts (deploy/seed tooling) are CommonJS.
+    files: ["prisma/**/*.js", "scripts/**/*.js"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
+  {
     ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"],
   },
 ];

@@ -1,5 +1,6 @@
 'use client';
 
+import { NotificationPanel } from '@/presentation/components/admin/LeadNotifications';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -149,6 +150,10 @@ function DetailModal({ app, onClose, onDeleteRequest }: { app: SellApplicationIt
 
         {/* Body */}
         <div className="p-6 space-y-5">
+          <section aria-label="Staff notifications" className="space-y-2">
+            <p className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Staff notifications</p>
+            <NotificationPanel items={app.notifications} />
+          </section>
           {/* Contact */}
           <div className="bg-ink/5 rounded-xl p-4 space-y-2">
             <p className="text-[10px] uppercase tracking-widest text-ink/50 font-bold mb-2">Contact</p>

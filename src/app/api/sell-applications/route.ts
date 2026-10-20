@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { SellApplicationSchema } from '@/lib/schemas/sell';
 import { SellStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { createSellApplication, checkPublicSubmission } from '@/lib/leads';
 
 const PAGE_SIZE = 15;
 
@@ -56,36 +57,35 @@ export async function GET(req: Request) {
 // POST /api/sell-applications (public)
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    const guard = await checkPublicSubmission(req, body, 'sell');
+    if (guard === 'bot') return created({ applicationId: 'ZMR-SELL-RECEIVED' });
+    if (guard) return guard;
+
     const parsed = SellApplicationSchema.safeParse(body);
     if (!parsed.success) return badRequest(parsed.error.issues[0]?.message ?? 'Invalid input');
-
-    const applicationId = `ZMR-SELL-${crypto.randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase()}`;
     const v = parsed.data;
 
-    const app = await prisma.sellApplication.create({
-      data: {
-        applicationId,
-        category: v.category,
-        sellerType: v.sellerType,
-        brandId: v.brandId,
-        brandName: v.brandName,
-        modelId: v.modelId,
-        modelName: v.modelName,
-        year: v.year,
-        ownership: v.ownership,
-        batteryCondition: v.batteryCondition,
-        vehicleCondition: v.vehicleCondition,
-        hasAccident: v.hasAccident,
-        loanStatus: v.loanStatus,
-        documents: v.documents,
-        expectedPriceRs: v.expectedPrice,
-        contactName: v.contactName,
-        contactPhone: v.contactPhone,
-        contactEmail: v.contactEmail,
-        contactCity: v.contactCity,
-        status: 'NEW' as SellStatus,
-      },
+    const app = await createSellApplication({
+      category: v.category,
+      sellerType: v.sellerType,
+      brandId: v.brandId,
+      brandName: v.brandName,
+      modelId: v.modelId,
+      modelName: v.modelName,
+      year: v.year,
+      ownership: v.ownership,
+      batteryCondition: v.batteryCondition,
+      vehicleCondition: v.vehicleCondition,
+      hasAccident: v.hasAccident,
+      loanStatus: v.loanStatus,
+      documents: v.documents,
+      expectedPriceRs: v.expectedPrice,
+      contactName: v.contactName,
+      contactPhone: v.contactPhone,
+      contactEmail: v.contactEmail,
+      contactCity: v.contactCity,
+      status: 'NEW' as SellStatus,
     });
 
     revalidatePath('/admin/sell-applications');
