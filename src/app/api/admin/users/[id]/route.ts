@@ -1,7 +1,7 @@
 import { ok, badRequest, notFound, forbidden, serverError } from '@/app/api/_lib/response';
 import { withSuperAdmin, withSession, isResponse } from '@/app/api/_lib/auth-guard';
 import prisma from '@/lib/prisma';
-import { hashPassword, verifyPassword } from '@/lib/auth';
+import { hashPassword, verifyPassword, revokeSessions, createSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 
 function generatePassword(): string {
@@ -33,6 +33,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       if (!valid) return badRequest('Current password is incorrect');
 
       await prisma.adminUser.update({ where: { id }, data: { passwordHash: await hashPassword(newPassword) } });
+      // End other sessions (e.g. a forgotten browser), keep this one signed in.
+      const sv = await revokeSessions(id);
+      await createSession({ ...session, sv });
       return ok({ updated: true });
     }
 
@@ -46,6 +49,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     if (body.action === 'toggle-active') {
       const updated = await prisma.adminUser.update({ where: { id }, data: { isActive: !user.isActive } });
+      if (!updated.isActive) await revokeSessions(id); // deactivation takes effect at once
       revalidatePath('/admin/users');
       return ok({ id: updated.id, isActive: updated.isActive });
     }
@@ -53,6 +57,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (body.action === 'reset-password') {
       const generatedPassword = generatePassword();
       await prisma.adminUser.update({ where: { id }, data: { passwordHash: await hashPassword(generatedPassword) } });
+      await revokeSessions(id);
       revalidatePath('/admin/users');
       return ok({ generatedPassword });
     }

@@ -147,6 +147,7 @@ export default function EVConsultationModal({
       inquiryType: selectedCategory || 'VEHICLE_LEASING',
       vehicleId: vehicleId,
       vehicleName: vehicleName,
+      website: getValue('website'),
     });
 
     setLoading(false);
@@ -237,14 +238,14 @@ export default function EVConsultationModal({
                   </motion.div>
 
                   <div>
-                    <h3 className="text-2xl font-extrabold text-ink mb-2">You're all set! 🎉</h3>
+                    <h3 className="text-2xl font-extrabold text-ink mb-2">You&apos;re all set! 🎉</h3>
                     <p className="text-ink/65 text-sm leading-relaxed">
                       Our EV expert will call you within <span className="text-[#577440] font-bold">24 hours</span> to discuss your requirements.
                     </p>
                   </div>
 
                   <div className="w-full p-4 rounded-xl bg-ink/5 border border-ink/10 text-xs text-ink/60 text-center">
-                    India's #1 EV Leasing Platform · Zero Upfront Hassle
+                    India&apos;s #1 EV Leasing Platform · Zero Upfront Hassle
                   </div>
 
                   <button
@@ -268,7 +269,7 @@ export default function EVConsultationModal({
                         <h2 className="text-lg font-extrabold text-ink leading-tight">
                           Book a Free EV Consultation
                         </h2>
-                        <p className="text-ink/55 text-xs mt-0.5">We'll call you within 24 hours</p>
+                        <p className="text-ink/55 text-xs mt-0.5">We&apos;ll call you within 24 hours</p>
                       </div>
                     </div>
                     <button
@@ -284,7 +285,12 @@ export default function EVConsultationModal({
 
                   {/* Form */}
                   <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-4">
-
+                    {/* Honeypot for bots — hidden from people and assistive tech */}
+                    <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                      <label htmlFor="enquiry-website">Website</label>
+                      <input id="enquiry-website" name="website" tabIndex={-1} autoComplete="off" />
+                    </div>
+                    
                     {/* Row: Name + Phone */}
                     <div className="grid grid-cols-2 gap-3">
                       {/* Full Name */}

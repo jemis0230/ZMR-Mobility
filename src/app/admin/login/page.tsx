@@ -1,5 +1,6 @@
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { Zap } from 'lucide-react';
 import LoginForm from './LoginForm';
 
@@ -26,7 +27,9 @@ export default async function LoginPage() {
             <h1 className="text-xl font-black text-ink">Sign in</h1>
             <p className="text-ink/60 text-sm mt-1">Admin access only</p>
           </div>
-          <LoginForm />
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
         </div>
 
         <p className="text-center text-ink/40 text-xs">

@@ -1,13 +1,17 @@
 import { SignJWT, jwtVerify } from 'jose';
 import bcrypt from 'bcryptjs';
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import prisma from '@/lib/prisma';
 
 export type SessionPayload = {
   userId: string;
   email: string;
   name: string;
   role: 'superadmin' | 'admin';
+  /** AdminUser.sessionVersion when the session was issued. */
+  sv: number;
 };
 
 const COOKIE_NAME = 'zmr-admin-session';
@@ -70,17 +74,45 @@ export async function createSession(payload: SessionPayload): Promise<void> {
   });
 }
 
+/** Sign out: end every session of this account (bump its version) and clear the cookie. */
 export async function destroySession(): Promise<void> {
+  const session = await getSession();
+  if (session) await revokeSessions(session.userId);
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
 }
 
-export async function getSession(): Promise<SessionPayload | null> {
+/** Invalidate all existing sessions of a user (sign-out, password change, deactivation). */
+export async function revokeSessions(userId: string): Promise<number> {
+  const u = await prisma.adminUser.update({ where: { id: userId }, data: { sessionVersion: { increment: 1 } }, select: { sessionVersion: true } });
+  return u.sessionVersion;
+}
+
+/**
+ * The signed-in staff member, or null. The token signature is checked and then the
+ * account itself: it must still exist, be active and have the same session version,
+ * so sign-out, password changes and deactivation take effect immediately.
+ * Cached per request.
+ */
+export const getSession = cache(async (): Promise<SessionPayload | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
-  return verifyJWT(token);
-}
+  const payload = await verifyJWT(token);
+  if (!payload?.userId) return null;
+  const user = await prisma.adminUser.findUnique({
+    where: { id: payload.userId },
+    select: { id: true, email: true, name: true, role: true, isActive: true, sessionVersion: true },
+  });
+  if (!user || !user.isActive || user.sessionVersion !== (payload.sv ?? 0)) return null;
+  return {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role === 'SUPER_ADMIN' ? 'superadmin' : 'admin',
+    sv: user.sessionVersion,
+  };
+});
 
 export async function requireSession(): Promise<SessionPayload> {
   const session = await getSession();

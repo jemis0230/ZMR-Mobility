@@ -40,6 +40,7 @@ function validate(fields: Fields): Partial<Record<FieldKey, string>> {
 export default function LeasingContactForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [touched, setTouched] = useState<Partial<Record<FieldKey, boolean>>>({});
   const [fields, setFields] = useState<Fields>({
@@ -63,13 +64,14 @@ export default function LeasingContactForm() {
     return (
       <div className="glass-card p-12 text-center space-y-4 border-primary/20">
         <CheckCircle className="w-12 h-12 text-primary mx-auto" />
-        <h3 className="text-2xl font-bold">Inquiry Sent!</h3>
+        <h3 className="text-2xl font-bold" role="status">Inquiry received</h3>
         <p className="text-ink/70">Our EV expert will contact you within 24 hours.</p>
+        {reference && <p className="text-sm text-ink/70">Your reference: <strong className="font-mono text-forest">{reference}</strong></p>}
       </div>
     );
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     // Touch all fields to show all errors at once
     setTouched({ name: true, phone: true, email: true, inquiryCategory: true });
@@ -79,13 +81,14 @@ export default function LeasingContactForm() {
     setLoading(true);
     setServerError(null);
 
-    const result = await api.post('/leads', {
+    const result = await api.post<{ reference?: string }>('/leads', {
       type: 'general',
       name: fields.name.trim(),
       phone: fields.phone.replace(/\s/g, ''),
       email: fields.email.trim(),
       inquiryType: fields.inquiryCategory,
       notes: fields.notes,
+      website: (e.currentTarget.elements.namedItem('website') as HTMLInputElement | null)?.value ?? '',
     });
 
     setLoading(false);
@@ -93,6 +96,7 @@ export default function LeasingContactForm() {
       setServerError(result.error ?? 'Something went wrong. Please try again.');
       return;
     }
+    setReference(result.data?.reference ?? null);
     setSuccess(true);
   }
 
@@ -104,7 +108,12 @@ export default function LeasingContactForm() {
       </p>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
-        {/* Name + Phone */}
+        {/* Honeypot for bots — hidden from people and assistive tech */}
+        <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="contact-website">Website</label>
+          <input id="contact-website" name="website" tabIndex={-1} autoComplete="off" />
+        </div>
+                {/* Name + Phone */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Full Name */}
           <div className="space-y-1.5">
@@ -174,7 +183,7 @@ export default function LeasingContactForm() {
 
         {/* Interest */}
         <div className="space-y-1.5">
-          <label htmlFor="cf-interest" className="text-xs font-bold uppercase tracking-widest text-ink/75">I'm interested in</label>
+          <label htmlFor="cf-interest" className="text-xs font-bold uppercase tracking-widest text-ink/75">I&apos;m interested in</label>
           <select
               id="cf-interest"
             value={fields.inquiryCategory}

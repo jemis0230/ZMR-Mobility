@@ -3,6 +3,7 @@ import { withSession, isResponse } from '@/app/api/_lib/auth-guard';
 import prisma from '@/lib/prisma';
 import { LeadSchema, GeneralInquirySchema } from '@/lib/schemas/lead';
 import { revalidatePath } from 'next/cache';
+import { createLead, checkPublicSubmission } from '@/lib/leads';
 
 const PAGE_SIZE = 15;
 
@@ -55,30 +56,30 @@ export async function GET(req: Request) {
   }
 }
 
-// POST /api/leads (public — vehicle inquiry or general inquiry)
+// POST /api/leads (public — vehicle enquiry or Contact Us form)
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const isGeneral = body.type === 'general';
+    const body = await req.json().catch(() => null);
+    if (!body) return badRequest('Invalid request.');
+    const guard = await checkPublicSubmission(req, body, 'lead');
+    if (guard === 'bot') return created({ submitted: true });
+    if (guard) return guard;
 
-    if (isGeneral) {
+    let lead;
+    if (body.type === 'general') {
       const parsed = GeneralInquirySchema.safeParse(body);
       if (!parsed.success) return badRequest(parsed.error.issues[0]?.message ?? 'Invalid input');
       const { name, phone, email, inquiryType, notes } = parsed.data;
-      await prisma.lead.create({
-        data: { name, phone, email: email ?? null, state: '', city: '', inquiryType, notes, status: 'PENDING' },
-      });
+      lead = await createLead('contact-form', { name, phone, email, inquiryType, notes });
     } else {
       const parsed = LeadSchema.safeParse(body);
       if (!parsed.success) return badRequest(parsed.error.issues[0]?.message ?? 'Invalid input');
       const { name, phone, state, city, inquiryType, vehicleId, vehicleName } = parsed.data;
-      await prisma.lead.create({
-        data: { name, phone, state, city, inquiryType: inquiryType ?? 'VEHICLE_LEASING', vehicleId, vehicleName, status: 'PENDING' },
-      });
+      lead = await createLead('vehicle-enquiry', { name, phone, state, city, inquiryType: inquiryType ?? 'VEHICLE_LEASING', vehicleId, vehicleName });
     }
 
     revalidatePath('/admin/leads');
-    return created({ submitted: true });
+    return created({ submitted: true, reference: lead.reference });
   } catch (error) {
     return serverError(error);
   }

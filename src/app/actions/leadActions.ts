@@ -1,9 +1,9 @@
 'use server';
 
+import { assertStaff } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { LEAD_STATUSES } from '@/lib/constants';
-import { LeadSchema, GeneralInquirySchema } from '@/lib/schemas/lead';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -46,111 +46,21 @@ export type LeadItem = {
   preferredDate: string | null;
   status: string;
   createdAt: string;
+  reference: string | null;
+  /** Website form that created the lead (null for leads saved before sources were recorded). */
+  source: string | null;
+  notifications: LeadNotificationItem[];
 };
 
-// ─────────────────────────────────────────────────────────────
-// Submit lead from EVConsultationModal (vehicle pages)
-// ─────────────────────────────────────────────────────────────
+export type LeadNotificationItem = {
+  id: string;
+  channel: 'EMAIL' | 'WHATSAPP';
+  status: string;
+  attempts: number;
+  lastError: string | null;
+  updatedAt: string;
+};
 
-export async function submitLeadAction(
-  _prevState: LeadFormState,
-  formData: FormData
-): Promise<LeadFormState> {
-  const raw = {
-    name: formData.get('name') as string,
-    phone: formData.get('phone') as string,
-    state: formData.get('state') as string,
-    city: formData.get('city') as string,
-    inquiryType: formData.get('inquiryType') as string,
-    vehicleId: formData.get('vehicleId') as string,
-    vehicleName: formData.get('vehicleName') as string,
-  };
-
-  const parsed = LeadSchema.safeParse(raw);
-
-  if (!parsed.success) {
-    const fieldErrors: LeadFormState['errors'] = {};
-    for (const issue of parsed.error.issues) {
-      const field = issue.path[0] as keyof NonNullable<LeadFormState['errors']>;
-      if (field) fieldErrors[field] = issue.message;
-    }
-    return { success: false, errors: fieldErrors };
-  }
-
-  const { name, phone, state, city, inquiryType, vehicleId, vehicleName } = parsed.data;
-
-  try {
-    await prisma.lead.create({
-      data: {
-        name,
-        phone,
-        state,
-        city,
-        inquiryType,
-        vehicleId: vehicleId ?? null,
-        vehicleName: vehicleName ?? null,
-        status: 'PENDING',
-      },
-    });
-
-    revalidatePath('/admin/leads');
-    return { success: true };
-  } catch (error) {
-    console.error('Failed to save lead:', error);
-    return { success: false, errors: { general: 'Something went wrong. Please try again.' } };
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-// Submit general inquiry from home page contact form
-// ─────────────────────────────────────────────────────────────
-
-export async function submitGeneralInquiryAction(
-  _prevState: GeneralInquiryFormState,
-  formData: FormData
-): Promise<GeneralInquiryFormState> {
-  const raw = {
-    name: formData.get('name') as string,
-    phone: formData.get('phone') as string,
-    email: formData.get('email') as string,
-    inquiryType: formData.get('inquiryType') as string,
-    notes: formData.get('notes') as string,
-  };
-
-  const parsed = GeneralInquirySchema.safeParse(raw);
-
-  if (!parsed.success) {
-    const fieldErrors: GeneralInquiryFormState['errors'] = {};
-    for (const issue of parsed.error.issues) {
-      const field = issue.path[0] as keyof NonNullable<GeneralInquiryFormState['errors']>;
-      if (field) fieldErrors[field] = issue.message;
-    }
-    return { success: false, errors: fieldErrors };
-  }
-
-  const { name, phone, email, inquiryType, notes } = parsed.data;
-
-  try {
-    await prisma.lead.create({
-      data: {
-        name,
-        phone,
-        email,
-        state: '',
-        city: '',
-        inquiryType,
-        notes,
-        status: 'PENDING',
-      },
-    });
-
-    revalidatePath('/admin/leads');
-    return { success: true };
-  } catch (error) {
-    console.error('Failed to save general inquiry:', error);
-    return { success: false, errors: { general: 'Something went wrong. Please try again.' } };
-  }
-}
 
 // ─────────────────────────────────────────────────────────────
 // Fetch leads for admin panel (with pagination)
@@ -161,6 +71,10 @@ const LEADS_PAGE_SIZE = 15;
 export async function getLeads(params: {
   search?: string;
   statusFilter?: string;
+  source?: string;
+  inquiryType?: string;
+  /** "problem" = any notification failed or not configured. */
+  notify?: string;
   page?: number;
 }): Promise<{
   success: boolean;
@@ -170,17 +84,25 @@ export async function getLeads(params: {
   pageCount?: number;
   error?: string;
 }> {
+  await assertStaff();
   try {
     const page = Math.max(1, params.page ?? 1);
     const where: Record<string, unknown> = {};
 
-    if (params.statusFilter && params.statusFilter !== 'ALL') {
+    if (params.statusFilter === 'CLOSED') {
+      where.status = { in: ['CLOSED_WON', 'CLOSED_LOST'] };
+    } else if (params.statusFilter && params.statusFilter !== 'ALL') {
       where.status = params.statusFilter;
     }
+
+    if (params.source) where.source = params.source;
+    if (params.inquiryType) where.inquiryType = params.inquiryType;
+    if (params.notify === 'problem') where.notifications = { some: { status: { in: ['FAILED', 'NOT_CONFIGURED'] } } };
 
     if (params.search?.trim()) {
       const q = params.search.trim();
       where.OR = [
+        { reference: { contains: q, mode: 'insensitive' } },
         { name: { contains: q, mode: 'insensitive' } },
         { phone: { contains: q } },
         { email: { contains: q, mode: 'insensitive' } },
@@ -197,6 +119,12 @@ export async function getLeads(params: {
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * LEADS_PAGE_SIZE,
         take: LEADS_PAGE_SIZE,
+        include: {
+          notifications: {
+            select: { id: true, channel: true, status: true, attempts: true, lastError: true, updatedAt: true },
+            orderBy: { channel: 'asc' },
+          },
+        },
       }),
     ]);
 
@@ -207,6 +135,7 @@ export async function getLeads(params: {
         inquiryType: l.inquiryType,
         preferredDate: l.preferredDate ? l.preferredDate.toISOString().slice(0, 10) : null,
         createdAt: l.createdAt.toISOString(),
+        notifications: l.notifications.map((n) => ({ ...n, updatedAt: n.updatedAt.toISOString() })),
       })),
       total,
       page,
@@ -226,6 +155,7 @@ export async function updateLeadStatus(id: string, status: string): Promise<{
   success: boolean;
   error?: string;
 }> {
+  await assertStaff();
   if (!LEAD_STATUSES.includes(status as (typeof LEAD_STATUSES)[number])) {
     return { success: false, error: 'Invalid status.' };
   }
@@ -248,6 +178,7 @@ export async function deleteLead(id: string): Promise<{
   success: boolean;
   error?: string;
 }> {
+  await assertStaff();
   try {
     await prisma.lead.delete({ where: { id } });
     revalidatePath('/admin/leads');

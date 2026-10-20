@@ -1,12 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api-client';
 import { AlertCircle, LogIn } from 'lucide-react';
 
 export default function LoginForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  // Only return to admin pages on this site.
+  const nextParam = params.get('next') ?? '';
+  const next = /^\/admin(\/|$|\?)/.test(nextParam) && !nextParam.startsWith('/admin/login') ? nextParam : '/admin';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,11 +27,11 @@ export default function LoginForm() {
     setLoading(false);
 
     if (!result.success) {
-      setError(result.error ?? 'Invalid email or password');
+      setError(result.error ?? 'Incorrect email or password.');
       return;
     }
 
-    router.push('/admin');
+    router.push(next);
     router.refresh();
   }
 
@@ -62,7 +66,7 @@ export default function LoginForm() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+        <div role="alert" className="flex items-center gap-2 text-red-700 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           {error}
         </div>

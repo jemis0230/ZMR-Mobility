@@ -1,9 +1,10 @@
 'use server';
 
+import { assertStaff } from '@/lib/auth';
+import type { LeadNotificationItem } from './leadActions';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { SELL_STATUSES } from '@/lib/constants';
-import { SellApplicationSchema } from '@/lib/schemas/sell';
 import { SellStatus } from '@prisma/client';
 
 // ─────────────────────────────────────────────────────────────
@@ -32,6 +33,7 @@ export type SellApplicationItem = {
   status: string;
   adminNotes: string | null;
   createdAt: string;
+  notifications: LeadNotificationItem[];
 };
 
 export type WizardFormData = {
@@ -61,52 +63,6 @@ const SELL_PAGE_SIZE = 15;
 // Submit sell application (from wizard)
 // ─────────────────────────────────────────────────────────────
 
-export async function submitSellApplication(data: WizardFormData): Promise<{
-  success: boolean;
-  applicationId?: string;
-  error?: string;
-}> {
-  const parsed = SellApplicationSchema.safeParse(data);
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
-  }
-
-  try {
-    const applicationId = `ZMR-SELL-${crypto.randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase()}`;
-
-    const v = parsed.data;
-    await prisma.sellApplication.create({
-      data: {
-        applicationId,
-        category: v.category,
-        sellerType: v.sellerType,
-        brandId: v.brandId,
-        brandName: v.brandName,
-        modelId: v.modelId,
-        modelName: v.modelName,
-        year: v.year,
-        ownership: v.ownership,
-        batteryCondition: v.batteryCondition,
-        vehicleCondition: v.vehicleCondition,
-        hasAccident: v.hasAccident,
-        loanStatus: v.loanStatus,
-        documents: v.documents,
-        expectedPriceRs: v.expectedPrice,
-        contactName: v.contactName,
-        contactPhone: v.contactPhone,
-        contactEmail: v.contactEmail,
-        contactCity: v.contactCity,
-        status: 'NEW',
-      },
-    });
-
-    revalidatePath('/admin/sell-applications');
-    return { success: true, applicationId };
-  } catch (error) {
-    console.error('submitSellApplication error:', error);
-    return { success: false, error: 'Failed to submit application. Please try again.' };
-  }
-}
 
 // ─────────────────────────────────────────────────────────────
 // Get paginated applications for admin
@@ -124,6 +80,7 @@ export async function getSellApplications(params: {
   pageCount?: number;
   error?: string;
 }> {
+  await assertStaff();
   try {
     const page = Math.max(1, params.page ?? 1);
     const where: Record<string, unknown> = {};
@@ -152,6 +109,12 @@ export async function getSellApplications(params: {
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * SELL_PAGE_SIZE,
         take: SELL_PAGE_SIZE,
+        include: {
+          notifications: {
+            select: { id: true, channel: true, status: true, attempts: true, lastError: true, updatedAt: true },
+            orderBy: { channel: 'asc' },
+          },
+        },
       }),
     ]);
 
@@ -160,6 +123,7 @@ export async function getSellApplications(params: {
       data: apps.map((a) => ({
         ...a,
         createdAt: a.createdAt.toISOString(),
+        notifications: a.notifications.map((n) => ({ ...n, updatedAt: n.updatedAt.toISOString() })),
       })),
       total,
       page,
@@ -179,6 +143,7 @@ export async function updateSellApplicationStatus(id: string, status: string): P
   success: boolean;
   error?: string;
 }> {
+  await assertStaff();
   if (!SELL_STATUSES.includes(status as (typeof SELL_STATUSES)[number])) {
     return { success: false, error: 'Invalid status.' };
   }
@@ -200,6 +165,7 @@ export async function deleteSellApplication(id: string): Promise<{
   success: boolean;
   error?: string;
 }> {
+  await assertStaff();
   try {
     await prisma.sellApplication.delete({ where: { id } });
     revalidatePath('/admin/sell-applications');

@@ -1,4 +1,5 @@
 import { revalidatePath } from 'next/cache';
+import { createLead, checkPublicSubmission } from '@/lib/leads';
 import prisma from '@/lib/prisma';
 import { ok, created, badRequest } from '@/app/api/_lib/response';
 import { TestDriveSchema, TEST_DRIVE_CITIES } from '@/lib/schemas/testDrive';
@@ -37,6 +38,10 @@ export async function POST(req: Request) {
     return badRequest('Invalid request.');
   }
 
+  const guard = await checkPublicSubmission(req, body, 'test-drive');
+  if (guard === 'bot') return created({ submitted: true });
+  if (guard) return guard;
+
   const parsed = TestDriveSchema.safeParse(body);
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
@@ -56,23 +61,20 @@ export async function POST(req: Request) {
     }
 
     const state = TEST_DRIVE_CITIES.find((c) => c.city === city)?.state ?? '';
-    await prisma.lead.create({
-      data: {
-        name,
-        phone,
-        city,
-        state,
-        inquiryType: 'TEST_DRIVE',
-        vehicleId,
-        vehicleName,
-        preferredDate: new Date(`${preferredDate}T00:00:00Z`),
-        notes: message,
-        status: 'PENDING',
-      },
+    const lead = await createLead('test-drive', {
+      name,
+      phone,
+      city,
+      state,
+      inquiryType: 'TEST_DRIVE',
+      vehicleId,
+      vehicleName,
+      preferredDate: new Date(`${preferredDate}T00:00:00Z`),
+      notes: message,
     });
 
     revalidatePath('/admin/leads');
-    return created({ submitted: true });
+    return created({ submitted: true, reference: lead.reference });
   } catch (error) {
     console.error('[test-drive] could not save request', error);
     return Response.json(

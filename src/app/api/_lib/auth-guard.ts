@@ -1,13 +1,9 @@
-import { cookies } from 'next/headers';
-import { verifyJWT, COOKIE_NAME, type SessionPayload } from '@/lib/auth';
+import { getSession, type SessionPayload } from '@/lib/auth';
 import { unauthorized, forbidden } from './response';
 
-async function getSessionFromRequest(): Promise<SessionPayload | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-  if (!token) return null;
-  return verifyJWT(token);
-}
+// Same check as pages and server actions: valid token AND an active account whose
+// session version still matches.
+const getSessionFromRequest = (): Promise<SessionPayload | null> => getSession();
 
 // Returns session or a 401 Response
 export async function withSession(): Promise<SessionPayload | Response> {

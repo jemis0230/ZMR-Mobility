@@ -1,5 +1,6 @@
 'use server';
 
+import { assertStaff } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { toPressDTO, type PressMentionDTO } from '@/lib/press';
 
@@ -18,6 +19,7 @@ export async function getPressMentions(): Promise<PressMentionDTO[]> {
 }
 
 export async function getAllPressMentionsAdmin(): Promise<{ data: PressMentionDTO[]; dbError: boolean }> {
+  await assertStaff();
   try {
     const rows = await prisma.pressMention.findMany({
       orderBy: [{ sortOrder: 'asc' }, { publishedAt: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
