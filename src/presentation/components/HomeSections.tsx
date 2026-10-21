@@ -8,6 +8,7 @@ import { ArrowRight, ShieldCheck, Cpu, Wallet, Recycle, ChevronRight, Star } fro
 import CompanyRail from "./CompanyRail";
 import CategorySection from "./CategorySection";
 import AnimatedCounter from "./AnimatedCounter";
+import { publicFuelSavings } from "@/lib/impact";
 
 // Only downloaded when a visitor opens it.
 const FleetPickerModal = dynamic(() => import("./FleetPickerModal"), { ssr: false });
@@ -47,10 +48,12 @@ const howItWorks = [
 
 const impact = [
   { val: 200, suffix: " Ton", label: "CO₂ Saved" },
-  { val: 198, suffix: " Lakh L", label: "Fuel Saved" },
   { val: 51, suffix: "", label: "Women Entrepreneurs" },
   { val: 6000, suffix: " kg", label: "Plastics Saved" },
 ];
+
+// The fuel figure is shown only when verified inputs exist (see src/lib/impact.ts).
+const fuel = publicFuelSavings();
 
 const testimonials = [
   { name: "Ramesh Kumar", role: "Delivery Partner, Lucknow", text: "ZMR made it possible for me to get my first electric vehicle with minimal deposit. My fuel savings are incredible!", rating: 5, photo: "/testimonials/client1.webp", date: "March 2025" },
@@ -169,7 +172,24 @@ export default function HomeSections({ policySlot }: { policySlot?: ReactNode })
             </Link>
           </div>
           <dl className="grid grid-cols-2 gap-4">
-            {impact.map((item) => (
+            {impact.slice(0, 1).map((item) => (
+              <div key={item.label} className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+                <dd className="font-black text-2xl md:text-3xl text-lime">
+                  <AnimatedCounter target={item.val} suffix={item.suffix} duration={2000} />
+                </dd>
+                <dt className="text-sm text-cream/85 mt-1">{item.label}</dt>
+              </div>
+            ))}
+            <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+              {fuel.available ? (
+                <dd className="font-black text-2xl md:text-3xl text-lime" title={fuel.note}>{fuel.display}</dd>
+              ) : (
+                <dd className="font-bold text-base md:text-lg text-lime leading-snug">Being verified</dd>
+              )}
+              <dt className="text-sm text-cream/85 mt-1">{fuel.label}</dt>
+              <p className="mt-1 text-[11px] leading-snug text-cream/70">{fuel.available ? fuel.note : 'Every km on a ZMR EV replaces petrol.'}</p>
+            </div>
+            {impact.slice(1).map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
                 <dd className="font-black text-2xl md:text-3xl text-lime">
                   <AnimatedCounter target={item.val} suffix={item.suffix} duration={2000} />

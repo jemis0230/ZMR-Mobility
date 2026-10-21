@@ -73,14 +73,14 @@ function DropdownLink({ href, children, count }: { href: string; children: React
 function ExploreItem({ menu, label, children }: { menu: MenuControl; label: string; children: ReactNode }) {
   const { id, open, toggle, close } = menu;
   return (
-    <div className="relative h-full flex items-center" data-menu-root={id}>
+    <div className="relative h-full flex items-center shrink-0" data-menu-root={id}>
       <button
         type="button"
         id={triggerId(id)}
         onClick={toggle}
         aria-expanded={open}
         aria-controls={panelId(id)}
-        className={`flex items-center gap-1.5 h-full px-1 text-[15px] font-medium transition-colors ${open ? "text-white" : "text-cream/90 hover:text-white"}`}
+        className={`flex items-center gap-1 xl:gap-1.5 h-full px-1 whitespace-nowrap text-[14px] xl:text-[15px] font-medium transition-colors ${open ? "text-white" : "text-cream/90 hover:text-white"}`}
       >
         {label}
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
@@ -104,40 +104,48 @@ function ExploreItem({ menu, label, children }: { menu: MenuControl; label: stri
 
 type TopItem = { label: string; href?: string; onClick?: () => void; desc?: string };
 
-function TopMenu({ menu, label, items }: { menu: MenuControl; label: string; items: TopItem[] }) {
-  const { id, open, toggle, close } = menu;
-
+/** Buy EV / More in the dark ribbon: same trigger and panel as the Explore-by menus. */
+function RibbonMenu({ menu, label, items }: { menu: MenuControl; label: string; items: TopItem[] }) {
+  const itemClass = "group flex w-full items-start justify-between gap-6 px-5 py-3 rounded-xl text-left hover:bg-white/10 transition-colors";
+  const body = (it: TopItem) => (
+    <>
+      <span>
+        <span className="block text-[15px] font-semibold text-cream">{it.label}</span>
+        {it.desc && <span className="block text-xs text-cream/75 mt-0.5">{it.desc}</span>}
+      </span>
+      <ChevronRight className="w-4 h-4 mt-1 shrink-0 text-cream/70 group-hover:translate-x-0.5 transition-transform" aria-hidden />
+    </>
+  );
   return (
-    <div className="relative" data-menu-root={id}>
-      <button
-        type="button"
-        id={triggerId(id)}
-        onClick={toggle}
-        aria-expanded={open}
-        aria-controls={panelId(id)}
-        className="flex items-center gap-1 py-2 text-[15px] font-semibold text-forest hover:text-primary transition-colors"
-      >
-        {label}
-        <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
-      </button>
-      <div id={panelId(id)} data-open={open} className="dropdown-panel absolute right-0 top-full pt-2 z-50">
-        <div className="w-64 rounded-2xl bg-white border border-ink/10 shadow-xl p-2">
-          {items.map((it) =>
-            it.href ? (
-              <Link key={it.label} href={it.href} onClick={close} className="block px-4 py-2.5 rounded-xl hover:bg-tint transition-colors">
-                <span className="block text-sm font-semibold text-forest">{it.label}</span>
-                {it.desc && <span className="block text-xs text-ink/65 mt-0.5">{it.desc}</span>}
-              </Link>
-            ) : (
-              <button key={it.label} type="button" onClick={() => { close(); it.onClick?.(); }} className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-tint transition-colors">
-                <span className="block text-sm font-semibold text-forest">{it.label}</span>
-                {it.desc && <span className="block text-xs text-ink/65 mt-0.5">{it.desc}</span>}
-              </button>
-            )
-          )}
-        </div>
+    <ExploreItem menu={menu} label={label}>
+      <div className="w-72 py-1">
+        {items.map((it) =>
+          it.href ? (
+            <Link key={it.label} href={it.href} className={itemClass}>{body(it)}</Link>
+          ) : (
+            <button key={it.label} type="button" onClick={() => { menu.close(); it.onClick?.(); }} className={itemClass}>{body(it)}</button>
+          ),
+        )}
       </div>
-    </div>
+    </ExploreItem>
+  );
+}
+
+/** Compare link with its selection count, styled for the dark ribbon. */
+function RibbonCompare() {
+  const { items, count } = useCompare();
+  return (
+    <Link
+      href={compareHref(items.map((i) => i.id))}
+      aria-label={count ? `Compare vehicles (${count} selected)` : "Compare vehicles"}
+      className="relative shrink-0 flex items-center gap-1.5 h-full px-1 whitespace-nowrap text-[14px] xl:text-[15px] font-medium text-cream/90 hover:text-white transition-colors"
+    >
+      <ArrowLeftRight className="w-4 h-4" aria-hidden />
+      Compare
+      {count > 0 && (
+        <span className="min-w-[18px] h-[18px] rounded-full bg-lime text-forest text-[11px] font-black flex items-center justify-center px-1">{count}</span>
+      )}
+    </Link>
   );
 }
 
@@ -383,16 +391,9 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
 
             <div className="hidden lg:block"><CitySelector menu={menu("city")} /></div>
 
-            <SearchBar className="hidden md:flex flex-1 max-w-md" />
+            <SearchBar className="hidden md:flex flex-1 max-w-md lg:max-w-xl" />
 
-            <nav aria-label="Main" className="hidden lg:flex items-center gap-5 ml-auto">
-              <TopMenu menu={menu("buy")} label="Buy EV" items={buyItems} />
-              <Link href="/sell-ev" className="text-[15px] font-semibold text-forest hover:text-primary transition-colors">Sell EV</Link>
-              <TopMenu menu={menu("more")} label="More" items={moreItems} />
-              <CompareLink />
-            </nav>
-
-            <div className="flex items-center gap-1.5 max-[359px]:gap-1 sm:gap-2 ml-auto lg:ml-0">
+            <div className="flex items-center gap-1.5 max-[359px]:gap-1 sm:gap-2 ml-auto">
               <CompareLink className="lg:hidden mr-0.5 max-[359px]:hidden" />
               <button type="button" onClick={openTestDrive} aria-haspopup="dialog" className={CTA_CLASS}>
                 Test Drive
@@ -414,10 +415,18 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
           </div>
         </div>
 
-        {/* ── Explore-by bar (desktop, Forest) ── */}
-        <nav aria-label="Explore by" className="relative z-10 hidden lg:block bg-forest shadow-md shadow-forest/20 focus-on-dark">
-          <div className="max-w-7xl mx-auto px-6 h-12 flex items-stretch gap-9">
-            <span className="flex items-center text-[15px] font-semibold text-lime">Explore By</span>
+        {/* ── Ribbon (desktop, Forest): main navigation, then Explore-by filters ── */}
+        <div className="relative z-10 hidden lg:block bg-forest shadow-md shadow-forest/20 focus-on-dark">
+          <div className="max-w-7xl mx-auto px-6 h-12 flex items-stretch">
+          <nav aria-label="Main" className="shrink-0 flex items-stretch gap-3 xl:gap-5">
+            <RibbonMenu menu={menu("buy")} label="Buy EV" items={buyItems} />
+            <Link href="/sell-ev" className="shrink-0 flex items-center h-full px-1 whitespace-nowrap text-[14px] xl:text-[15px] font-medium text-cream/90 hover:text-white transition-colors">Sell EV</Link>
+            <RibbonMenu menu={menu("more")} label="More" items={moreItems} />
+            <RibbonCompare />
+          </nav>
+          <span aria-hidden className="shrink-0 self-center mx-3 xl:mx-5 h-6 w-px bg-cream/25" />
+          <nav aria-label="Explore by" className="flex items-stretch gap-3 xl:gap-5">
+            <span className="hidden xl:flex items-center whitespace-nowrap text-[15px] font-semibold text-lime">Explore By</span>
 
             <ExploreItem menu={menu("price")} label="Price Range">
               <div className="w-72 py-1">
@@ -475,8 +484,9 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
                 </div>
               </ExploreItem>
             ))}
+          </nav>
           </div>
-        </nav>
+        </div>
       </header>
 
       {/* ── Mobile drawer ── */}
@@ -532,7 +542,12 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             })}
           </div>
 
-          <nav aria-label="Mobile main" className="flex flex-col text-[15px] font-semibold text-forest">
+          <nav
+            aria-label="Mobile main"
+            // Close the drawer on any link, including same-page links like /#faq.
+            onClick={(e) => { if ((e.target as HTMLElement).closest("a")) setIsMobileMenuOpen(false); }}
+            className="flex flex-col text-[15px] font-semibold text-forest"
+          >
             <Link href={exploreHref()} className="px-2 py-3 border-b border-ink/10 hover:text-primary">Buy Pre-owned EV</Link>
             <button onClick={() => { setModal("leasing"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Leasing</button>
             <button onClick={() => { setModal("buying"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Buy by Category</button>
@@ -543,7 +558,8 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             <Link href="/press" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Press & Media</Link>
             <Link href="/blogs" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blogs</Link>
             <Link href="/blogs/tags" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blog Tags</Link>
-            <Link href="/about" className="px-2 py-3 hover:text-primary">About</Link>
+            <Link href="/about" className="px-2 py-3 border-b border-ink/10 hover:text-primary">About</Link>
+            <Link href="/#faq" className="px-2 py-3 hover:text-primary">FAQs</Link>
           </nav>
 
           <div className="grid grid-cols-2 gap-2">
