@@ -4,16 +4,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, ArrowRight, Pause, Play } from "lucide-react";
+import { CUSTOMER_PHOTOS, anyPhotoHasLocation } from "@/lib/customerPhotos";
+import PhotoLocation from "./PhotoLocation";
 
-// ZMR customers' own photographs (public/customers). They are served unchanged — no
-// resizing or re-encoding — and shown whole (object-contain) on a plain background so
-// no one is cropped.
-const PHOTOS = [
-  { src: "/customers/zmr-customer-01.jpeg", alt: "A customer standing beside a red and black BGauss electric scooter" },
-  { src: "/customers/zmr-customer-02.jpeg", alt: "A customer standing with a dark blue BGauss electric scooter" },
-  { src: "/customers/zmr-customer-03.jpeg", alt: "A customer standing with a matte green BGauss electric scooter" },
-  { src: "/customers/zmr-customer-04.jpeg", alt: "A customer standing behind a silver BGauss electric scooter" },
-] as const;
+// ZMR customers' own photographs and their approved locations live in
+// src/lib/customerPhotos.ts; files are served unchanged and shown whole (object-contain).
+const PHOTOS = CUSTOMER_PHOTOS;
+// Reserve the caption row only if at least one photo has an approved location, so the
+// layout does not jump between slides.
+const SHOW_LOCATIONS = anyPhotoHasLocation(PHOTOS);
 
 /** Time each photo stays on screen while playing; photos cross-fade over 350 ms. */
 const SLIDE_INTERVAL_MS = 2500;
@@ -114,6 +113,13 @@ export default function HeroBanner() {
               ) : null
             )}
           </div>
+
+          {SHOW_LOCATIONS && (
+            // Fixed-height caption row below the photo (never over the customer or scooter).
+            <div className="mt-2 h-6 flex items-center justify-center lg:justify-start">
+              <PhotoLocation location={PHOTOS[index].location} />
+            </div>
+          )}
 
           {/* Controls */}
           <div className="mt-4 flex items-center justify-center lg:justify-start gap-2">

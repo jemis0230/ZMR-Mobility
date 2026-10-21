@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { CUSTOMER_PHOTOS } from "@/lib/customerPhotos";
+import PhotoLocation from "@/presentation/components/PhotoLocation";
+import { publicFuelSavings } from "@/lib/impact";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Cpu, Shield, Zap, Battery, Gauge, FileCheck2, MapPin } from "lucide-react";
@@ -31,11 +34,15 @@ const approach = [
   { icon: FileCheck2, title: "Ownership support", desc: "Help with RC transfer, NOC, insurance and warranty questions for the vehicle you choose." },
 ];
 
+const fuel = publicFuelSavings();
+
 // Figures as published by ZMR Mobility (also shown on the home page).
 const impact = [
   { value: "176 Lakh Km", label: "Green kilometres travelled" },
   { value: "200 Ton", label: "CO₂ saved" },
-  { value: "198 Lakh L", label: "Fuel saved" },
+  // Fuel: shown only when verified inputs exist (src/lib/impact.ts); the earlier
+  // "198 Lakh L" had no recorded source and conflicts with the km figure.
+  fuel.available ? { value: fuel.display, label: fuel.label } : { value: "Being verified", label: "Estimated petrol avoided" },
   { value: "6,000 kg", label: "Plastics saved" },
 ];
 
@@ -46,12 +53,7 @@ const journey = [
   { year: "2027", status: "Next phase", cities: ["Kochi", "Meerut", "Mysore", "Chandigarh", "Kashmir"] },
 ];
 
-const customerPhotos = [
-  { src: "/customers/zmr-customer-01.jpeg", alt: "A customer standing beside a red and black BGauss electric scooter" },
-  { src: "/customers/zmr-customer-02.jpeg", alt: "A customer standing with a dark blue BGauss electric scooter" },
-  { src: "/customers/zmr-customer-03.jpeg", alt: "A customer standing with a matte green BGauss electric scooter" },
-  { src: "/customers/zmr-customer-04.jpeg", alt: "A customer standing behind a silver BGauss electric scooter" },
-];
+const customerPhotos = CUSTOMER_PHOTOS;
 
 const team = [
   { name: "Javed Ali", role: "Founder & Director", photo: "/profile-photos/javedAliProfilePhoto.jpeg", linkedin: "https://www.linkedin.com/in/javed-ali-5b563256/" },
@@ -211,9 +213,16 @@ export default function AboutPage() {
           <SectionHeading id="customers-title" eyebrow="Our customers" title="Riding electric with ZMR" />
           <ul className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4">
             {customerPhotos.map((p) => (
-              <li key={p.src} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-tint">
-                {/* Original photo files, shown whole and unmodified. */}
-                <Image src={p.src} alt={p.alt} fill unoptimized loading="lazy" className="object-contain" />
+              <li key={p.src}>
+                <figure>
+                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-tint">
+                    {/* Original photo files, shown whole and unmodified. */}
+                    <Image src={p.src} alt={p.alt} fill unoptimized loading="lazy" className="object-contain" />
+                  </div>
+                  {p.location?.label && (
+                    <figcaption className="mt-2 px-1"><PhotoLocation location={p.location} /></figcaption>
+                  )}
+                </figure>
               </li>
             ))}
           </ul>
