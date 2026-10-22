@@ -4,6 +4,7 @@ import { assertStaff } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { LEAD_STATUSES } from '@/lib/constants';
+import { buildLeadWhere, parseLeadFilters } from '@/lib/leadExportCore';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -87,36 +88,22 @@ export async function getLeads(params: {
   await assertStaff();
   try {
     const page = Math.max(1, params.page ?? 1);
-    const where: Record<string, unknown> = {};
-
-    if (params.statusFilter === 'CLOSED') {
-      where.status = { in: ['CLOSED_WON', 'CLOSED_LOST'] };
-    } else if (params.statusFilter && params.statusFilter !== 'ALL') {
-      where.status = params.statusFilter;
-    }
-
-    if (params.source) where.source = params.source;
-    if (params.inquiryType) where.inquiryType = params.inquiryType;
-    if (params.notify === 'problem') where.notifications = { some: { status: { in: ['FAILED', 'NOT_CONFIGURED'] } } };
-
-    if (params.search?.trim()) {
-      const q = params.search.trim();
-      where.OR = [
-        { reference: { contains: q, mode: 'insensitive' } },
-        { name: { contains: q, mode: 'insensitive' } },
-        { phone: { contains: q } },
-        { email: { contains: q, mode: 'insensitive' } },
-        { vehicleName: { contains: q, mode: 'insensitive' } },
-        { state: { contains: q, mode: 'insensitive' } },
-        { city: { contains: q, mode: 'insensitive' } },
-      ];
-    }
+    // Same filter rules as the Excel export (src/lib/leadExportCore.ts).
+    const parsed = parseLeadFilters({
+      q: params.search,
+      status: params.statusFilter,
+      source: params.source,
+      notify: params.notify,
+      inquiryType: params.inquiryType,
+    });
+    if (!parsed.ok) return { success: false, error: parsed.error };
+    const where = buildLeadWhere(parsed.filters);
 
     const [total, leads] = await prisma.$transaction([
       prisma.lead.count({ where }),
       prisma.lead.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * LEADS_PAGE_SIZE,
         take: LEADS_PAGE_SIZE,
         include: {
