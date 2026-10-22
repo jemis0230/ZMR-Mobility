@@ -1,6 +1,8 @@
 import { getLeads } from '@/app/actions/leadActions';
 import AdminLeadsClient from './AdminLeadsClient';
 import prisma from '@/lib/prisma';
+import LeadExportMenu from '@/presentation/components/admin/LeadExportMenu';
+import { MAX_EXPORT_ROWS } from '@/lib/leadExportCore';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,11 +21,16 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
   const total = result.total ?? 0;
   const pageCount = result.pageCount ?? 1;
   const pendingCount = leads.filter((l) => l.status === 'PENDING').length;
-  const problemCount = await prisma.leadNotification.count({ where: { leadId: { not: null }, status: { in: ['FAILED', 'NOT_CONFIGURED'] } } });
+  const [problemCount, allLeadCount, sellCount] = await Promise.all([
+    prisma.leadNotification.count({ where: { leadId: { not: null }, status: { in: ['FAILED', 'NOT_CONFIGURED'] } } }),
+    prisma.lead.count(),
+    prisma.sellApplication.count(),
+  ]);
+  const hasFilters = Boolean(search.trim() || statusFilter !== 'ALL' || source || notify);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Leads & Contacts</h1>
           <p className="text-ink/60 text-sm mt-1">
@@ -32,6 +39,14 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
               : 'Manage inquiries from your website forms.'}
           </p>
         </div>
+        {result.success && (
+          <LeadExportMenu
+            counts={{ filtered: total, allLeads: allLeadCount, sellApplications: sellCount }}
+            filters={{ q: search, status: statusFilter, source, notify }}
+            hasFilters={hasFilters}
+            maxRows={MAX_EXPORT_ROWS}
+          />
+        )}
       </div>
 
       {problemCount > 0 && (
