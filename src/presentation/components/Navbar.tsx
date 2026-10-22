@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Menu, X, Search, ChevronDown, ChevronRight, MapPin, Phone, ArrowLeftRight, Check,
+  Menu, X, Search, ChevronDown, ChevronRight, MapPin, Phone, ArrowLeftRight, Check, LayoutDashboard,
+  type LucideIcon,
 } from "lucide-react";
 import {
   YEAR_OPTIONS, KM_OPTIONS, BODY_TYPES, RANGE_OPTIONS, DEFAULT_PRICE_BUCKETS,
@@ -102,7 +103,15 @@ function ExploreItem({ menu, label, children }: { menu: MenuControl; label: stri
   );
 }
 
-type TopItem = { label: string; href?: string; onClick?: () => void; desc?: string };
+type TopItem = {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  desc?: string;
+  icon?: LucideIcon;
+  /** Thin rule above the item, to set it apart from the group before it. */
+  divider?: boolean;
+};
 
 /** Buy EV / More in the dark ribbon: same trigger and panel as the Explore-by menus. */
 function RibbonMenu({ menu, label, items }: { menu: MenuControl; label: string; items: TopItem[] }) {
@@ -110,7 +119,10 @@ function RibbonMenu({ menu, label, items }: { menu: MenuControl; label: string; 
   const body = (it: TopItem) => (
     <>
       <span>
-        <span className="block text-[15px] font-semibold text-cream">{it.label}</span>
+        <span className="flex items-center gap-2 text-[15px] font-semibold text-cream">
+          {it.icon && <it.icon className="w-4 h-4 text-cream/80" aria-hidden />}
+          {it.label}
+        </span>
         {it.desc && <span className="block text-xs text-cream/75 mt-0.5">{it.desc}</span>}
       </span>
       <ChevronRight className="w-4 h-4 mt-1 shrink-0 text-cream/70 group-hover:translate-x-0.5 transition-transform" aria-hidden />
@@ -119,13 +131,16 @@ function RibbonMenu({ menu, label, items }: { menu: MenuControl; label: string; 
   return (
     <ExploreItem menu={menu} label={label}>
       <div className="w-72 py-1">
-        {items.map((it) =>
-          it.href ? (
-            <Link key={it.label} href={it.href} className={itemClass}>{body(it)}</Link>
-          ) : (
-            <button key={it.label} type="button" onClick={() => { menu.close(); it.onClick?.(); }} className={itemClass}>{body(it)}</button>
-          ),
-        )}
+        {items.map((it) => (
+          <Fragment key={it.label}>
+            {it.divider && <hr className="my-2 mx-5 border-white/15" />}
+            {it.href ? (
+              <Link href={it.href} className={itemClass}>{body(it)}</Link>
+            ) : (
+              <button type="button" onClick={() => { menu.close(); it.onClick?.(); }} className={itemClass}>{body(it)}</button>
+            )}
+          </Fragment>
+        ))}
       </div>
     </ExploreItem>
   );
@@ -357,6 +372,8 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
     { label: "Blog Tags", desc: "Browse articles by topic", href: "/blogs/tags" },
     { label: "FAQs", href: "/#faq" },
     { label: "Contact Us", onClick: handleContactClick },
+    // Staff sign-in. /admin itself requires a staff session (middleware + server checks).
+    { label: "Admin", desc: "Staff dashboard", href: "/admin", icon: LayoutDashboard, divider: true },
   ];
 
   const allExploreKeys = [
@@ -559,7 +576,11 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             <Link href="/blogs" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blogs</Link>
             <Link href="/blogs/tags" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blog Tags</Link>
             <Link href="/about" className="px-2 py-3 border-b border-ink/10 hover:text-primary">About</Link>
-            <Link href="/#faq" className="px-2 py-3 hover:text-primary">FAQs</Link>
+            <Link href="/#faq" className="px-2 py-3 border-b border-ink/10 hover:text-primary">FAQs</Link>
+            <Link href="/admin" className="flex items-center gap-2 px-2 py-3 hover:text-primary">
+              <LayoutDashboard className="w-4 h-4" aria-hidden />
+              Admin
+            </Link>
           </nav>
 
           <div className="grid grid-cols-2 gap-2">
