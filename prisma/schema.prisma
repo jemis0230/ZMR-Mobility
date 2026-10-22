@@ -494,6 +494,15 @@ model LeadNotification {
   @@index([status, nextAttemptAt])
 }
 
+/// Single admin sessions ended on purpose (More → Admin asks for a fresh sign-in).
+/// Only that browser's session is listed; rows can be removed once the token expires.
+model RevokedSession {
+  sid       String   @id
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
 /// Fixed-window counters for login throttling and public form rate limits.
 model RateLimitBucket {
   key         String   @id
