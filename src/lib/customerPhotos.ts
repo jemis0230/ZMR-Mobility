@@ -13,11 +13,16 @@ export type CustomerPhoto = {
   location?: { label: string; mapUrl?: string } | null;
 };
 
+// The photos below already carry their location label inside the image (bottom-left),
+// supplied by ZMR, so `location` stays null to avoid a second, duplicate badge. They
+// must be shown whole (object-contain) so that label is never cropped. New file names
+// (rather than reusing the old ones) make browsers fetch the new versions.
 export const CUSTOMER_PHOTOS: CustomerPhoto[] = [
-  { src: "/customers/zmr-customer-01.jpeg", alt: "A customer standing beside a red and black BGauss electric scooter", location: null },
-  { src: "/customers/zmr-customer-02.jpeg", alt: "A customer standing with a dark blue BGauss electric scooter", location: null },
-  { src: "/customers/zmr-customer-03.jpeg", alt: "A customer standing with a matte green BGauss electric scooter", location: null },
-  { src: "/customers/zmr-customer-04.jpeg", alt: "A customer standing behind a silver BGauss electric scooter", location: null },
+  { src: "/customers/zmr-customer-bangalore-red-scooter.jpg", alt: "ZMR customer standing beside a red and black BGauss electric scooter in Bangalore, Karnataka", location: null },
+  { src: "/customers/zmr-customer-bangalore-purple-scooter.jpg", alt: "ZMR customer with a purple BGauss electric scooter in Bangalore, Karnataka", location: null },
+  { src: "/customers/zmr-customer-bangalore-green-scooter.jpg", alt: "ZMR customer with a matte green BGauss electric scooter in Bangalore, Karnataka", location: null },
+  { src: "/customers/zmr-customer-chennai-white-scooter.jpg", alt: "ZMR customer standing behind a white BGauss electric scooter in Chennai, Tamil Nadu", location: null },
+  { src: "/customers/zmr-customer-new-delhi.jpg", alt: "Smiling ZMR customer in a black shirt holding papers beside an electric scooter in New Delhi", location: null },
 ];
 
 export const anyPhotoHasLocation = (photos: CustomerPhoto[]) => photos.some((p) => !!p.location?.label);

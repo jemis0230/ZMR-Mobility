@@ -14,6 +14,7 @@ import {
   FALLBACK_MAKES, ALL_BRANDS_HREF, exploreHref, priceHref, bodyTypeHref, type MakeWithModels, type PriceBucket,
 } from "@/lib/explore";
 import { useCompare, compareHref } from "./compare/compareStore";
+import { SITE_PHONE_DISPLAY, SITE_PHONE_HREF } from "@/lib/site";
 
 // Category picker modal is only downloaded when first opened.
 const CategoryModal = dynamic(() => import("./CategoryModal"), { ssr: false });
@@ -566,16 +567,16 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             className="flex flex-col text-[15px] font-semibold text-forest"
           >
             <Link href={exploreHref()} className="px-2 py-3 border-b border-ink/10 hover:text-primary">Buy Pre-owned EV</Link>
-            <button onClick={() => { setModal("leasing"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Leasing</button>
+            <button onClick={() => { setModal("leasing"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Lease an EV</button>
             <button onClick={() => { setModal("buying"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Buy by Category</button>
-            <button onClick={() => { setModal("rent"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Rent</button>
+            <button onClick={() => { setModal("rent"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Rent an EV</button>
             <Link href="/sell-ev" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Sell EV</Link>
-            <Link href="/compare" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Compare</Link>
+            <Link href="/compare" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Compare EVs</Link>
             <Link href="/warranty-ownership" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Warranty & Ownership</Link>
             <Link href="/press" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Press & Media</Link>
             <Link href="/blogs" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blogs</Link>
             <Link href="/blogs/tags" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blog Tags</Link>
-            <Link href="/about" className="px-2 py-3 border-b border-ink/10 hover:text-primary">About</Link>
+            <Link href="/about" className="px-2 py-3 border-b border-ink/10 hover:text-primary">About Us</Link>
             <Link href="/#faq" className="px-2 py-3 border-b border-ink/10 hover:text-primary">FAQs</Link>
             <Link href="/admin" className="flex items-center gap-2 px-2 py-3 hover:text-primary">
               <LayoutDashboard className="w-4 h-4" aria-hidden />
@@ -588,11 +589,11 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             <button type="button" onClick={handleContactClick} className={`${CTA_CLASS} py-3`}>Contact Us</button>
           </div>
 
-          <a href="tel:+919045222999" className="flex items-center gap-3 rounded-2xl bg-white p-4">
+          <a href={SITE_PHONE_HREF} className="flex items-center gap-3 rounded-2xl bg-white p-4">
             <span className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center"><Phone className="w-4 h-4" aria-hidden /></span>
             <span className="leading-tight">
               <span className="block text-xs text-ink/70">Call us at</span>
-              <span className="block font-extrabold text-primary">+91 90452 22999</span>
+              <span className="block font-extrabold text-primary">{SITE_PHONE_DISPLAY}</span>
             </span>
           </a>
         </div>

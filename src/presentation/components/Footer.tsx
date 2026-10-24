@@ -4,6 +4,7 @@ import { Linkedin, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import {
   BODY_TYPES, YEAR_OPTIONS, DEFAULT_PRICE_BUCKETS, priceHref, bodyTypeHref, exploreHref, type PriceBucket,
 } from "@/lib/explore";
+import { SITE_PHONE_DISPLAY, SITE_PHONE_HREF, OPERATIONAL_CITIES } from "@/lib/site";
 
 const footerLinks = {
   categories: [
@@ -97,7 +98,7 @@ export default function Footer({ priceBuckets = DEFAULT_PRICE_BUCKETS }: { price
             <ul className="space-y-4 text-sm text-cream/85">
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-lime mt-0.5 shrink-0" aria-hidden />
-                <span>Lucknow &amp; Dehradun, Uttar Pradesh &amp; Uttarakhand · Chennai &amp; Bangalore</span>
+                <span>{OPERATIONAL_CITIES.join(" · ")}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-lime shrink-0" aria-hidden />
@@ -105,7 +106,7 @@ export default function Footer({ priceBuckets = DEFAULT_PRICE_BUCKETS }: { price
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-lime shrink-0" aria-hidden />
-                <a href="tel:+919045222999" className="hover:text-white hover:underline">+91 90452 22999</a>
+                <a href={SITE_PHONE_HREF} className="hover:text-white hover:underline">{SITE_PHONE_DISPLAY}</a>
               </li>
             </ul>
           </div>
@@ -139,12 +140,6 @@ export default function Footer({ priceBuckets = DEFAULT_PRICE_BUCKETS }: { price
             ))}
           </div>
         </div>
-        <p className="mt-6 text-center text-cream/65 text-[11px] tracking-wider">
-          Powered by{" "}
-          <a href="https://planxlabs.com" target="_blank" rel="noopener noreferrer" className="hover:text-white underline-offset-2 hover:underline">
-            PlanxLabs
-          </a>
-        </p>
       </div>
     </footer>
   );
