@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { RefreshCw } from "lucide-react";
+import { SITE_PHONE_DISPLAY, SITE_PHONE_HREF } from "@/lib/site";
 
 /** Shown when a public page's data request fails (e.g. the database is unreachable). */
 export default function PublicError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
@@ -16,7 +17,7 @@ export default function PublicError({ error, reset }: { error: Error & { digest?
         <h1 className="text-2xl md:text-3xl font-black text-forest">This page didn’t load</h1>
         <p className="mt-3 text-ink/75">
           We couldn’t fetch the latest information just now. Please try again — or call us on{" "}
-          <a href="tel:+919045222999" className="font-semibold text-primary hover:underline">+91 90452 22999</a>.
+          <a href={SITE_PHONE_HREF} className="font-semibold text-primary hover:underline">{SITE_PHONE_DISPLAY}</a>.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <button

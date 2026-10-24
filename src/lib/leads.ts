@@ -4,6 +4,7 @@ import type { InquiryType, Prisma } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { enqueueForLead, enqueueForSellApplication, processDueNotifications } from '@/lib/notifications/outbox';
 import { consume, clientIp } from '@/lib/rateLimit';
+import { SITE_PHONE_DISPLAY } from '@/lib/site';
 
 // Saving website leads: one place for every lead-creating form, so each submission is
 // stored durably, de-duplicated, and has its staff notifications queued in the same
@@ -128,7 +129,7 @@ export async function checkPublicSubmission(req: Request, body: unknown, form: s
   const r = await consume({ key: `form:${form}:${clientIp(req.headers)}`, limit: 8, windowSec: 10 * 60 });
   if (!r.allowed) {
     return Response.json(
-      { success: false, error: 'Too many submissions from your connection. Please wait a few minutes or call us on +91 90452 22999.' },
+      { success: false, error: `Too many submissions from your connection. Please wait a few minutes or call us on ${SITE_PHONE_DISPLAY}.` },
       { status: 429, headers: { 'Retry-After': String(r.retryAfterSec) } },
     );
   }
