@@ -211,7 +211,7 @@ export default function AboutPage() {
       <section aria-labelledby="customers-title" className="py-16 md:py-24 px-4 md:px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <SectionHeading id="customers-title" eyebrow="Our customers" title="Riding electric with ZMR" />
-          <ul className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <ul className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {customerPhotos.map((p) => (
               <li key={p.src}>
                 <figure>

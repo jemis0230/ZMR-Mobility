@@ -11,12 +11,12 @@ appear in this document; they live only in the providers' secret settings.
 | Repository | https://github.com/jemis0230/ZMR-Mobility (public; personal account of Jemis Suhagiya – see §15 Access transfer) |
 | Original upstream | mohdhammad786/ZMRMobility (original developer, PlanxLabs) – not accessible from this handover session |
 | Production branch | `main` (every merge to `main` deploys to Vercel Production) |
-| Release (this handover) | PR #20 merged as commit `d56fc5c` (code tested at `ec00b2d`, identical tree); documentation follows in the next PR |
+| Release (this handover) | Final release PR from branch `final-zmr-complete` (fresh admin sign-in, customer photos, presence interactions, lint clean-up) on top of PRs #20/#21. The exact merge commit is listed in GitHub → Pull requests and in Vercel → Deployments |
 | Vercel | team `zmr1`, project `zmr-mobility` (Hobby plan at the time of writing) |
 | Website (Vercel) | https://zmr-mobility.vercel.app/ |
 | Company domain | https://zmrmobility.in/ – a **separate** website on the company's server; a GitHub merge does **not** update it (see §12) |
 | Database | PostgreSQL on Neon (Vercel env `DATABASE_URL`); local/self-hosted: Docker Postgres |
-| Open pull requests | #18 fresh sign-in from More → Admin (awaiting a working isolated preview); #19 earlier photos/presence preview (superseded by #20 for phone/footer/menus; photos and presence landmarks still pending) |
+| Open pull requests | None from this handover. #18 (fresh sign-in) and #19 (photos/presence) were incorporated into the final release PR and closed as superseded |
 
 ## 2. Technology
 
@@ -46,7 +46,7 @@ Checks before every merge:
 ```
 npm test                 unit tests (node --test)
 npx tsc --noEmit -p .    type check
-npm run lint             (22 errors / 21 warnings already exist on main in 6 files – do not add new ones)
+npm run lint             (0 errors; 21 warnings – unused imports and <img> tags – remain)
 npm run build            production build
 ```
 
@@ -107,7 +107,11 @@ previous code keeps working with the newer schema.
 - **Account recovery:** a superadmin resets passwords in Admin → Users. If nobody can sign
   in: `node scripts/reset-admin-password.js email@company.com` with the production
   `DATABASE_URL` (docs/ADMIN_ACCESS.md).
-- PR #18 (not merged) changes More → Admin to always ask for a fresh login.
+- **Fresh sign-in:** More → Admin (and Admin in the mobile menu) always signs the current
+  browser out and opens the sign-in page. It is a POST from the site itself (GET or other
+  sites cannot sign anyone out); only that browser's session is revoked (table
+  `RevokedSession`), other staff and devices stay signed in. Back/forward does not reopen
+  the dashboard.
 
 ## 8. Leads, Excel export and notifications
 
@@ -155,18 +159,17 @@ documented procedure.
 
 | Item | Status / owner action |
 |---|---|
-| Original customer photos with location pins | Supply the five original files (unaltered) |
 | WhatsApp number for the floating button | Confirm whether +91 92114 21514 has WhatsApp |
-| Delhi NCR operational? | Confirm with management; then align presence map, About, footer |
+| Delhi NCR operational? | Confirm with management. The footer omits it; the presence map and About still show it as current (`src/lib/presence.ts`) – align once confirmed |
 | "Powered by PlanxLabs" footer credit | Confirm the development agreement has no attribution clause |
 | Impact figures, testimonials, partner logos, "certified", 48-hour claims | Company confirmation (see ZMR_Website_Content_Review.docx, issue register) |
-| Landmark photos for Our Presence (PR #19) | Licensed images needed |
-| PR #18 fresh admin login | Needs an isolated preview database to verify (docs/PREVIEW_DATABASE.md) |
+| Landmark photos for Our Presence | Hover/tap/keyboard interactions are live; photos need licensed images (add to `src/lib/presenceLandmarks.ts`) |
+| Isolated preview database | Not configured (needs Neon/Vercel access – docs/PREVIEW_DATABASE.md); previews built without it skip migrations |
 | Notification providers (SMTP, WhatsApp), `CRON_SECRET`, `APP_BASE_URL` | Not configured |
 | Vercel Blob store | Not connected (uploads refused on Vercel) |
 | Database password rotation | Rotate the production database password in Neon as part of the access transfer, update `DATABASE_URL` in Vercel (Production), then redeploy |
 | `npm audit` reports vulnerabilities in dependencies | Review with `npm audit`; update during a planned maintenance window |
-| Pre-existing lint errors (22) | Low risk; fix gradually |
+| Lint warnings (21, no errors) | Unused imports and `<img>` tags; low risk |
 
 ## 14. Monitoring
 
@@ -211,7 +214,10 @@ Do these with the confirmed company owner – never by sharing a personal passwo
 | Request | Status |
 |---|---|
 | Starting price range ₹70,000 | Done and verified locally; deployed (`d56fc5c`) |
-| Replace customer photos (with pins) | **Blocked** – original files needed |
+| Replace customer photos (with pins) | Done – the five supplied originals, byte-identical, labels inside the images, no duplicate captions |
+| Fresh login from More → Admin (PR #18) | Done and verified locally (desktop + mobile); merged in the final release |
+| Presence city interactions (PR #19) | Done (hover/focus/tap/Enter, marker highlight); landmark photos pending |
+| Lint errors | Fixed (0 errors) |
 | Content review Word document | Done (source-based; live/database content not captured) |
 | Dropdown colours to logo theme | Done and verified locally; deployed |
 | Public number 92114 21514 | Done and verified locally; deployed (WhatsApp pending) |

@@ -17,7 +17,7 @@ export default async function AdminVehiclesPage() {
 
   return (
     <AdminVehiclesClient 
-      initialVehicles={vehicles as any} 
+      initialVehicles={vehicles}
       dbError={dbError} 
     />
   );

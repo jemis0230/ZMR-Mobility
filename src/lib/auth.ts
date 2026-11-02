@@ -12,6 +12,8 @@ export type SessionPayload = {
   role: 'superadmin' | 'admin';
   /** AdminUser.sessionVersion when the session was issued. */
   sv: number;
+  /** Id of this one browser session, so it can be ended on its own (absent on older tokens). */
+  sid?: string;
 };
 
 const COOKIE_NAME = 'zmr-admin-session';
@@ -63,7 +65,8 @@ export async function verifyJWT(token: string): Promise<SessionPayload | null> {
 // ── Cookie / session helpers (Server Actions + Server Components only) ──
 
 export async function createSession(payload: SessionPayload): Promise<void> {
-  const token = await signJWT(payload);
+  // Every sign-in gets its own session id.
+  const token = await signJWT({ ...payload, sid: crypto.randomUUID() });
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
@@ -82,6 +85,34 @@ export async function destroySession(): Promise<void> {
   cookieStore.delete(COOKIE_NAME);
 }
 
+/**
+ * End only this browser's session (More → Admin asks for a fresh sign-in): the
+ * session id is recorded as revoked until the token would expire anyway, and the
+ * cookie is removed. Other browsers and other staff stay signed in. Tokens issued
+ * before session ids existed cannot be singled out, so for those the account's
+ * sessions are ended (the normal sign-out behaviour). Throws if the server-side
+ * revocation fails; the cookie is removed either way.
+ */
+export async function endCurrentSession(): Promise<void> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(COOKIE_NAME)?.value;
+  try {
+    const payload = token ? await verifyJWT(token) : null;
+    if (!payload?.userId) return; // nothing usable to revoke
+    if (payload.sid) {
+      const exp = (payload as SessionPayload & { exp?: number }).exp;
+      const expiresAt = new Date(exp ? exp * 1000 : Date.now() + COOKIE_MAX_AGE * 1000);
+      await prisma.revokedSession.upsert({ where: { sid: payload.sid }, create: { sid: payload.sid, expiresAt }, update: {} });
+      // Housekeeping: entries for tokens that have expired anyway.
+      await prisma.revokedSession.deleteMany({ where: { expiresAt: { lt: new Date() } } });
+    } else {
+      await revokeSessions(payload.userId);
+    }
+  } finally {
+    cookieStore.delete(COOKIE_NAME);
+  }
+}
+
 /** Invalidate all existing sessions of a user (sign-out, password change, deactivation). */
 export async function revokeSessions(userId: string): Promise<number> {
   const u = await prisma.adminUser.update({ where: { id: userId }, data: { sessionVersion: { increment: 1 } }, select: { sessionVersion: true } });
@@ -91,7 +122,8 @@ export async function revokeSessions(userId: string): Promise<number> {
 /**
  * The signed-in staff member, or null. The token signature is checked and then the
  * account itself: it must still exist, be active and have the same session version,
- * so sign-out, password changes and deactivation take effect immediately.
+ * and this session must not have been ended on its own, so sign-out, password
+ * changes and deactivation take effect immediately.
  * Cached per request.
  */
 export const getSession = cache(async (): Promise<SessionPayload | null> => {
@@ -100,17 +132,21 @@ export const getSession = cache(async (): Promise<SessionPayload | null> => {
   if (!token) return null;
   const payload = await verifyJWT(token);
   if (!payload?.userId) return null;
-  const user = await prisma.adminUser.findUnique({
-    where: { id: payload.userId },
-    select: { id: true, email: true, name: true, role: true, isActive: true, sessionVersion: true },
-  });
-  if (!user || !user.isActive || user.sessionVersion !== (payload.sv ?? 0)) return null;
+  const [user, revoked] = await Promise.all([
+    prisma.adminUser.findUnique({
+      where: { id: payload.userId },
+      select: { id: true, email: true, name: true, role: true, isActive: true, sessionVersion: true },
+    }),
+    payload.sid ? prisma.revokedSession.findUnique({ where: { sid: payload.sid }, select: { sid: true } }) : null,
+  ]);
+  if (revoked || !user || !user.isActive || user.sessionVersion !== (payload.sv ?? 0)) return null;
   return {
     userId: user.id,
     email: user.email,
     name: user.name,
     role: user.role === 'SUPER_ADMIN' ? 'superadmin' : 'admin',
     sv: user.sessionVersion,
+    sid: payload.sid,
   };
 });
 

@@ -86,7 +86,7 @@ function PasswordRevealModal({
             onClick={onClose}
             className="flex-1 bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-all electric-glow"
           >
-            I've Saved It
+            I’ve Saved It
           </button>
         </div>
       </div>

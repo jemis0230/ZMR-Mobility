@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   Car,
@@ -25,7 +25,6 @@ import {
   BarChart3,
   Globe,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
 import type { SessionPayload } from '@/lib/auth';
 
@@ -54,13 +53,21 @@ const NAV_ITEMS = [
 
 export default function AdminShell({ session, children }: AdminShellProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   async function handleLogout() {
     await api.post('/auth/logout', {});
-    router.push('/admin/login');
+    // Full page load, replacing this entry: Back does not return to a dashboard view.
+    window.location.replace('/admin/login');
   }
+
+  // A dashboard restored from the browser's back/forward cache is re-requested, so the
+  // server decides again (signed-out sessions land on the login page).
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => { if (e.persisted) window.location.reload(); };
+    window.addEventListener('pageshow', onShow);
+    return () => window.removeEventListener('pageshow', onShow);
+  }, []);
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => !('superadminOnly' in item && item.superadminOnly) || session.role === 'superadmin'
