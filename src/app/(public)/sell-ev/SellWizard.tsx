@@ -425,7 +425,7 @@ export default function SellWizard() {
                 {/* Compact model list */}
                 <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                   {filteredModels.length === 0 ? (
-                    <p className="text-center text-ink/45 text-sm py-8">No models match "{modelSearch}"</p>
+                    <p className="text-center text-ink/45 text-sm py-8">No models match “{modelSearch}”</p>
                   ) : filteredModels.map(({ id, name, photo }) => {
                     const selected = form.modelId === id;
                     return (
@@ -636,7 +636,7 @@ export default function SellWizard() {
       case 12:
         return (
           <div>
-            <h2 className="text-2xl font-black text-ink mb-1">What's your expected selling price?</h2>
+            <h2 className="text-2xl font-black text-ink mb-1">What’s your expected selling price?</h2>
             <p className="text-ink/60 text-sm mb-6">Enter the amount you expect to receive. Our team will share the actual valuation.</p>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-bold text-lg">₹</span>
@@ -844,12 +844,12 @@ export default function SellWizard() {
               </div>
               <p className="text-xs text-ink/50 flex items-center gap-1.5">
                 <Zap className="w-3 h-3 text-primary flex-shrink-0" />
-                Take a screenshot of this ID for your reference. You'll need it to track your application.
+                Take a screenshot of this ID for your reference. You’ll need it to track your application.
               </p>
             </div>
 
             <div className="bg-ink/5 rounded-2xl p-5 text-sm text-ink/60 text-center leading-relaxed">
-              We'll evaluate your <span className="text-ink/75 font-semibold">{form.brandName} {form.modelName} ({form.year})</span> and get back to you at <span className="text-ink/75 font-semibold">{form.contactPhone}</span>.
+              We’ll evaluate your <span className="text-ink/75 font-semibold">{form.brandName} {form.modelName} ({form.year})</span> and get back to you at <span className="text-ink/75 font-semibold">{form.contactPhone}</span>.
             </div>
 
             <button

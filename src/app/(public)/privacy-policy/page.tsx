@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-2xl font-bold text-ink mb-4">1. Introduction</h2>
             <p className="text-ink/70 leading-relaxed">
-              ZMR Mobility Private Limited ("Company", "we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website (the "Site") and use our services, including electric vehicle leasing and asset management.
+              ZMR Mobility Private Limited (“Company”, “we”, “us”, or “our”) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website (the “Site”) and use our services, including electric vehicle leasing and asset management.
             </p>
             <p className="text-ink/70 leading-relaxed mt-4">
               By accessing or using our platform, you signify that you have read, understood, and agree to our collection, storage, use, and disclosure of your personal information as described in this Privacy Policy.
