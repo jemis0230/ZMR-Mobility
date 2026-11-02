@@ -17,15 +17,24 @@ export const CATALOG_CATEGORIES: VehicleCategory[] = ['TWO_WHEELER'];
 // ── Price ────────────────────────────────────────────────────────────────────
 // ZMR sells vehicles up to ₹3,00,000, so selectable price filters never go above this.
 export const PRICE_CAP = 300000;
+/**
+ * Purchase-price range starts at ₹70,000 (team decision, Nov 2026). The catalogue
+ * (/explore and every price menu that links to it) lists priced vehicles from this
+ * amount up to the cap. Listings priced below it keep their stored price but are not
+ * shown in the catalogue (admin → Vehicles flags them); listings without a published
+ * price are still shown when no price filter is chosen. Links with a lower minPrice are
+ * raised to this amount. This is a filter boundary, not a claim about inventory.
+ */
+export const PRICE_FLOOR = 70000;
 
 export interface PriceBucket { label: string; min?: number; max?: number; count?: number }
 
 /** Candidate bucket edges (₹). Only buckets that contain listed vehicles are shown. */
-const PRICE_EDGES = [0, 50000, 75000, 100000, 125000, 150000, 200000, 250000, PRICE_CAP];
+const PRICE_EDGES = [PRICE_FLOOR, 100000, 125000, 150000, 200000, 250000, PRICE_CAP];
 
 /** Used when no priced inventory is available (e.g. DB unreachable at build time). */
 export const DEFAULT_PRICE_BUCKETS: PriceBucket[] = [
-  { label: 'Under ₹1 Lakh', max: 99999 },
+  { label: '₹70,000 – ₹1 Lakh', min: PRICE_FLOOR, max: 99999 },
   { label: '₹1 – 2 Lakh', min: 100000, max: 199999 },
   { label: '₹2 – 3 Lakh', min: 200000, max: PRICE_CAP },
 ];
@@ -42,17 +51,19 @@ export function formatINRShort(rs: number): string {
 }
 
 function bucketLabel(min: number, max: number): string {
-  if (min === 0) return `Under ${formatINRShort(max)}`;
   if (min >= 100000) return `₹${(min / 100000).toFixed(2).replace(/\.?0+$/, '')} – ${formatINRShort(max)}`;
   return `${formatINRShort(min)} – ${formatINRShort(max)}`;
 }
 
+/** True when a price is inside the purchase catalogue range (₹70,000 – ₹3,00,000). */
+export const inCatalogPriceRange = (p: number) => p >= PRICE_FLOOR && p <= PRICE_CAP;
+
 /**
- * Builds price buckets from real inventory prices (₹, already ≤ PRICE_CAP).
+ * Builds price buckets from real inventory prices (₹, within PRICE_FLOOR–PRICE_CAP).
  * Buckets are inclusive ranges that don't overlap; empty buckets are dropped.
  */
 export function buildPriceBuckets(prices: number[] | undefined): PriceBucket[] {
-  const inRange = (prices ?? []).filter((p) => p > 0 && p <= PRICE_CAP);
+  const inRange = (prices ?? []).filter(inCatalogPriceRange);
   if (inRange.length === 0) return DEFAULT_PRICE_BUCKETS;
 
   const buckets: PriceBucket[] = [];
@@ -63,28 +74,31 @@ export function buildPriceBuckets(prices: number[] | undefined): PriceBucket[] {
     const max = isLast ? hi : hi - 1;
     const count = inRange.filter((p) => p >= lo && p <= max).length;
     if (count === 0) continue;
-    buckets.push({ label: bucketLabel(lo, hi), min: lo === 0 ? undefined : lo, max, count });
+    buckets.push({ label: bucketLabel(lo, hi), min: lo, max, count });
   }
   return buckets;
 }
 
-/** Slider bounds rounded to ₹5,000 and never above the cap. */
+/**
+ * Slider bounds: always start at PRICE_FLOOR (₹70,000, the default minimum); the top is
+ * the highest listed price rounded up to ₹5,000, never above the cap.
+ */
 export function priceSliderBounds(prices: number[] | undefined): { min: number; max: number } {
-  const inRange = (prices ?? []).filter((p) => p > 0 && p <= PRICE_CAP);
-  if (inRange.length === 0) return { min: 0, max: PRICE_CAP };
+  const inRange = (prices ?? []).filter(inCatalogPriceRange);
+  if (inRange.length === 0) return { min: PRICE_FLOOR, max: PRICE_CAP };
   const step = 5000;
-  const min = Math.floor(Math.min(...inRange) / step) * step;
   const max = Math.min(PRICE_CAP, Math.ceil(Math.max(...inRange) / step) * step);
-  return { min, max: max > min ? max : Math.min(PRICE_CAP, min + step) };
+  return { min: PRICE_FLOOR, max: max > PRICE_FLOOR ? max : Math.min(PRICE_CAP, PRICE_FLOOR + step) };
 }
 
-/** Clamps a requested price into [0, PRICE_CAP]; non-numbers become undefined. */
+/** Clamps a requested price into [PRICE_FLOOR, PRICE_CAP]; non-numbers become undefined. */
 export function clampPrice(v: number | undefined): number | undefined {
   if (v === undefined || !Number.isFinite(v)) return undefined;
-  return Math.max(0, Math.min(PRICE_CAP, Math.round(v)));
+  return Math.max(PRICE_FLOOR, Math.min(PRICE_CAP, Math.round(v)));
 }
 
 export function priceRangeLabel(min?: number, max?: number): string {
+  if (min === PRICE_FLOOR && max === undefined) return `From ${formatINR(PRICE_FLOOR)}`;
   if (min !== undefined && max !== undefined) return `${formatINR(min)} – ${formatINR(max)}`;
   if (max !== undefined) return `Up to ${formatINR(max)}`;
   if (min !== undefined) return `From ${formatINR(min)}`;

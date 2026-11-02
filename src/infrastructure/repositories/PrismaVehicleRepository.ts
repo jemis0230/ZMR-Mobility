@@ -3,7 +3,7 @@ import { Vehicle, LeasePlan, RentPlan, VehicleImage } from "@/domain/entities/Ve
 import { VehicleCategory, ChargerType, TransmissionType } from "@/lib/constants";
 import { Prisma, TransmissionType as PrismaTransmissionType, ChargerType as PrismaChargerType } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { PRICE_CAP, CATALOG_CATEGORIES } from "@/lib/explore";
+import { PRICE_CAP, PRICE_FLOOR, CATALOG_CATEGORIES } from "@/lib/explore";
 import { ALLOWED_BRANDS, canonicalBrand, rawMakesForBrands, type AllowedBrand } from "@/lib/brands";
 
 /** Listed for sale and in a catalogue category — the base of every /explore query. */
@@ -84,7 +84,13 @@ export class PrismaVehicleRepository implements IVehicleRepository {
       }
     }
     if (minPrice !== undefined || maxPrice !== undefined) {
-      and.push({ buyingPrice: { ...(minPrice !== undefined ? { gte: minPrice } : {}), ...(maxPrice !== undefined ? { lte: maxPrice } : {}) } });
+      // Never below the ₹70,000 purchase floor, whatever the request says.
+      const gte = Math.max(PRICE_FLOOR, minPrice ?? PRICE_FLOOR);
+      and.push({ buyingPrice: { gte, ...(maxPrice !== undefined ? { lte: maxPrice } : {}) } });
+    } else {
+      // Default view: priced listings from ₹70,000; listings without a published price
+      // (null or 0) are still shown.
+      and.push({ OR: [{ buyingPrice: null }, { buyingPrice: { lte: 0 } }, { buyingPrice: { gte: PRICE_FLOOR } }] });
     }
     if (makes && makes.length > 0) {
       // Brands are matched by canonical name, so "Bgauss" or "TVS Motor" listings count too.
@@ -137,7 +143,7 @@ export class PrismaVehicleRepository implements IVehicleRepository {
         _count: { _all: true },
       }),
       prisma.vehicle.findMany({
-        where: { ...CATALOG_WHERE, buyingPrice: { gt: 0, lte: PRICE_CAP } },
+        where: { ...CATALOG_WHERE, buyingPrice: { gte: PRICE_FLOOR, lte: PRICE_CAP } },
         select: { buyingPrice: true },
       }),
       prisma.vehicle.count({ where: { ...CATALOG_WHERE, OR: [{ buyingPrice: null }, { buyingPrice: { lte: 0 } }] } }),

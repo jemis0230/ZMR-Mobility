@@ -14,6 +14,7 @@ import {
   FALLBACK_MAKES, ALL_BRANDS_HREF, exploreHref, priceHref, bodyTypeHref, type MakeWithModels, type PriceBucket,
 } from "@/lib/explore";
 import { useCompare, compareHref } from "./compare/compareStore";
+import { SITE_PHONE_DISPLAY, SITE_PHONE_HREF } from "@/lib/site";
 
 // Category picker modal is only downloaded when first opened.
 const CategoryModal = dynamic(() => import("./CategoryModal"), { ssr: false });
@@ -60,12 +61,12 @@ function DropdownLink({ href, children, count }: { href: string; children: React
   return (
     <Link
       href={href}
-      className="group flex items-center justify-between gap-6 px-5 py-3 rounded-xl text-[15px] font-semibold text-cream hover:bg-white/10 transition-colors"
+      className="group flex items-center justify-between gap-6 px-5 py-3 rounded-xl text-[15px] font-semibold text-cream hover:bg-leaf/40 focus-visible:bg-leaf/40 transition-colors"
     >
       <span className="flex items-center gap-3">{children}</span>
       <span className="flex items-center gap-2">
         {count !== undefined && <span className="rounded-full bg-lime/20 px-2 py-0.5 text-[11px] font-bold text-lime">{count}</span>}
-        <ChevronRight className="w-4 h-4 text-cream/70 group-hover:translate-x-0.5 transition-transform" aria-hidden />
+        <ChevronRight className="w-4 h-4 text-cream/70 group-hover:text-lime group-hover:translate-x-0.5 transition-transform" aria-hidden />
       </span>
     </Link>
   );
@@ -95,7 +96,7 @@ function ExploreItem({ menu, label, children }: { menu: MenuControl; label: stri
         onClick={(e) => { if ((e.target as HTMLElement).closest("a")) close(); }}
         className="dropdown-panel absolute top-full -left-6 z-50"
       >
-        <div className="rounded-b-2xl bg-forest shadow-2xl shadow-forest/30 p-3 ring-1 ring-black/10">
+        <div className="rounded-b-2xl bg-forest border-t-[3px] border-lime shadow-2xl shadow-forest/30 p-3 ring-1 ring-leaf/40">
           {children}
         </div>
       </div>
@@ -115,7 +116,7 @@ type TopItem = {
 
 /** Buy EV / More in the dark ribbon: same trigger and panel as the Explore-by menus. */
 function RibbonMenu({ menu, label, items }: { menu: MenuControl; label: string; items: TopItem[] }) {
-  const itemClass = "group flex w-full items-start justify-between gap-6 px-5 py-3 rounded-xl text-left hover:bg-white/10 transition-colors";
+  const itemClass = "group flex w-full items-start justify-between gap-6 px-5 py-3 rounded-xl text-left hover:bg-leaf/40 focus-visible:bg-leaf/40 transition-colors";
   const body = (it: TopItem) => (
     <>
       <span>
@@ -125,7 +126,7 @@ function RibbonMenu({ menu, label, items }: { menu: MenuControl; label: string; 
         </span>
         {it.desc && <span className="block text-xs text-cream/75 mt-0.5">{it.desc}</span>}
       </span>
-      <ChevronRight className="w-4 h-4 mt-1 shrink-0 text-cream/70 group-hover:translate-x-0.5 transition-transform" aria-hidden />
+      <ChevronRight className="w-4 h-4 mt-1 shrink-0 text-cream/70 group-hover:text-lime group-hover:translate-x-0.5 transition-transform" aria-hidden />
     </>
   );
   return (
@@ -195,8 +196,8 @@ function CitySelector({ menu }: { menu: MenuControl }) {
         <ChevronDown className="w-3.5 h-3.5" aria-hidden />
       </button>
       {open && (
-        <div id={panelId(id)} role="listbox" aria-label="Select your city" className="absolute left-0 top-full mt-2 w-56 rounded-2xl bg-white border border-ink/10 shadow-xl p-2 z-50">
-          <p className="px-3 pt-1 pb-2 text-[11px] font-bold uppercase tracking-wider text-ink/65">We serve in</p>
+        <div id={panelId(id)} role="listbox" aria-label="Select your city" className="focus-on-dark absolute left-0 top-full mt-2 w-56 rounded-2xl bg-forest border-t-[3px] border-lime ring-1 ring-lime/50 shadow-2xl shadow-forest/40 p-2 z-50">
+          <p className="px-3 pt-1 pb-2 text-[11px] font-bold uppercase tracking-wider text-lime">We serve in</p>
           {CITIES.map((c) => (
             <button
               key={c}
@@ -204,10 +205,10 @@ function CitySelector({ menu }: { menu: MenuControl }) {
               role="option"
               aria-selected={city === c}
               onClick={() => choose(c)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold text-forest hover:bg-tint"
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${city === c ? "bg-lime text-forest" : "text-cream hover:bg-leaf/40 focus-visible:bg-leaf/40"}`}
             >
               {c}
-              {city === c && <Check className="w-4 h-4 text-primary" aria-hidden />}
+              {city === c && <Check className="w-4 h-4 text-forest" aria-hidden />}
             </button>
           ))}
         </div>
@@ -448,7 +449,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             <ExploreItem menu={menu("price")} label="Price Range">
               <div className="w-72 py-1">
                 {menus.simple[0].links.map((l) => <DropdownLink key={l.label} href={l.href} count={l.count}>{l.label}</DropdownLink>)}
-                <Link href={exploreHref({ sort: "price_asc" })} className="mt-1 mx-2 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/15 py-2.5 text-sm font-bold text-cream">
+                <Link href={exploreHref({ sort: "price_asc" })} className="mt-1 mx-2 flex items-center justify-center rounded-xl bg-leaf/35 hover:bg-leaf/60 py-2.5 text-sm font-bold text-cream">
                   All prices, lowest first
                 </Link>
               </div>
@@ -460,16 +461,16 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
                   <div key={m.make} className="py-1 min-w-0">
                     <Link
                       href={exploreHref({ make: m.make })}
-                      className="group flex items-center justify-between px-3 py-2.5 rounded-xl text-base font-bold text-white hover:bg-white/10"
+                      className="group flex items-center justify-between px-3 py-2.5 rounded-xl text-base font-bold text-white hover:bg-leaf/40 focus-visible:bg-leaf/40"
                     >
                       {m.make}
-                      <ChevronRight className="w-4 h-4 text-cream/70 group-hover:translate-x-0.5 transition-transform" aria-hidden />
+                      <ChevronRight className="w-4 h-4 text-cream/70 group-hover:text-lime group-hover:translate-x-0.5 transition-transform" aria-hidden />
                     </Link>
                     {m.models.slice(0, 5).map((model) => (
                       <Link
                         key={model}
                         href={exploreHref({ make: m.make, model })}
-                        className="block px-3 py-2.5 rounded-xl text-[15px] font-medium text-cream/90 hover:bg-white/10 hover:text-white"
+                        className="block px-3 py-2.5 rounded-xl text-[15px] font-medium text-cream/90 hover:bg-leaf/40 focus-visible:bg-leaf/40 hover:text-white"
                       >
                         {model}
                       </Link>
@@ -480,7 +481,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
                   </div>
                 ))}
               </div>
-              <Link href={ALL_BRANDS_HREF} className="mx-2 mb-1 mt-1 flex items-center justify-center gap-1 rounded-xl bg-white/10 hover:bg-white/15 py-2.5 text-sm font-bold text-cream">
+              <Link href={ALL_BRANDS_HREF} className="mx-2 mb-1 mt-1 flex items-center justify-center gap-1 rounded-xl bg-leaf/35 hover:bg-leaf/60 py-2.5 text-sm font-bold text-cream">
                 View all brands <ChevronRight className="w-4 h-4" aria-hidden />
               </Link>
             </ExploreItem>
@@ -547,7 +548,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
                           key={l.label}
                           href={l.href}
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className="rounded-lg bg-white/10 px-3 py-2.5 text-xs font-semibold text-cream hover:bg-white/20"
+                          className="rounded-lg bg-leaf/35 px-3 py-2.5 text-xs font-semibold text-cream hover:bg-leaf/60"
                         >
                           {l.label}
                         </Link>
@@ -566,16 +567,16 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             className="flex flex-col text-[15px] font-semibold text-forest"
           >
             <Link href={exploreHref()} className="px-2 py-3 border-b border-ink/10 hover:text-primary">Buy Pre-owned EV</Link>
-            <button onClick={() => { setModal("leasing"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Leasing</button>
+            <button onClick={() => { setModal("leasing"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Lease an EV</button>
             <button onClick={() => { setModal("buying"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Buy by Category</button>
-            <button onClick={() => { setModal("rent"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Rent</button>
+            <button onClick={() => { setModal("rent"); setIsMobileMenuOpen(false); }} className="text-left px-2 py-3 border-b border-ink/10 hover:text-primary">Rent an EV</button>
             <Link href="/sell-ev" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Sell EV</Link>
-            <Link href="/compare" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Compare</Link>
+            <Link href="/compare" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Compare EVs</Link>
             <Link href="/warranty-ownership" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Warranty & Ownership</Link>
             <Link href="/press" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Press & Media</Link>
             <Link href="/blogs" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blogs</Link>
             <Link href="/blogs/tags" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blog Tags</Link>
-            <Link href="/about" className="px-2 py-3 border-b border-ink/10 hover:text-primary">About</Link>
+            <Link href="/about" className="px-2 py-3 border-b border-ink/10 hover:text-primary">About Us</Link>
             <Link href="/#faq" className="px-2 py-3 border-b border-ink/10 hover:text-primary">FAQs</Link>
             <Link href="/admin" className="flex items-center gap-2 px-2 py-3 hover:text-primary">
               <LayoutDashboard className="w-4 h-4" aria-hidden />
@@ -588,11 +589,11 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             <button type="button" onClick={handleContactClick} className={`${CTA_CLASS} py-3`}>Contact Us</button>
           </div>
 
-          <a href="tel:+919045222999" className="flex items-center gap-3 rounded-2xl bg-white p-4">
+          <a href={SITE_PHONE_HREF} className="flex items-center gap-3 rounded-2xl bg-white p-4">
             <span className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center"><Phone className="w-4 h-4" aria-hidden /></span>
             <span className="leading-tight">
               <span className="block text-xs text-ink/70">Call us at</span>
-              <span className="block font-extrabold text-primary">+91 90452 22999</span>
+              <span className="block font-extrabold text-primary">{SITE_PHONE_DISPLAY}</span>
             </span>
           </a>
         </div>

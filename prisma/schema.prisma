@@ -310,6 +310,7 @@ model BlogPost {
   type              BlogType?     @relation(fields: [typeId], references: [id], onDelete: Restrict)
   publishedAt       DateTime?
   tagLinks          BlogPostTag[]
+  pageViews         BlogPageView[]
 
   @@index([published])
   @@index([category])
@@ -492,6 +493,22 @@ model LeadNotification {
   @@unique([leadId, channel])
   @@unique([sellApplicationId, channel])
   @@index([status, nextAttemptAt])
+}
+
+/// One counted view of a published blog article (first-party, cookieless). Holds no
+/// personal data: no IP address, user agent, visitor id or cookie. See
+/// docs/BLOG_ANALYTICS.md for the counting rules.
+model BlogPageView {
+  id       String   @id @default(cuid())
+  postId   String
+  post     BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  /// UTC timestamp; reports group by India Standard Time (Asia/Kolkata).
+  viewedAt DateTime @default(now())
+  /// Coarse referrer type: direct | search | social | internal | other.
+  source   String   @default("direct")
+
+  @@index([viewedAt])
+  @@index([postId, viewedAt])
 }
 
 /// Fixed-window counters for login throttling and public form rate limits.

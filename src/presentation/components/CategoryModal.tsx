@@ -99,10 +99,18 @@ export default function CategoryModal({ isOpen, onClose, mode = 'leasing' }: Cat
     };
   }, [isOpen]);
 
+  // Escape closes the picker, like the header menus.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="category-modal-title">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -122,7 +130,7 @@ export default function CategoryModal({ isOpen, onClose, mode = 'leasing' }: Cat
             <div className="p-6 md:p-10 lg:p-12">
               <div className="flex justify-between items-start md:items-center mb-8 md:mb-12">
                 <div>
-                  <h2 className="text-2xl md:text-4xl font-bold tracking-tight">
+                  <h2 id="category-modal-title" className="text-2xl md:text-4xl font-bold tracking-tight">
                     Select <span className="text-primary">{mode === 'buying' ? 'Buying' : mode === 'rent' ? 'Rental' : 'Leasing'} Category</span>
                   </h2>
                   <p className="text-ink/60 mt-2 text-sm md:text-base">
@@ -133,8 +141,11 @@ export default function CategoryModal({ isOpen, onClose, mode = 'leasing' }: Cat
                       : 'Choose the type of EV you are interested in leasing.'}
                   </p>
                 </div>
-                <button 
+                <button
+                  type="button"
                   onClick={onClose}
+                  aria-label="Close"
+                  autoFocus
                   className="p-2 md:p-3 rounded-full hover:bg-ink/10 text-ink/60 hover:text-ink transition-all bg-ink/5"
                 >
                   <X className="w-5 h-5 md:w-6 md:h-6" />

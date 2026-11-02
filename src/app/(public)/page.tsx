@@ -11,6 +11,7 @@ import PolicySection from "@/presentation/components/PolicySection";
 import { getCachedExploreMenuData, getCachedExplorePage } from "@/lib/cachedVehicleQueries";
 import { getPolicyItems } from "@/app/actions/faqActions";
 import { buildPriceBuckets } from "@/lib/explore";
+import { SITE_PHONE_HREF } from "@/lib/site";
 import LeasingContactForm from "@/presentation/components/LeasingContactForm";
 import FaqSection from "./_components/FaqSection";
 
@@ -119,7 +120,7 @@ export default async function Home() {
               <Link href="/sell-ev" className="inline-flex items-center gap-2 rounded-xl bg-primary hover:bg-primary-dark px-7 py-3.5 font-extrabold text-white transition-colors electric-glow">
                 Start selling my EV <ArrowRight className="w-4 h-4" aria-hidden />
               </Link>
-              <a href="tel:+919045222999" className="inline-flex items-center gap-2 rounded-xl border-2 border-forest/20 bg-white px-6 py-3.5 font-bold text-forest hover:border-primary transition-colors">
+              <a href={SITE_PHONE_HREF} className="inline-flex items-center gap-2 rounded-xl border-2 border-forest/20 bg-white px-6 py-3.5 font-bold text-forest hover:border-primary transition-colors">
                 <Phone className="w-4 h-4" aria-hidden /> Talk to an expert
               </a>
             </div>

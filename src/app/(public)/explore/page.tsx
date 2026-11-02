@@ -5,7 +5,7 @@ import { ChevronRight, X, Check, SearchX, ShieldCheck, ArrowLeftRight, Info, Bik
 import type { ExploreFilterParams, ExploreMenuData } from "@/application/repositories/IVehicleRepository";
 import { getCachedExploreMenuData, getCachedExplorePage } from "@/lib/cachedVehicleQueries";
 import {
-  YEAR_OPTIONS, KM_OPTIONS, BODY_TYPES, RANGE_OPTIONS, PRICE_CAP,
+  YEAR_OPTIONS, KM_OPTIONS, BODY_TYPES, RANGE_OPTIONS, PRICE_CAP, PRICE_FLOOR,
   EXPLORE_PATH, SORT_OPTIONS, EMI_DISCLAIMER, buildPriceBuckets, priceSliderBounds,
   clampPrice, priceRangeLabel, formatINR, parseBodyTypeSlugs,
 } from "@/lib/explore";
@@ -153,12 +153,15 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
   const bodyStyles = BODY_TYPES.filter((b) => typeSlugs.includes(b.slug)).map((b) => b.style);
   const sortBy = SORT_OPTIONS.some((o) => o.value === p.sort) ? (p.sort as ExploreFilterParams["sortBy"]) : "newest";
 
-  // Selectable prices never exceed the ₹3,00,000 cap; out-of-range links are clamped.
+  // Selectable prices stay within ₹70,000 – ₹3,00,000; out-of-range links are clamped
+  // (e.g. minPrice=50000 is treated as ₹70,000). The ₹70,000 floor is the default, so it
+  // is not shown as an active filter; the server applies it either way.
   let minPrice = clampPrice(toInt(p.minPrice));
   let maxPrice = clampPrice(toInt(p.maxPrice));
   if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) [minPrice, maxPrice] = [maxPrice, minPrice];
-  if (minPrice === 0) minPrice = undefined;
+  if (minPrice === PRICE_FLOOR && maxPrice === undefined) minPrice = undefined;
   const priceActive = minPrice !== undefined || maxPrice !== undefined;
+  if (priceActive && minPrice === undefined) minPrice = PRICE_FLOOR;
   // Any price filter implies the selling-price cap.
   if (priceActive && maxPrice === undefined) maxPrice = PRICE_CAP;
   const pc = { ...p, minPrice: minPrice?.toString(), maxPrice: maxPrice?.toString() };
@@ -301,7 +304,7 @@ export default async function ExplorePage(props: { searchParams: Promise<SP> }) 
                 <p className="flex gap-1.5 px-1 pt-2 text-[11px] leading-snug text-ink/70">
                   <Info className="w-3.5 h-3.5 shrink-0 mt-px" aria-hidden />
                   <span>
-                    Prices up to {formatINR(PRICE_CAP)}.
+                    Prices from {formatINR(PRICE_FLOOR)} up to {formatINR(PRICE_CAP)}.
                     {menu.unpricedCount > 0 && ` ${menu.unpricedCount} listing${menu.unpricedCount === 1 ? "" : "s"} without a published price ${menu.unpricedCount === 1 ? "is" : "are"} hidden while a price filter is on.`}
                   </span>
                 </p>

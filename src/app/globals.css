@@ -93,6 +93,21 @@ h1, h2, h3 { letter-spacing: -0.02em; text-wrap: balance; }
 .marquee-row:hover .animate-marquee-left,
 .marquee-row:focus-within .animate-marquee-left { animation-play-state: paused; }
 
+/* ── Vehicle-filter selects: logo palette on native, accessible <select>s ──
+   The open option list is drawn by the browser/OS; Chromium and Firefox on Windows,
+   Linux and Android use these option colours, Safari/macOS keep the system list. */
+.zmr-select {
+  border: 1px solid rgb(106 142 78 / 0.55); /* leaf */
+  background-color: #fff;
+  color: var(--zmr-forest);
+  accent-color: var(--zmr-leaf);
+}
+.zmr-select:hover { border-color: var(--zmr-leaf); }
+.zmr-select:focus { border-color: var(--zmr-green-600); box-shadow: 0 0 0 3px rgb(177 208 130 / 0.6); outline: none; }
+.zmr-select:focus-visible { outline: 3px solid var(--zmr-green-600); outline-offset: 2px; }
+.zmr-select option { background-color: #fff; color: var(--zmr-forest); }
+.zmr-select option:checked { background-color: var(--zmr-lime); color: var(--zmr-forest); }
+
 /* ── Navbar dropdowns (CSS transitions, no JS animation library) ── */
 /* Closed panels are invisible, unfocusable (visibility) and never catch the pointer,
    even while fading out. */

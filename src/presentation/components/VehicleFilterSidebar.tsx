@@ -124,7 +124,7 @@ export default function VehicleFilterSidebar({ options, category, section }: Veh
     minPayload > 0 || maxPayload < options.maxPayload ||
     minVolume > 0 || maxVolume < options.maxVolume;
 
-  const selectCls = "w-full bg-ink/5 border border-ink/10 rounded-xl py-2.5 px-3 text-sm text-ink focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer";
+  const selectCls = "zmr-select w-full rounded-xl py-2.5 px-3 text-sm transition-colors cursor-pointer";
 
   const filterContent = (
     <div className="space-y-8 lg:sticky lg:top-32 pb-32 lg:pb-4">
