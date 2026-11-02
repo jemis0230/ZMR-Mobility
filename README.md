@@ -13,6 +13,13 @@ Official website of **ZMR Mobility**, India's technology-first EV asset manageme
 - Admin panel (`/admin`): vehicles (incl. manufacture year and KM driven), leads, sell applications, blogs, FAQs, EV catalogue, users
 - SEO: sitemap, robots.txt, Open Graph image, Organization/WebSite structured data, Google Analytics 4
 
+## Documentation
+
+Start with **[docs/HANDOVER.md](docs/HANDOVER.md)** (ownership, deployment, environment
+variables, admin, leads, analytics, pending items). Topic guides in `docs/`:
+ADMIN_ACCESS, LEAD_NOTIFICATIONS, BLOG_ANALYTICS, PREVIEW_DATABASE, IMPACT_METRICS,
+DEPLOY-PRODUCTION (company server) and GO-LIVE.
+
 ## Tech stack
 
 Next.js 15 (App Router) · React 18 · Tailwind CSS · Prisma + PostgreSQL · Docker Compose + Caddy (auto-HTTPS)
