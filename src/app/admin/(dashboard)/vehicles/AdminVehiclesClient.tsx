@@ -6,7 +6,7 @@ import { Vehicle } from '@/domain/entities/Vehicle';
 import { VEHICLE_CATEGORIES, CATEGORY_DISPLAY } from '@/lib/constants';
 import { Car, AlertTriangle, Edit, Trash2, Filter, Tag, Plus } from 'lucide-react';
 import { api } from '@/lib/api-client';
-import { PRICE_CAP } from '@/lib/explore';
+import { PRICE_CAP, PRICE_FLOOR } from '@/lib/explore';
 
 interface AdminVehiclesClientProps {
   initialVehicles: Vehicle[];
@@ -149,6 +149,18 @@ export default function AdminVehiclesClient({ initialVehicles, dbError }: AdminV
           <div role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             <p className="font-bold flex items-center gap-2"><AlertTriangle className="w-4 h-4" aria-hidden /> {overCap.length} buying listing{overCap.length === 1 ? ' is' : 's are'} priced above ₹3,00,000</p>
             <p className="mt-1">The website&apos;s price filters stop at ₹3,00,000. These vehicles still appear in listings, but not under any price filter. Please confirm their prices: {overCap.map((v) => `${v.make} ${v.model} (₹${v.buyingPrice!.toLocaleString('en-IN')})`).join(', ')}.</p>
+          </div>
+        );
+      })()}
+
+      {/* Buying listings priced below the ₹70,000 catalogue floor are not shown in /explore */}
+      {(() => {
+        const below = vehicles.filter((v) => v.showInBuying && v.buyingPrice != null && v.buyingPrice > 0 && v.buyingPrice < PRICE_FLOOR);
+        if (below.length === 0) return null;
+        return (
+          <div role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-bold flex items-center gap-2"><AlertTriangle className="w-4 h-4" aria-hidden /> {below.length} buying listing{below.length === 1 ? ' is' : 's are'} priced below ₹70,000</p>
+            <p className="mt-1">The website&apos;s vehicle catalogue starts at ₹70,000, so these are not shown there. Their prices are unchanged; edit them only if the stored price is wrong: {below.map((v) => `${v.make} ${v.model} (₹${v.buyingPrice!.toLocaleString('en-IN')})`).join(', ')}.</p>
           </div>
         );
       })()}

@@ -26,7 +26,7 @@ export function SortSelect() {
           const qs = params.toString();
           router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
         }}
-        className="rounded-xl border border-ink/20 bg-white px-3 min-h-[44px] text-sm font-semibold text-forest outline-none focus:border-primary cursor-pointer"
+        className="zmr-select rounded-xl px-3 min-h-[44px] text-sm font-semibold cursor-pointer"
       >
         {SORT_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>{o.label}</option>

@@ -7,6 +7,16 @@ import 'server-only';
 const EMAIL_RE = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]+$/;
 const E164_RE = /^\+[1-9]\d{7,14}$/;
 
+/**
+ * Vercel preview deployments never send staff notifications, so test leads made on a
+ * preview cannot reach real recipients even if the Preview environment has provider
+ * settings. Set LEAD_NOTIFICATIONS_IN_PREVIEW=1 for Preview only together with test
+ * recipients, if a preview must exercise delivery.
+ */
+export function notificationsBlockedHere(): boolean {
+  return process.env.VERCEL_ENV === 'preview' && process.env.LEAD_NOTIFICATIONS_IN_PREVIEW !== '1';
+}
+
 const list = (v: string | undefined) => (v ?? '').split(',').map((x) => x.trim()).filter(Boolean);
 
 export type EmailConfig = {
@@ -20,6 +30,7 @@ export type EmailConfig = {
 };
 
 export function emailConfig(): EmailConfig | null {
+  if (notificationsBlockedHere()) return null;
   const e = process.env;
   const to = list(e.LEAD_NOTIFY_EMAIL_TO).filter((x) => EMAIL_RE.test(x));
   const from = (e.LEAD_EMAIL_FROM ?? '').trim();
@@ -48,6 +59,7 @@ export type WhatsAppConfig = {
 };
 
 export function whatsappConfig(): WhatsAppConfig | null {
+  if (notificationsBlockedHere()) return null;
   const e = process.env;
   const recipients = list(e.WHATSAPP_LEAD_RECIPIENTS).filter((x) => E164_RE.test(x));
   if (!e.WHATSAPP_PHONE_NUMBER_ID || !e.WHATSAPP_ACCESS_TOKEN || !e.WHATSAPP_LEAD_TEMPLATE || recipients.length === 0) return null;

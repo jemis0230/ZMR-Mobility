@@ -22,6 +22,7 @@ import {
   Tags,
   PenLine,
   Shapes,
+  BarChart3,
   Globe,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -40,6 +41,7 @@ const NAV_ITEMS = [
   { name: 'Manage Tags', icon: Tags, href: '/admin/blogs/tags', sub: true },
   { name: 'Manage Authors', icon: PenLine, href: '/admin/blogs/authors', sub: true },
   { name: 'Manage Blog Types', icon: Shapes, href: '/admin/blogs/types', sub: true },
+  { name: 'Blog Analytics', icon: BarChart3, href: '/admin/blogs/analytics', sub: true },
   { name: 'FAQs', icon: HelpCircle, href: '/admin/faqs' },
   { name: 'Press & Media', icon: Newspaper, href: '/admin/press' },
   { name: 'Leads/Contacts', icon: Users, href: '/admin/leads' },

@@ -1,3 +1,4 @@
+import { SITE_PHONE_DISPLAY, SITE_PHONE_HREF } from '@/lib/site';
 // "Warranty & Ownership Support" topics.
 //
 // The default answers below are deliberately neutral: the exact terms (warranty
@@ -71,7 +72,7 @@ export interface PolicyItem {
 }
 
 export const POLICY_CONTACT = {
-  phone: '+91 90452 22999',
-  phoneHref: 'tel:+919045222999',
+  phone: SITE_PHONE_DISPLAY,
+  phoneHref: SITE_PHONE_HREF,
   email: 'info@zmrmobility.in',
 };

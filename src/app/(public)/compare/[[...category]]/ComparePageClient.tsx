@@ -169,7 +169,7 @@ export default function ComparePageClient({
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as VehicleCategory | "")}
-                className="w-full rounded-xl border border-ink/20 bg-white px-3 py-2.5 text-sm text-forest"
+                className="zmr-select w-full rounded-xl px-3 py-2.5 text-sm"
               >
                 <option value="">All body types</option>
                 {categories.map((c) => <option key={c} value={c}>{CATEGORY_DISPLAY[c]}</option>)}
@@ -181,7 +181,7 @@ export default function ComparePageClient({
                 value={pick}
                 onChange={(e) => setPick(e.target.value)}
                 disabled={full || options.length === 0}
-                className="w-full rounded-xl border border-ink/20 bg-white px-3 py-2.5 text-sm text-forest disabled:bg-tint disabled:text-ink/60"
+                className="zmr-select w-full rounded-xl px-3 py-2.5 text-sm disabled:bg-tint disabled:text-ink/60"
               >
                 <option value="">{full ? `Maximum of ${COMPARE_MAX} reached — remove one to add another` : options.length ? "Choose a vehicle…" : "No more vehicles available"}</option>
                 {options.map((c) => <option key={c.id} value={c.id}>{c.title} · {c.categoryLabel}</option>)}
@@ -257,7 +257,7 @@ export default function ComparePageClient({
                               id={`replace-${id}`}
                               value=""
                               onChange={(e) => replace(id, e.target.value)}
-                              className="rounded-full border border-ink/20 bg-white px-3 min-h-[40px] text-xs font-bold text-forest max-w-[150px]"
+                              className="zmr-select rounded-full px-3 min-h-[40px] text-xs font-bold max-w-[150px]"
                             >
                               <option value="">Replace with…</option>
                               {catalog.filter((c) => !requestedIds.includes(c.id)).map((c) => (

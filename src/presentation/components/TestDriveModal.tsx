@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { X, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { TEST_DRIVE_CITIES, TEST_DRIVE_MAX_DAYS_AHEAD, todayInIndia, addDays } from "@/lib/schemas/testDrive";
+import { SITE_PHONE_DISPLAY } from "@/lib/site";
 
 type Field = "name" | "phone" | "city" | "vehicleId" | "preferredDate" | "message";
 type VehicleOption = { id: string; label: string };
@@ -88,7 +89,7 @@ export default function TestDriveModal({ open, onClose }: { open: boolean; onClo
       setStatus("sent");
     } catch (err) {
       setStatus("error");
-      setSubmitError(err instanceof Error && err.message !== "Request failed" ? err.message : "We couldn’t send your request. Please try again, or call us on +91 90452 22999.");
+      setSubmitError(err instanceof Error && err.message !== "Request failed" ? err.message : `We couldn’t send your request. Please try again, or call us on ${SITE_PHONE_DISPLAY}.`);
     }
   }
 

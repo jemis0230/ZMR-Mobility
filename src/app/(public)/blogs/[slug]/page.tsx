@@ -9,6 +9,7 @@ import { sanitizeArticleHtml } from "@/lib/blog/sanitize";
 import { readMinutes } from "@/lib/blog/text";
 import BlogCard from "@/presentation/components/BlogCard";
 import ShareLinks from "@/presentation/components/ShareLinks";
+import BlogViewTracker from "@/presentation/components/BlogViewTracker";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 // Shared by generateMetadata and the page, so the post is fetched once per request.
@@ -87,6 +88,8 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
   return (
     <main className="min-h-screen bg-cream pb-20">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      {/* Published articles only (drafts 404 above); see docs/BLOG_ANALYTICS.md. */}
+      <BlogViewTracker slug={blog.slug} />
 
       {/* Header */}
       <header className="pt-24 lg:pt-40 px-4 md:px-6">
