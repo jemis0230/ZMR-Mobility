@@ -99,7 +99,8 @@ previous code keeps working with the newer schema.
 
 ## 7. Admin area
 
-- URL: https://zmr-mobility.vercel.app/admin (More → Admin on the website).
+- URL: https://zmr-mobility.vercel.app/admin/login (sign-in) and /admin (dashboard).
+  There is deliberately **no Admin link in the public menus**; staff bookmark the URL.
 - Roles: `SUPER_ADMIN` (everything, incl. Users) and `ADMIN` (content, vehicles, leads,
   analytics). Manage accounts in Admin → Users (superadmin).
 - Login: email + password; 5 wrong attempts per account (20 per network) pause sign-in
@@ -107,11 +108,10 @@ previous code keeps working with the newer schema.
 - **Account recovery:** a superadmin resets passwords in Admin → Users. If nobody can sign
   in: `node scripts/reset-admin-password.js email@company.com` with the production
   `DATABASE_URL` (docs/ADMIN_ACCESS.md).
-- **Fresh sign-in:** More → Admin (and Admin in the mobile menu) always signs the current
-  browser out and opens the sign-in page. It is a POST from the site itself (GET or other
-  sites cannot sign anyone out); only that browser's session is revoked (table
-  `RevokedSession`), other staff and devices stay signed in. Back/forward does not reopen
-  the dashboard.
+- Sign out (in the dashboard) revokes that browser's session (table `RevokedSession`);
+  Back/forward does not reopen the dashboard. The earlier More → Admin entry was removed
+  from the public menus; its endpoint `/api/auth/fresh-login` (POST, same-site only)
+  remains but is no longer linked.
 
 ## 8. Leads, Excel export and notifications
 
@@ -165,7 +165,7 @@ documented procedure.
 | Impact figures, testimonials, partner logos, "certified", 48-hour claims | Company confirmation (see ZMR_Website_Content_Review.docx, issue register) |
 | Landmark photos for Our Presence | Hover/tap/keyboard interactions are live; photos need licensed images (add to `src/lib/presenceLandmarks.ts`) |
 | Isolated preview database | Not configured (needs Neon/Vercel access – docs/PREVIEW_DATABASE.md); previews built without it skip migrations |
-| Notification providers (SMTP, WhatsApp), `CRON_SECRET`, `APP_BASE_URL` | Not configured |
+| Notification providers (SMTP, WhatsApp), `CRON_SECRET`, `APP_BASE_URL` | Not configured – follow docs/LEAD_NOTIFICATIONS.md → Setup checklist |
 | Vercel Blob store | Not connected (uploads refused on Vercel) |
 | Database password rotation | Rotate the production database password in Neon as part of the access transfer, update `DATABASE_URL` in Vercel (Production), then redeploy |
 | `npm audit` reports vulnerabilities in dependencies | Review with `npm audit`; update during a planned maintenance window |
@@ -215,7 +215,8 @@ Do these with the confirmed company owner – never by sharing a personal passwo
 |---|---|
 | Starting price range ₹70,000 | Done and verified locally; deployed (`d56fc5c`) |
 | Replace customer photos (with pins) | Done – the five supplied originals, byte-identical, labels inside the images, no duplicate captions |
-| Fresh login from More → Admin (PR #18) | Done and verified locally (desktop + mobile); merged in the final release |
+| Fresh login from More → Admin (PR #18) | Superseded: Admin removed from the public menus; staff use /admin/login directly |
+| Lead alerts by email and WhatsApp | Code complete and tested locally with mock providers; needs the provider settings in docs/LEAD_NOTIFICATIONS.md → Setup checklist |
 | Presence city interactions (PR #19) | Done (hover/focus/tap/Enter, marker highlight); landmark photos pending |
 | Lint errors | Fixed (0 errors) |
 | Content review Word document | Done (source-based; live/database content not captured) |

@@ -74,8 +74,14 @@ export async function POST(req: Request) {
     } else {
       const parsed = LeadSchema.safeParse(body);
       if (!parsed.success) return badRequest(parsed.error.issues[0]?.message ?? 'Invalid input');
-      const { name, phone, state, city, inquiryType, vehicleId, vehicleName } = parsed.data;
-      lead = await createLead('vehicle-enquiry', { name, phone, state, city, inquiryType: inquiryType ?? 'VEHICLE_LEASING', vehicleId, vehicleName });
+      const { name, phone, state, city, inquiryType, vehicleId: requestedId } = parsed.data;
+      // Vehicle details for staff come from the database, never from the browser.
+      const vehicle = requestedId
+        ? await prisma.vehicle.findUnique({ where: { id: requestedId }, select: { id: true, make: true, model: true, manufactureYear: true } })
+        : null;
+      // A listing removed while the page was open still gives us the lead (without the vehicle).
+      const vehicleName = vehicle ? `${vehicle.manufactureYear ? `${vehicle.manufactureYear} ` : ''}${vehicle.make} ${vehicle.model}` : null;
+      lead = await createLead('vehicle-enquiry', { name, phone, state, city, inquiryType: inquiryType ?? 'VEHICLE_LEASING', vehicleId: vehicle?.id ?? null, vehicleName });
     }
 
     revalidatePath('/admin/leads');

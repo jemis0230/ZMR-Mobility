@@ -1,0 +1,39 @@
+# Retries queued lead notifications (email / WhatsApp) every 10 minutes.
+#
+# Vercel Cron on the Hobby plan runs only once a day, so temporary failures would wait
+# up to a day. This job calls the same protected worker endpoint more often.
+# It does nothing until the repository secret CRON_SECRET is set (Settings → Secrets
+# and variables → Actions) to the same value as CRON_SECRET in Vercel (Production).
+# Optional repository variable NOTIFICATION_WORKER_URL overrides the endpoint.
+name: Lead notification worker
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: lead-notification-worker
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Call the notification worker
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          WORKER_URL: ${{ vars.NOTIFICATION_WORKER_URL || 'https://zmr-mobility.vercel.app/api/cron/notifications' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::notice::CRON_SECRET is not set for this repository; skipping."
+            exit 0
+          fi
+          code=$(curl -sS -o response.json -w '%{http_code}' --max-time 90 \
+            -X POST -H "Authorization: Bearer $CRON_SECRET" "$WORKER_URL")
+          echo "HTTP $code"
+          cat response.json; echo
+          test "$code" = "200"
