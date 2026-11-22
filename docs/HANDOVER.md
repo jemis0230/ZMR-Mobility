@@ -136,7 +136,7 @@ previous code keeps working with the newer schema.
 - Purchase price range starts at ₹70,000 and stops at ₹3,00,000 (`src/lib/explore.ts`).
   Listings below ₹70,000 are hidden from the catalogue and flagged in Admin → Vehicles.
 - Public phone: +91 92114 21514 – `src/lib/site.ts` (`SITE_PHONE*`); WhatsApp:
-  `SITE_WHATSAPP_URL` (still the old number until confirmed).
+  `SITE_WHATSAPP_URL` = https://wa.me/919211421514 (same number, confirmed by ZMR).
 - Operational cities (footer, city selector): `OPERATIONAL_CITIES` in `src/lib/site.ts`.
 - Approved brands: Ather, Bajaj, Hero, BGauss, TVS (`src/lib/brands.ts`).
 - Impact figures need a source before changing (docs/IMPACT_METRICS.md).
@@ -159,7 +159,7 @@ documented procedure.
 
 | Item | Status / owner action |
 |---|---|
-| WhatsApp number for the floating button | Confirm whether +91 92114 21514 has WhatsApp |
+| WhatsApp number for the floating button | Done – confirmed +91 92114 21514 (https://wa.me/919211421514) |
 | Delhi NCR operational? | Confirm with management. The footer omits it; the presence map and About still show it as current (`src/lib/presence.ts`) – align once confirmed |
 | "Powered by PlanxLabs" footer credit | Confirm the development agreement has no attribution clause |
 | Impact figures, testimonials, partner logos, "certified", 48-hour claims | Company confirmation (see ZMR_Website_Content_Review.docx, issue register) |
@@ -221,7 +221,7 @@ Do these with the confirmed company owner – never by sharing a personal passwo
 | Lint errors | Fixed (0 errors) |
 | Content review Word document | Done (source-based; live/database content not captured) |
 | Dropdown colours to logo theme | Done and verified locally; deployed |
-| Public number 92114 21514 | Done and verified locally; deployed (WhatsApp pending) |
+| Public number 92114 21514 | Done and verified locally; deployed (WhatsApp button now uses the same number) |
 | Footer operational cities | Done (Lucknow · Dehradun · Chennai · Bangalore); deployed |
 | Blog analytics for admin/superadmin | Done and verified locally; deployed (counting from 2 Nov 2026) |
 | PlanxLabs credit | Kept – agreement confirmation needed |
