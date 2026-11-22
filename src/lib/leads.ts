@@ -115,6 +115,9 @@ function sendSoon(sourceId: string, kind: 'lead' | 'sell') {
         select: { id: true },
       });
       await processDueNotifications({ ids: rows.map((r) => r.id), limit: rows.length || 1 });
+      // Also move along a few earlier notifications whose retry time has come, so
+      // retries do not depend only on the scheduled worker.
+      await processDueNotifications({ limit: 5 });
     } catch (e) {
       // Left queued; the scheduled worker or a staff retry will send it.
       console.error('[leads] immediate notification attempt failed', (e as Error).message);

@@ -6,7 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Menu, X, Search, ChevronDown, ChevronRight, MapPin, Phone, ArrowLeftRight, Check, LayoutDashboard,
+  Menu, X, Search, ChevronDown, ChevronRight, MapPin, Phone, ArrowLeftRight, Check,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -28,8 +28,6 @@ const CTA_CLASS =
 const CITIES = ["Lucknow", "Dehradun", "Chennai", "Bangalore"];
 const CITY_KEY = "zmr-city";
 
-/** More → Admin: ends this browser's admin session, then shows the login (always a fresh sign-in). */
-const FRESH_LOGIN_ACTION = "/api/auth/fresh-login";
 
 const SEARCH_HINTS = ["make", "model", "body type", "budget", "scooter", "bike"];
 
@@ -115,8 +113,6 @@ type TopItem = {
   icon?: LucideIcon;
   /** Thin rule above the item, to set it apart from the group before it. */
   divider?: boolean;
-  /** Submit a same-site POST form to this endpoint instead of navigating (see Admin). */
-  postAction?: string;
 };
 
 /** Buy EV / More in the dark ribbon: same trigger and panel as the Explore-by menus. */
@@ -140,11 +136,7 @@ function RibbonMenu({ menu, label, items }: { menu: MenuControl; label: string; 
         {items.map((it) => (
           <Fragment key={it.label}>
             {it.divider && <hr className="my-2 mx-5 border-white/15" />}
-            {it.postAction ? (
-              <form method="post" action={it.postAction} onSubmit={() => menu.close()}>
-                <button type="submit" className={itemClass}>{body(it)}</button>
-              </form>
-            ) : it.href ? (
+            {it.href ? (
               <Link href={it.href} className={itemClass}>{body(it)}</Link>
             ) : (
               <button type="button" onClick={() => { menu.close(); it.onClick?.(); }} className={itemClass}>{body(it)}</button>
@@ -382,9 +374,7 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
     { label: "Blog Tags", desc: "Browse articles by topic", href: "/blogs/tags" },
     { label: "FAQs", href: "/#faq" },
     { label: "Contact Us", onClick: handleContactClick },
-    // Staff sign-in: always asks for email and password again. The POST ends this
-    // browser's admin session, then opens the login page (/api/auth/fresh-login).
-    { label: "Admin", desc: "Staff sign-in", postAction: FRESH_LOGIN_ACTION, icon: LayoutDashboard, divider: true },
+    // No staff link in the public menus: staff open /admin/login directly.
   ];
 
   const allExploreKeys = [
@@ -588,12 +578,6 @@ export default function Navbar({ makes = [], priceBuckets = DEFAULT_PRICE_BUCKET
             <Link href="/blogs/tags" className="px-2 py-3 border-b border-ink/10 hover:text-primary">Blog Tags</Link>
             <Link href="/about" className="px-2 py-3 border-b border-ink/10 hover:text-primary">About Us</Link>
             <Link href="/#faq" className="px-2 py-3 border-b border-ink/10 hover:text-primary">FAQs</Link>
-            <form method="post" action={FRESH_LOGIN_ACTION} onSubmit={() => setIsMobileMenuOpen(false)}>
-              <button type="submit" className="w-full flex items-center gap-2 px-2 py-3 text-left hover:text-primary">
-                <LayoutDashboard className="w-4 h-4" aria-hidden />
-                Admin
-              </button>
-            </form>
           </nav>
 
           <div className="grid grid-cols-2 gap-2">

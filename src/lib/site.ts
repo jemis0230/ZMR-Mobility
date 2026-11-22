@@ -4,20 +4,17 @@ export const SITE_NAME = 'ZMR Mobility';
 export const SITE_DESCRIPTION =
   "ZMR Mobility is India's technology-first EV asset management company. Buy, lease or rent certified pre-owned electric 2-wheelers, 3-wheelers and 4-wheelers with IoT tracking, warranty and easy EMI.";
 /**
- * Public business phone for calls (header/footer/contact/metadata all read these).
- * The floating WhatsApp button keeps its own number until ZMR confirms which WhatsApp
- * account it should open (see WhatsAppButton). Staff notification recipients are
- * configured separately (docs/LEAD_NOTIFICATIONS.md) and are not affected.
+ * Public business phone and WhatsApp (confirmed by ZMR: +91 92114 21514). Header,
+ * footer, contact pages, metadata and the floating WhatsApp button all read these.
+ * This is the public click-to-chat destination only; staff lead-notification
+ * recipients are configured separately on the server (WHATSAPP_LEAD_RECIPIENTS,
+ * docs/LEAD_NOTIFICATIONS.md).
  */
 export const SITE_PHONE = '+91-9211421514';
 export const SITE_PHONE_DISPLAY = '+91 92114 21514';
 export const SITE_PHONE_HREF = 'tel:+919211421514';
-/**
- * WhatsApp chat destination (floating button). It used the same number as the old
- * call number; switch it to 'https://wa.me/919211421514' once ZMR confirms that the
- * new business number has WhatsApp on the intended account.
- */
-export const SITE_WHATSAPP_URL = 'https://wa.me/919045222999';
+/** WhatsApp click-to-chat (opens the visitor's own WhatsApp; not an automatic notification). */
+export const SITE_WHATSAPP_URL = 'https://wa.me/919211421514';
 export const SITE_EMAIL = 'info@zmrmobility.in';
 export const SITE_INSTAGRAM_URL = 'https://www.instagram.com/zmr_mobility?vrfl=MWlhbzBqNjhsNXY3dQ==';
 export const SITE_SOCIALS = [
