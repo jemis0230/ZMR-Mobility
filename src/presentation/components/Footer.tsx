@@ -4,7 +4,7 @@ import { Linkedin, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import {
   BODY_TYPES, YEAR_OPTIONS, DEFAULT_PRICE_BUCKETS, priceHref, bodyTypeHref, exploreHref, type PriceBucket,
 } from "@/lib/explore";
-import { SITE_PHONE_DISPLAY, SITE_PHONE_HREF, OPERATIONAL_CITIES } from "@/lib/site";
+import { SITE_PHONE_DISPLAY, SITE_PHONE_HREF, SITE_INSTAGRAM_URL, OPERATIONAL_CITIES } from "@/lib/site";
 
 const footerLinks = {
   categories: [
@@ -73,7 +73,7 @@ export default function Footer({ priceBuckets = DEFAULT_PRICE_BUCKETS }: { price
             <div className="flex gap-3">
               {[
                 { Icon: Linkedin, href: "https://www.linkedin.com/company/zmr-mobility", label: "ZMR Mobility on LinkedIn" },
-                { Icon: Instagram, href: "https://www.instagram.com/p/DIijiOgtuAv/", label: "ZMR Mobility on Instagram" },
+                { Icon: Instagram, href: SITE_INSTAGRAM_URL, label: "ZMR Mobility on Instagram" },
               ].map((item) => (
                 <a
                   key={item.href}

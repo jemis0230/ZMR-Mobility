@@ -19,9 +19,10 @@ export const SITE_PHONE_HREF = 'tel:+919211421514';
  */
 export const SITE_WHATSAPP_URL = 'https://wa.me/919045222999';
 export const SITE_EMAIL = 'info@zmrmobility.in';
+export const SITE_INSTAGRAM_URL = 'https://www.instagram.com/zmr_mobility?vrfl=MWlhbzBqNjhsNXY3dQ==';
 export const SITE_SOCIALS = [
   'https://www.linkedin.com/company/zmr-mobility',
-  'https://www.instagram.com/p/DIijiOgtuAv/',
+  SITE_INSTAGRAM_URL,
 ];
 
 /**
